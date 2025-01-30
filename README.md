@@ -55,7 +55,16 @@ YouTube has CORS on their googlevideo links (I forgot which settings) and it wil
 give a CORS error if you try to get it, luckly this exsits so googlevideo links
 are all going to be filtered through port 8070!
 
-## Ports Used
+## Info On Hosting
+
+Right now we use localhost, I think I will change this at some point when I am done 
+with finishing the app. Probbaly what YT2009 does, where you input your IP adress you
+wanna use. 
+
+I mean YOU can now but you'll have to modify each refrence of localhost to your IP adress,
+I just used localhsot as it was easy to setup.
+
+We Use:
 
 - Port 8090
 
