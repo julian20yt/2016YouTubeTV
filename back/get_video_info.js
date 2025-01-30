@@ -7,6 +7,7 @@ function handleGetVideoInfo(req, res) {
     const prettyPrint = req.query.prettyprint === 'true';
     const unurlencode = req.query.unurlencode === 'true';
 
+    const disableWebM = false; 
     if (!videoId) {
         return res.status(400).send('Video ID is required');
     }
@@ -29,7 +30,7 @@ function handleGetVideoInfo(req, res) {
 
         fs.writeFileSync(logFilePath, JSON.stringify(output, null, 2));
 
-        const adaptiveFmts = []
+        const adaptiveFmts = [];
         const fmtListArr = [];
         
         console.log('Video info logged to file:', logFilePath);
@@ -38,22 +39,22 @@ function handleGetVideoInfo(req, res) {
                 const skipFormatIds = ["sb1", "sb2", "sb0"];
                 if (skipFormatIds.includes(format.format_id)) {
                     console.log('Skipping format with format_id:', format.format_id);
-                    return; // Skip this format
+                    return; 
                 }
-            
+                if (disableWebM && (format.ext === 'webm' || format.acodec === 'vp9' || format.acodec === 'vp8')) {
+                    console.log('Skipping WebM, VP9, or VP8 format');
+                    return; 
+                }
+
                 if (format.url && format.format_id) {
                     let mimeType;
                     if (format.vcodec && format.vcodec !== "none" && format.acodec && format.acodec !== "none") {
-                        // Format has both video and audio
                         mimeType = `video/${format.ext || 'mp4'}; codecs="${format.vcodec},${format.acodec}"`;
                     } else if (format.vcodec && format.vcodec !== "none") {
-                        // Video-only format
                         mimeType = `video/${format.ext || 'mp4'}; codecs="${format.vcodec}"`;
                     } else if (format.acodec && format.acodec !== "none") {
-                        // Audio-only format
                         mimeType = `audio/${format.ext || 'mp4'}; codecs="${format.acodec}"`;
                     } else {
-                        // Unknown type
                         mimeType = `application/octet-stream`;
                     }
             
@@ -89,10 +90,8 @@ function handleGetVideoInfo(req, res) {
                 } else {
                     console.log('Skipping format with missing URL or format_id:', format);
                 }
-            });            
+            });
         }
-
-        
 
         if (adaptiveFmts.length === 0) {
             console.log('No adaptive formats found');
@@ -100,13 +99,10 @@ function handleGetVideoInfo(req, res) {
         }
     
         const fmtList = encodeURIComponent(fmtListArr.join(','));
-        
         const adaptiveFmtsResponse = adaptiveFmts.join(',');
 
         console.log('Constructed adaptive_fmts:', adaptiveFmtsResponse);
-
         console.log('Constructed fmt_list:', fmtList);
-        
 
         const videoInfo = `baseUrl=https%3A%2F%2Flocalhost%3A8090
         iv_module=https%3A%2F%2Fs.ytimg.com%2Fyts%2Fswfbin%2Fplayer-vflq9bo_X%2Fiv_module.swf
