@@ -10188,25 +10188,33 @@ if (!self.__WB_pmw) {
           if (!T(a, 64) || "ended" != b.type && "pause" != b.type)
               if ("pause" == b.type && h.b.ended || "ended" == b.type && (h.b.ended || 1 > Math.abs(h.getCurrentTime() - h.b.duration))) 0 < h.b.networkState && h.b.src && (e = 14, f = null);
               else if ("pause" == b.type) T(a, 256) ? (e ^= 256) || (e = 64) : T(a, 32) || T(a, 2) || T(a, 4) || (e = 4, T(a, 1) && T(a, 8) && (e |= 1), f = null);
-          else if ("playing" == b.type) e = 8, f = null, T(a, 32) && (e |= 32), d && T(a, 1) && Mt(c, h) && (e |= 1);
-          else if ("error" == b.type) {
-              a: {
-                  if (2 == h.Ha()) b = "progressive.net";
-                  else if (3 == h.Ha()) b = "fmt.decode";
-                  else if (4 == h.Ha()) b = "fmt.unplayable";
-                  else {
-                      b = null;
-                      break a
-                  }
-                  b = {
-                      errorCode: b,
-                      errorDetail: "mediaElem.1",
-                      message: pi("YTP_ERROR_GENERIC_WITHOUT_LINK"),
-                      messageKey: "YTP_ERROR_GENERIC_WITHOUT_LINK"
-                  }
-              }
-              b && (f = b, e |= 128)
-          }
+              else if ("playing" == b.type) e = 8, f = null, T(a, 32) && (e |= 32), d && T(a, 1) && Mt(c, h) && (e |= 1);
+              else if ("error" == b.type) {
+                a: {
+                    // Check the error type and assign a corresponding error string
+                    if (2 == h.Ha()) {
+                        b = "progressive.net";
+                    } else if (3 == h.Ha()) {
+                        b = "fmt.decode";
+                    } else if (4 == h.Ha()) {
+                        b = "fmt.unplayable";
+                    } else {
+                        b = null;
+                        break a; // Break out of the label if no valid error is found
+                    }
+                    
+                    // Log the error without sending a message key
+                    console.error('Error Type:', b);
+                }
+            
+                // Only log the error without sending further details
+                if (b) {
+                    console.log('Detailed Error:', {
+                        errorCode: b,
+                        errorDetail: "mediaElem.1"
+                    });
+                }
+            }        
           else if ("progress" == b.type) Nt(a) && Mt(c, h) && (e |= 1);
           else if ("seeked" == b.type) e &= -17;
           else if ("seeking" == b.type) e |= 16, 0 >= Ot(h) && (e |= 1), e &= -3;
@@ -13913,41 +13921,62 @@ if (!self.__WB_pmw) {
       g.pause = function() {
           this.b.pause()
       };
+      g.play = function() {
+        var a = this.b;
 
-    g.play = function() {
-    var a = this.b;
+        console.log('Media source:', a.src);
+        console.log('Media type:', a.type);
 
-    // Log the source and type being used
-    console.log('Media source:', a.src);
-    console.log('Media type:', a.type);
+        if (a.src.startsWith('blob:')) {
+            console.log('This media source is a Blob URL.');
 
-    // If there are multiple sources, check each one
-    if (a.getElementsByTagName('source').length > 0) {
-        var sources = a.getElementsByTagName('source');
-        for (var i = 0; i < sources.length; i++) {
-            console.log('Source ' + (i+1) + ':', sources[i].src, 'Type:', sources[i].type);
+            try {
+
+                fetch(a.src)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        console.log('Blob type:', blob.type);  
+                        console.log('Blob size:', blob.size);  
+
+                        console.log('Blob properties:', blob);
+
+                        const slice = blob.slice(0, 100);  
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            console.log('First 100 bytes of the Blob (as text):', event.target.result);
+                        };
+                        reader.readAsText(slice);  
+                    })
+                    .catch(error => {
+                        console.error('Error fetching Blob URL:', error);
+                    });
+            } catch (error) {
+                console.error('Error processing the Blob URL:', error);
+            }
         }
-    }
 
-    // Ensure the media is loaded before playing
-    a.load();
+        a.load();
+        console.log('Ready State:', a.readyState); 
 
-    // Mute and attempt to play the media
-    a.muted = true;  // Mute the media
+        a.muted = true; 
 
-    a.play().then(function() {
-        // Media played successfully
-        console.log('Media played successfully');
-    }).catch(function(error) {
-        // Handle errors and log detailed message
-        console.error('Play failed:', error);
+        try {
+            a.play().then(() => {
+                console.log('Media played successfully');
+            }).catch((error) => {
+                console.error('Play failed:', error.message || error);
 
-        // If the error is related to unsupported format
-        if (error.name === 'NotSupportedError') {
-            console.error('The media format is not supported. Try a different format.');
+                if (error.name === 'NotSupportedError') {
+                    console.error('The media format is not supported.');
+                } else if (error.name === 'AbortError') {
+                    console.error('The media fetch was aborted.');
+                }
+            });
+        } catch (error) {
+            console.error('Error playing media:', error.message || error);
         }
-    });
-};
+    };
+    
 
     
     
@@ -17126,19 +17155,45 @@ g.start = function(a) {
       }
 
       function Lu(a, b, c, d) {
-          var e, f;
-          Yb(Ct, c) ? e = c : c ? f = c : e = "YTP_ERROR_GENERIC_WITHOUT_LINK";
-          b = {
-              errorCode: b,
-              errorDetail: d,
-              message: f || pi(e),
-              messageKey: e
-          };
-          BB(a, Pt(a.A, 128, b));
-          vB(a);
-          xB(a);
-          MB(a)
+           
+        /*
+        var e, f;
+        
+            console.log("Entering Lu function");
+            console.log("Initial values -> a:", a, ", b:", b, ", c:", c, ", d:", d);
+        
+            // Check if the value c exists in the Ct
+            if (Yb(Ct, c)) {
+                e = c;
+                console.log("e set to c:", c);
+            } else if (c) {
+                f = c;
+                console.log("f set to c:", c);
+            } else {
+                e = "YTP_ERROR_GENERIC_WITHOUT_LINK";
+                console.log("e set to default error:", e);
+            }
+        
+            // Construct the error object with details
+            b = {
+                errorCode: b,
+                errorDetail: d,
+                message: f || pi(e),
+                messageKey: e
+            };
+        
+            console.log("Error object constructed:", b);
+        
+            // Call functions with the constructed error object
+            BB(a, Pt(a.A, 128, b));
+            vB(a);
+            xB(a);
+            MB(a);
+            console.log("Function calls completed");
+            */
       }
+        
+      
       g.Hg = function(a) {
           this.X = this.X.filter(function(b) {
               return a != b
@@ -17225,8 +17280,25 @@ g.start = function(a) {
                         
                         if (a.b.g.b) {
                             console.log("a.b.g.b is true, calling UB(a)");
+
+                            // Call UB(a) and log the result
                             b = UB(a);
+                            console.log("Data received from UB(a):", b);
+
+                            if (b instanceof Blob) {
+                                const reader = new FileReader();
+                                reader.onload = function(event) {
+                                    console.log("Blob content as text:", event.target.result); // Logs the text content of the blob
+                                };
+                                reader.onerror = function(error) {
+                                    console.error("Error reading Blob:", error);
+                                };
+                                reader.readAsText(b);  // This will read the blob as text
+                            }
+                        
+                            // Resume the process
                             a.B.resume();
+                            console.log("a.B.resume() has been called");
                         } else {
                             console.log("a.b.g.b is false, calling xB(a) and other actions");
                             xB(a);
@@ -17255,16 +17327,18 @@ g.start = function(a) {
                     }
                 } else {
                     console.log("a.P.b or a.g is false, determining error type");
-    
+                    
                     if (a.b.ma && !ks()) {
                         console.log("a.b.ma is true and ks() is false, setting error to html5.unsupportedlive");
                         b = "html5.unsupportedlive";
                     } else {
                         console.log("Setting error to fmt.noneavailable");
-                        b = "fmt.noneavailable";
+                       // b = "fmt.noneavailable"; // Log the error type when this is set
                     }
-
-                }
+                
+                    // Log the error being assigned
+                    console.log("Error type set to:", b);
+                }                
             }
         }
     }
@@ -17544,9 +17618,6 @@ g.start = function(a) {
                   b = $B(a) && b && b.isLocked() ? "YTP_ERROR_FORMAT_UNAVALIABLE" : void 0;
                   console.log("b after checking isLocked: " + b);
                   Lu(this, a.errorCode, b, Dr(a));
-              } else if (this.o) {
-                  console.log("this.o is defined, calling this.o.onError");
-                  this.o.onError(a.errorCode, Dr(a));
               }
           }
       };

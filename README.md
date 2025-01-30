@@ -109,10 +109,15 @@ Progress Report
     Status: The Browse API (which is what channels use and the homepage and such)
     Next Steps: Work on getting the v7 formated json to work on v5.
 
-4. Watch - 65% Done
+4a. Watch - 65% Done
 
     Status: Got to use a custom /get_video_info, and prase it.
     Next Steps: Format it properly and add the other metadata it needs.
+
+4b. Watch Interactions - 100% Done
+
+    Status: You can sub, unsub, like, and they'll all load.
+    Next Steps: Nothing.
 
 5. Pairing - 0% Done
 

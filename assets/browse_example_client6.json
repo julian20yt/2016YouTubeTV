@@ -24,24 +24,7 @@
       ],
       "maxAgeSeconds": 1200
     },
-    "contents": {
-      "tvBrowseRenderer": {
-        "content": {
-          "tvSecondaryNavRenderer": {
-            "sections": [
-              {
-                "tvSecondaryNavSectionRenderer": {
-                  "tabs": [
-                    {
-                      "tabRenderer": {
-                        "endpoint": {
-                          "clickTrackingParams": "CA8Q8JMBGAAiEwjBks64moLhAhXXQEwIHQdQDuI=",
-                          "browseEndpoint": {
-                            "browseId": "FEtopics"
-                          }
-                        },
-                        "title": "Recommended",
-                        "selected": true,
+
                         "content": {
                           "tvSurfaceContentRenderer": {
                             "content": {
@@ -2789,23 +2772,4 @@
                         "trackingParams": "CAMQ8JMBGAQiEwjBks64moLhAhXXQEwIHQdQDuI="
                       }
                     }
-                  ],
-                  "trackingParams": "CAIQj4UCGAAiEwjBks64moLhAhXXQEwIHQdQDuI="
-                }
-              }
-            ],
-            "trackingParams": "CAEQjoUCIhMIwZLOuJqC4QIV10BMCB0HUA7i",
-            "title": {
-              "runs": [
-                {
-                  "text": "Home"
-                }
-              ]
-            }
-          }
-        }
-      }
-    },
-    "trackingParams": "CAAQhGciEwjBks64moLhAhXXQEwIHQdQDuI="
-  }
-  
+    

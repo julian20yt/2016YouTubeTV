@@ -2,6 +2,25 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 
+// Function to fetch the access token from a file (if it exists)
+async function getAccessToken() {
+    const tokenFilePath = path.join(__dirname, 'token', 'oauth_token.json');
+    if (!fs.existsSync(tokenFilePath)) {
+        console.log('OAuth token file not found. Proceeding without the access token.');
+        return null; // Return null if the token file is not found
+    }
+
+    const tokenData = JSON.parse(fs.readFileSync(tokenFilePath, 'utf-8'));
+    const { access_token } = tokenData;
+
+    if (!access_token) {
+        console.log('No access token found in oauth_token.json. Proceeding without the access token.');
+        return null; // Return null if the access token is not found
+    }
+
+    return access_token;
+}
+
 async function fetchNextData(videoId) {
     const apiKey = 'AIzaSyDCU8hByM-4DrUqRUYnGn-3llEO78bcxq8';
     const apiUrl = `https://www.googleapis.com/youtubei/v1/next?key=${apiKey}`;
@@ -36,15 +55,20 @@ async function fetchNextData(videoId) {
     try {
         console.log('Sending request to YouTube /next API with payload:', postData);
 
-        const response = await axios.post(apiUrl, postData, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        const accessToken = await getAccessToken();
+
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        if (accessToken) {
+            headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+
+        const response = await axios.post(apiUrl, postData, { headers });
 
         console.log('Received response from YouTube /next API.');
 
-    
         const logsDir = path.join(__dirname, 'logs');
         if (!fs.existsSync(logsDir)) {
             fs.mkdirSync(logsDir);

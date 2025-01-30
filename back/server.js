@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const cors = require('cors');
 
 const corsAnywhere = require('cors-anywhere'); 
 
@@ -14,12 +15,15 @@ const { handleGetVideoInfo } = require('./get_video_info');
 const bodyParser = require('body-parser');
 const oauthRouter = require('./oauth_api_v3_api.js');
 
+const watchPageInteractions = require('./watch_page_interactions_apis');
+
 const app = express();
 const port = 8090;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(cors());
 
 
 const server = corsAnywhere.createServer({
@@ -77,6 +81,7 @@ app.get('/', (req, res) => {
 });
 
 oauthRouter(app);
+watchPageInteractions(app);
 
 app.get('/get-thumbnail', async (req, res) => {
     const videoId = req.query.videoId;

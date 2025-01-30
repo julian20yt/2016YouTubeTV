@@ -6066,17 +6066,21 @@ if (!self.__WB_pmw) {
       };
 
       function Lg(a) {
-          var b = new Kg;
-          a = a.items;
-          if (!a || !a.length) return b;
-          a = a[0];
-          var c = a.snippet;
-          b.id = a.id;
-          b.username = b.displayName = c.title;
-          b.imageUrl = n("thumbnails.high.url", c) || n("thumbnails.default.url", c);
-          b.title = c.description;
-          return b
-      };
+        var b = new Kg;
+        a = a.items;
+        if (!a || !a.length) return b;
+        a = a[0];
+        var c = a.snippet;
+        b.id = a.id;
+        b.username = b.displayName = c.title;
+        b.imageUrl = n("thumbnails.high.url", c) || n("thumbnails.default.url", c);
+        b.title = c.description;
+
+        console.log(b);  // Log the output object
+
+        return b;
+    }
+    
 
       function Mg(a, b, c) {
           var e = Ld(c.Yb());
