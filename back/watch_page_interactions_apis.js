@@ -105,7 +105,6 @@ async function handleSubscriptionAction(req, res) {
 
     console.log('Incoming request body:', req.body);  
 
-    // Validate channelIds
     if (!Array.isArray(channelIds) || channelIds.length === 0 || !channelIds[0]) {
         return res.status(400).json({
             error: 'Channel IDs are required and must be a non-empty array.'
