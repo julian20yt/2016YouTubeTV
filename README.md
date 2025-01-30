@@ -6,13 +6,14 @@ A project to revive the old 2015-2016 YouTubeTV HTML5 Web App.
 
 ## Screenshots
 
-**[Note These Are As Of The 25th Of January At 3:30am EST, Things Will Have Changed]**
+**[Note These Are As Of The 30th Of January At 14:18 EST, Things Will Have Changed]**
 
 ![Screenshot 1](screenshots/s1.png)
 ![Screenshot 2](screenshots/s2.png)
 ![Screenshot 3](screenshots/s3.png)
 ![Screenshot 4](screenshots/s4.png)
 ![Screenshot 5](screenshots/s5.png)
+![Screenshot 6](screenshots/s6.png)
 
 ## Credits
 
@@ -104,10 +105,10 @@ Progress Report
     Status: Done
     Next None;
 
-3. Browse/Channels - 25% Done
+3. Browse/Channels - 70% Done
 
-    Status: The Browse API (which is what channels use and the homepage and such)
-    Next Steps: Work on getting the v7 formated json to work on v5.
+    Status: The Browse API (which is what channels use and the homepage and such), loads off a static json file but loads fine!
+    Next Steps: Work on getting the data from the youtubei browse api and converting it into that format.
 
 4a. Watch - 65% Done
 

@@ -3951,22 +3951,57 @@ if (!self.__WB_pmw) {
       };
       
       d.Ia = function(a, b, c) {
-          c = c || "";
-          this.model = a;
-          this.list.xe(x(this.aa.f, this.aa, b), !0);
-          E(this.i);
-          this.i = null;
-          this.g.xa(this.Kv(a, c), 0);
-          a && (a = He(a.continuations)) && (this.i = this.ya({
-              projection: this.j,
-              continuationData: a,
-              interpretRawResponse: x(this.gZ, this, c),
-              service: b,
-              continuerThresholdDistance: 1
-          }));
-    
-      };
+        c = c || "";
 
+        console.trace("d.Ia() called");
+
+        console.log("d.Ia() called with:", { a, b, c });
+    
+        // Log the model assignment
+        this.model = a;
+        console.log("Model assigned:", this.model);
+    
+        // Logging list.xe call
+        console.log("Calling list.xe() with:", { f: this.aa.f, b, xFunc: x(this.aa.f, this.aa, b) });
+        this.list.xe(x(this.aa.f, this.aa, b), !0);
+    
+        // Logging E(this.i) and setting this.i
+        console.log("Calling E(this.i) to clear previous value.");
+        E(this.i);
+        this.i = null;
+    
+        // Logging the call to this.g.xa
+        console.log("Calling this.g.xa() with:", { data: this.Kv(a, c), value: 0 });
+        this.g.xa(this.Kv(a, c), 0);
+    
+        // Handling 'a' and 'a.continuations'
+        if (a) {
+            console.log("a.continuations exists, calling He(a.continuations)");
+            a = He(a.continuations);
+            console.log("He(a.continuations) result:", a);
+    
+            // Creating and logging this.i assignment
+            if (a) {
+                console.log("Creating this.i with:", {
+                    projection: this.j,
+                    continuationData: a,
+                    interpretRawResponse: x(this.gZ, this, c),
+                    service: b,
+                    continuerThresholdDistance: 1
+                });
+                this.i = this.ya({
+                    projection: this.j,
+                    continuationData: a,
+                    interpretRawResponse: x(this.gZ, this, c),
+                    service: b,
+                    continuerThresholdDistance: 1
+                });
+            }
+        }
+    
+        console.log("Final value of this.i:", this.i);
+      };
+    
       d.gZ = function(a, b) {
           if (!b.continuationContents || !b.continuationContents.sectionListContinuation) return {
               contents: [],
@@ -3991,28 +4026,50 @@ if (!self.__WB_pmw) {
 
       d.IS = function(a) {
         var b = [];
+        
+        console.trace('results for d.IS')
+
+        // Iterate over each section in the input array
         for (var c = 0, e = a.length; c < e; ++c) {
-            var f = a[c].shelfRenderer || a[c].pivotShelfRenderer;
+            var item = a[c];
+            var f = item.shelfRenderer || item.pivotShelfRenderer;
+            
             if (f) {
                 // Attempt to extract from multiple potential sources
-                f = n("content.horizontalListRenderer.items", f) || 
-                    n("content.pivotHorizontalListRenderer.items", f) || 
-                    n("content.fakeSubsListRenderer.items", f) || 
-                    n("content.tvSubscriptionsListRenderer.items", f);
+                console.log('Attempting to extract items from:', item);
+                
+                var horizontalListItems = n("content.tvSurfaceContentRenderer.content.sectionListRenderer.contents.content.horizontalListRenderer.items", f) ||
+                                          n("content.horizontalListRenderer.items", f) ||
+                                          n("content.pivotHorizontalListRenderer.items", f) ||
+                                          n("content.fakeSubsListRenderer.items", f) ||
+                                          n("content.tvSubscriptionsListRenderer.items", f);
+                
+                console.log('Extracted horizontalListItems:', horizontalListItems);
+                
                 // Only push if items were found
-                if (f && f.length > 0) {
-                    b.push(a[c]);
+                if (horizontalListItems && horizontalListItems.length > 0) {
+                    b.push(item);
+                    console.log('Pushed item with items:', item);
+                } else {
+                    console.log('No items found for this section:', item);
                 }
             } else {
-                b.push(a[c]);
+                console.log('No shelfRenderer or pivotShelfRenderer for item:', item);
+                b.push(item);
             }
         }
+    
         console.log('Filtered items from IS:', b); // Log the result of IS
         return b;
-        };
+       };
+    
 
         // Function to process the entire dataset
         d.Kv = function(a, b) {
+
+        console.log("d.Kv() called with:", { a, b });
+        console.trace("Stack trace for d.Kv() call");
+        
         if (!a || !a.contents) return [];
 
         var c = [], e = a.contents, f = [], g, k;
@@ -4068,21 +4125,35 @@ if (!self.__WB_pmw) {
 
         // PN function adds play all item if appropriate
         d.PN = function(a) {
-        if (a && a.shelfRenderer) {
-            var b = n("content.horizontalListRenderer.items", a);
-            if (a.shelfRenderer.playEndpoint && b && b.length > 0) {
-                // Prepend play all item
-                b.unshift({
-                    fakePlayAllTileRenderer: {
-                        playEndpoint: a.shelfRenderer.playEndpoint,
-                        playlistVideos: b,
-                        shelfTitle: a.shelfRenderer.title
-                    }
-                });
-                console.log('Prepended play all item:', b[0]); // Log the prepended play all item
+            if (a && a.shelfRenderer) {
+                console.log('Yap found:', a.shelfRenderer);
+                
+                // Try to extract horizontal list items
+                var b = n("content.horizontalListRenderer.items", a);
+                console.log('Extracted horizontalListRenderer.items:', b);
+        
+                // If there is a playEndpoint and items in the list
+                if (a.shelfRenderer.playEndpoint && b && b.length > 0) {
+                    console.log('Play endpoint found:', a.shelfRenderer.playEndpoint);
+                    
+                    // Prepend play all item
+                    b.unshift({
+                        fakePlayAllTileRenderer: {
+                            playEndpoint: a.shelfRenderer.playEndpoint,
+                            playlistVideos: b,
+                            shelfTitle: a.shelfRenderer.title
+                        }
+                    });
+        
+                    console.log('Prepended play all item:', b[0]); // Log the prepended play all item
+                } else {
+                    console.log('No playEndpoint or horizontal list items found.');
+                }
+            } else {
+                console.log('No shelfRenderer found.');
             }
-        }
-      };
+        };
+        
 
       d.GO = function(a) {
           a = a.detail;
@@ -5284,7 +5355,9 @@ if (!self.__WB_pmw) {
       function sf(a, b, c, e, f, g, k, l, p) {
           l.f ? k(l) : (b = !b.ic(), a = y(sf.h, a, p ? c : e, l, p, b, g), b ? f(a, "SUBSCRIBE") : a())
       }
+
       sf.g = 400;
+
       sf.h = function(a, b, c, e, f, g) {
           var k = y(sf.f, a, c, e);
           a = y(sf.i, a, c, e, f, g);
@@ -5292,6 +5365,7 @@ if (!self.__WB_pmw) {
               channelIds: [c.userId]
           }, k, a)
       };
+
       sf.f = function(a, b, c) {
           a.J("subscription-change", b.userId, c)
       };
@@ -5427,6 +5501,7 @@ if (!self.__WB_pmw) {
       function Ff(a) {
           a.EU("home", "w2w_rq", "w2w_rs", "w2w_r")
       }
+
       Ff.inject = ["browseSetsService"];
 
       function Gf(a, b) {
@@ -7808,22 +7883,57 @@ if (!self.__WB_pmw) {
       d.zQ = function(a, b) {
           a !== b && (this.M = !this.Ly())
       };
+      
       d.ready = function() {
-          li.u.ready.call(this);
-          this.f.isSupported() && (this.f.Va("[[Scroll up|Speech command to move selection up.]]", x(this.XB, this), !1), this.f.Va("[[Scroll down|Speech command to move selection down.]]", x(this.WB, this), !1), this.cc.f(this.f.Nd()), this.f.gd(this));
-          this.g = this.j = this.mb(".empty-header");
-          this.i = this.va("browse-search-bar");
-          this.K(this.i, "button-enter", x(function() {
-              this.D.Jg(10349);
-              this.$a("w2w_box", 10349)
-          }, this));
-          this.h = this.va("shelves");
-          this.C("keydown", x(this.ZX, this));
-          this.$l();
-          this.C("keyup", x(this.$X, this));
-          var a = this.va("platform-user-icon");
-          this.S.isSupported() && this.S.avatarUrl ? (this.wi = this.S.avatarUrl, a.show(), a.render()) : a.U()
+            console.log("Function ready() called.");
+        
+            li.u.ready.call(this);
+            console.log("Base ready() function called.");
+        
+            if (this.f.isSupported()) {
+                console.log("Feature 'f' is supported.");
+                this.f.Va("[[Scroll up|Speech command to move selection up.]]", x(this.XB, this), !1);
+                this.f.Va("[[Scroll down|Speech command to move selection down.]]", x(this.WB, this), !1);
+                this.cc.f(this.f.Nd());
+                this.f.gd(this);
+            } else {
+                console.log("Feature 'f' is NOT supported.");
+            }
+        
+            this.g = this.j = this.mb(".empty-header");
+            console.log("Empty header assigned:", this.g);
+        
+            this.i = this.va("browse-search-bar");
+            console.log("Browse search bar:", this.i);
+        
+            this.K(this.i, "button-enter", x(function() {
+                console.log("Button enter pressed.");
+                this.D.Jg(10349);
+                this.$a("w2w_box", 10349);
+            }, this));
+        
+            this.h = this.va("shelves");
+            console.log("Shelves element:", this.h);
+            console.trace("Stack trace for shelves element");
+            
+            this.C("keydown", x(this.ZX, this));
+            this.$l();
+            this.C("keyup", x(this.$X, this));
+        
+            var a = this.va("platform-user-icon");
+            console.log("Platform user icon:", a);
+        
+            if (this.S.isSupported() && this.S.avatarUrl) {
+                console.log("Avatar URL found:", this.S.avatarUrl);
+                this.wi = this.S.avatarUrl;
+                a.show();
+                a.render();
+            } else {
+                console.log("Avatar not supported or URL missing.");
+                a.U();
+        }
       };
+        
       d.wa = function() {
           li.u.wa.call(this);
           this.Wi(!this.o);
@@ -7873,34 +7983,139 @@ if (!self.__WB_pmw) {
           this.h.Ra(a);
           this.i.ba() || (this.D.attachChild(10349), this.D.lb(10349))
       };
+
+      function findSectionListRenderer(obj) {
+        // Base case: if the current object is a "sectionListRenderer", return it
+        if (obj && obj.sectionListRenderer) {
+          return obj.sectionListRenderer;
+        }
+      
+        // If the current object is an array, recursively search each item
+        if (Array.isArray(obj)) {
+          for (let i = 0; i < obj.length; i++) {
+            const result = findSectionListRenderer(obj[i]);
+            if (result) return result;
+          }
+        }
+      
+        // If the current object is an object, recursively search its keys
+        if (typeof obj === 'object') {
+          for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              const result = findSectionListRenderer(obj[key]);
+              if (result) return result;
+            }
+          }
+        }
+      
+        // Return null if "sectionListRenderer" is not found
+        return null;
+      }
+
       d.YX = function(a, b) {
-          this.M = !1;
-          this.o = a;
-          this.D.attachChild(this.o.trackingParams);
-          this.za("no-background");
-          var c = this.hN(a, b);
-          this.I = c !== this.j;
-          if (this.g != c) {
-              var e = this.g;
-              e.model = null;
-              this.g = c;
-              this.g.model = this.model;
-              e.H !== this.g.H && (this.H.replaceChild(this.g.H, e.H), this.g !== this.j && this.sb(this.g), e && e !== this.j && this.removeChild(e))
-          }
-          this.I ? (this.g.show(), this.za("has-header-content"), this.g.imageUrl && this.Ha("no-background")) : (this.g.qq(!1), this.Ha("has-header-content"));
-          this.h.Ia(n("contents.sectionListRenderer",
-              a) || {}, b, this.model ? this.model.Lc() : "");
-          this.h.kN(n("header.playlistHeaderRenderer", a));
-          (c = a.overlay) && this.jN(c)
+        // Log initial state
+        console.log("d.YX() called with:", { a, b });
+    
+        this.M = !1;
+        this.o = a;
+        console.log("Setting this.o to:", a);
+    
+        this.D.attachChild(this.o.trackingParams);
+        console.log("Attached trackingParams:", this.o.trackingParams);
+    
+        this.za("no-background");
+    
+        // Get the result of hN and log it
+        var c = this.hN(a, b);
+        console.log("hN() result:", c);
+    
+        this.I = c !== this.j;
+        console.log("this.I set to:", this.I);
+    
+        // Check if `this.g` is different from `c`
+        if (this.g !== c) {
+            var e = this.g;
+            e.model = null;  // Reset the old model
+            this.g = c;      // Update this.g
+            this.g.model = this.model;  // Assign the current model to the new `this.g`
+            
+            // Update the DOM if necessary
+            if (e.H !== this.g.H) {
+                console.log("Replacing child:", e.H, "with", this.g.H);
+                this.H.replaceChild(this.g.H, e.H);
+                if (this.g !== this.j) {
+                    console.log("Calling sb() on this.g");
+                    this.sb(this.g);
+                }
+                if (e !== this.j) {
+                    console.log("Removing child:", e);
+                    this.removeChild(e);
+                }
+            }
+        }
+    
+        // Handle visibility and background logic
+        if (this.I) {
+            console.log("Showing this.g and adding header content");
+            this.g.show();
+            this.za("has-header-content");
+            if (this.g.imageUrl) {
+                console.log("Handling no-background with imageUrl:", this.g.imageUrl);
+                this.Ha("no-background");
+            }
+        } else {
+            console.log("Hiding this.g header content");
+            this.g.qq(!1);
+            this.Ha("has-header-content");
+        }
+    
+        // Process the section list renderer
+        const sectionData = findSectionListRenderer(a) || {};
+        console.log("sectionListRenderer data:", sectionData);
+        
+
+        this.h.Ia(sectionData, b, this.model ? this.model.Lc() : "");
+    
+        // Handle playlist header renderer
+        const playlistHeader = n("header.playlistHeaderRenderer", a);
+        console.log("playlistHeaderRenderer data:", playlistHeader);
+        this.h.kN(playlistHeader);
+    
+        // Handle overlay if it exists
+        const overlay = a.overlay;
+        if (overlay) {
+            console.log("Handling overlay:", overlay);
+            this.jN(overlay);
+        }
+    };
+    
+    d.hN = function(a, b) {
+        console.log("d.hN() called with:", { a, b });
+    
+        try {
+            // Log the function call and parameters before calling this.rb.f
+            console.log("Calling this.rb.f() with parameters:", { b: b, header: a.header, g: this.g });
+
+            // Execute the original logic
+            const result = this.rb.f(b, a.header, this.g);
+    
+            // Log the result of this.rb.f
+            console.log("this.rb.f() result:", result);
+            return result;
+        } catch (c) {
+            // Log the caught error
+            console.error("Error caught in d.hN:", c);
+    
+            if (c instanceof ki) {
+                console.log("Caught ki error, returning this.j");
+                return this.j;
+            }
+    
+            // Re-throw the error if it's not an instance of `ki`
+            throw c;
+        }
       };
-      d.hN = function(a, b) {
-          try {
-              return this.rb.f(b, a.header, this.g)
-          } catch (c) {
-              if (c instanceof ki) return this.j;
-              throw c;
-          }
-      };
+       
       d.Ty = function() {
           this.A.gU(!this.g.Ge());
           this.A.Iz(this.model ? this.model.Lc() : "");
@@ -34874,7 +35089,7 @@ if (!self.__WB_pmw) {
               },
               gridVideoRenderer: {
                   oa: "videoTile",
-                  Ya: su
+                  Ya: qu
               },
               replayVideoRenderer: {
                   oa: "pivot-video-tile",
