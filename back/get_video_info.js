@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { title } = require('process');
 const youtubeDl = require('youtube-dl-exec');
 
 function handleGetVideoInfo(req, res) {
@@ -18,7 +19,7 @@ function handleGetVideoInfo(req, res) {
         quiet: true,
     })
     .then(output => {
-        console.log('Video Info:', output);
+        //console.log('Video Info:', output);
 
         const logsDir = path.join(__dirname, 'logs');
         if (!fs.existsSync(logsDir)) {
@@ -30,19 +31,28 @@ function handleGetVideoInfo(req, res) {
 
         fs.writeFileSync(logFilePath, JSON.stringify(output, null, 2));
 
+        const videoIdFromOutput = output.id; // This is the video ID like "jNQXAC9IVRw"
+        const videoTitle = output.title;     // This is the video title like "Me at the zoo"
+        const videoDuration = output.duration; // This is the video duration in seconds
+
+        // Log video details
+        console.log('Video ID:', videoIdFromOutput);
+        console.log('Video Title:', videoTitle);
+        console.log('Video Duration:', videoDuration);
+
         const adaptiveFmts = [];
         const fmtListArr = [];
         
-        console.log('Video info logged to file:', logFilePath);
+        //console.log('Video info logged to file:', logFilePath);
         if (output.formats && Array.isArray(output.formats)) {
             output.formats.forEach(format => {
                 const skipFormatIds = ["sb1", "sb2", "sb0"];
                 if (skipFormatIds.includes(format.format_id)) {
-                    console.log('Skipping format with format_id:', format.format_id);
+                   // console.log('Skipping format with format_id:', format.format_id);
                     return; 
                 }
                 if (disableWebM && (format.ext === 'webm' || format.acodec === 'vp9' || format.acodec === 'vp8')) {
-                    console.log('Skipping WebM, VP9, or VP8 format');
+                    //console.log('Skipping WebM, VP9, or VP8 format');
                     return; 
                 }
 
@@ -58,7 +68,7 @@ function handleGetVideoInfo(req, res) {
                         mimeType = `application/octet-stream`;
                     }
             
-                    console.log(`Determined MIME type for format_id ${format.format_id}: ${mimeType}`);
+                    //console.log(`Determined MIME type for format_id ${format.format_id}: ${mimeType}`);
             
                     const urlParams = new URLSearchParams();
                     urlParams.append('url', format.url);
@@ -101,8 +111,8 @@ function handleGetVideoInfo(req, res) {
         const fmtList = encodeURIComponent(fmtListArr.join(','));
         const adaptiveFmtsResponse = adaptiveFmts.join(',');
 
-        console.log('Constructed adaptive_fmts:', adaptiveFmtsResponse);
-        console.log('Constructed fmt_list:', fmtList);
+        //console.log('Constructed adaptive_fmts:', adaptiveFmtsResponse);
+        //console.log('Constructed fmt_list:', fmtList);
 
         const videoInfo = `baseUrl=https%3A%2F%2Flocalhost%3A8090
         iv_module=https%3A%2F%2Fs.ytimg.com%2Fyts%2Fswfbin%2Fplayer-vflq9bo_X%2Fiv_module.swf
@@ -115,7 +125,7 @@ function handleGetVideoInfo(req, res) {
         rvs=iurlhq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FYxjyTznqNUY%252Fhqdefault.webp%26title%3D%25D7%2591%25D7%2595%25D7%2590%25D7%2595%2B%25D7%259C%25D7%25A8%25D7%2590%25D7%2595%25D7%25AA%2B%25D7%2590%25D7%25AA%2B%25D7%2597%25D7%25A0%25D7%2595%25D7%259A%2B%25D7%2593%25D7%2590%25D7%2595%25D7%259D%2B%25D7%25A2%25D7%2595%25D7%25A9%25D7%2594%2B%25D7%259E%25D7%259E%25D7%25A0%25D7%2599%2B%25D7%25A6%25D7%2597%25D7%2595%25D7%25A7%2B%252B%2B%25D7%25A9%25D7%2597%25D7%2596%25D7%2595%25D7%25A8%2B%25D7%25A9%25D7%259C%2B%25D7%25A7%25D7%25A8%25D7%2591%2B%25D7%259B%25D7%25A4%25D7%25A8%2B%25D7%259B%25D7%25A0%25D7%2590%26endscreen_autoplay_session_data%3Dplaynext%253D0%2526feature%253Drelated-auto%2526autonav%253D1%26id%3DYxjyTznqNUY%26author%3D%25D7%25A0%25D7%25A4%25D7%25AA%25D7%259C%25D7%2599%2B%25D7%2591%25D7%25A0%25D7%2598%2B%257C%2BNaftali%2BBennett%26length_seconds%3D2101%26session_data%3Dfeature%253Dendscreen%26iurlmq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FYxjyTznqNUY%252Fmqdefault.webp%2Ciurlhq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252F_4RGlOLFSSU%252Fhqdefault.webp%26title%3D%25D7%2591%25D7%25A0%25D7%2598%2B%25D7%259C%25D7%25A0%25D7%2597%25D7%2595%25D7%259D%2B%25D7%2591%25D7%25A8%25D7%25A0%25D7%25A2%253A%2B%25D7%2590%25D7%2595%25D7%259C%25D7%2599%2B%25D7%2590%25D7%25AA%25D7%2594%2B%25D7%2594%25D7%25A7%25D7%2595%25D7%25A7%25D7%2595%253F%26id%3D_4RGlOLFSSU%26author%3D%25D7%25A0%25D7%25A4%25D7%25AA%25D7%259C%25D7%2599%2B%25D7%2591%25D7%25A0%25D7%2598%2B%257C%2BNaftali%2BBennett%26length_seconds%3D667%26session_data%3Dfeature%253Dendscreen%26iurlmq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252F_4RGlOLFSSU%252Fmqdefault.webp%2Ciurlhq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FNi0mKluwQ_o%252Fhqdefault.webp%26title%3D%25D7%25A8%25D7%2599%25D7%25A0%25D7%2595%2B%25D7%25A6%25D7%25A8%25D7%2595%25D7%25A8%2B%25D7%259E%25D7%2595%25D7%25A8%25D7%2599%25D7%2593%2B%25D7%2590%25D7%25AA%2B%25D7%2599%25D7%25A0%25D7%2595%25D7%259F%2B%25D7%259E%25D7%2592%25D7%259C%2B%25D7%259E%25D7%25A9%25D7%2599%25D7%2593%25D7%2595%25D7%25A8%2B%25D7%2591%25D7%2592%25D7%259C%25D7%2599%2B%25D7%25A6%25D7%2594%2522%25D7%259C%26id%3DNi0mKluwQ_o%26author%3D%25D7%25A0%25D7%25A4%25D7%25AA%25D7%259C%25D7%2599%2B%25D7%2591%25D7%25A0%25D7%2598%2B%257C%2BNaftali%2BBennett%26length_seconds%3D423%26session_data%3Dfeature%253Dendscreen%26iurlmq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FNi0mKluwQ_o%252Fmqdefault.webp%2Ciurlhq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FYwi1amZ29pg%252Fhqdefault.webp%26title%3D%25D7%2591%25D7%25A0%25D7%2598%2B%25D7%2591%25D7%25A2%25D7%25A8%25D7%2595%25D7%25A5%2B10%253A%2B%25D7%2594%25D7%25AA%25D7%25A7%25D7%25A9%25D7%2595%25D7%25A8%25D7%25AA%2B%25D7%259E%25D7%2595%25D7%25A4%25D7%25AA%25D7%25A2%25D7%25AA%2B%25D7%2591%25D7%259B%25D7%259C%2B%25D7%25A4%25D7%25A2%25D7%259D%2B%25D7%25A9%25D7%2594%25D7%25A2%25D7%259D%2B%25D7%2592%25D7%2595%25D7%25A0%25D7%2591%2B%25D7%2590%25D7%25AA%2B%25D7%2594%25D7%2591%25D7%2597%25D7%2599%25D7%25A8%25D7%2595%25D7%25AA%26id%3DYwi1amZ29pg%26author%3D%25D7%25A0%25D7%25A4%25D7%25AA%25D7%259C%25D7%2599%2B%25D7%2591%25D7%25A0%25D7%2598%2B%257C%2BNaftali%2BBennett%26length_seconds%3D1075%26session_data%3Dfeature%253Dendscreen%26iurlmq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FYwi1amZ29pg%252Fmqdefault.webp%2Ciurlhq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FfslrzJcnrz4%252Fhqdefault.webp%26title%3D%25D7%2590%25D7%2599%25D7%2599%25D7%259C%25D7%25AA%2B%25D7%25A9%25D7%25A7%25D7%2593%2B%25D7%2591%25D7%25A2%25D7%2599%25D7%259E%25D7%2595%25D7%25AA%2B%25D7%25A1%25D7%2595%25D7%25A2%25D7%25A8%2B%25D7%259E%25D7%2595%25D7%259C%2B%25D7%2590%25D7%2597%25D7%259E%25D7%2593%2B%25D7%2598%25D7%2599%25D7%2591%25D7%2599%2B%25D7%2591%25D7%25A2%25D7%25A8%25D7%2595%25D7%25A5%2B2%26id%3DfslrzJcnrz4%26author%3D%25D7%25A0%25D7%25A4%25D7%25AA%25D7%259C%25D7%2599%2B%25D7%2591%25D7%25A0%25D7%2598%2B%257C%2BNaftali%2BBennett%26length_seconds%3D418%26session_data%3Dfeature%253Dendscreen%26iurlmq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FfslrzJcnrz4%252Fmqdefault.webp%2Ciurlhq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FGMYp7vXBiEo%252Fhqdefault.webp%26title%3D%25D7%2594%25D7%2594%25D7%2599%25D7%25A4%25D7%25A1%25D7%2598%25D7%25A8%2B%25D7%2591%25D7%2598%25D7%2599%25D7%25A4%25D7%2595%25D7%259C%26id%3DGMYp7vXBiEo%26author%3D%25D7%25A0%25D7%25A4%25D7%25AA%25D7%259C%25D7%2599%2B%25D7%2591%25D7%25A0%25D7%2598%2B%257C%2BNaftali%2BBennett%26length_seconds%3D205%26session_data%3Dfeature%253Dendscreen%26iurlmq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FGMYp7vXBiEo%252Fmqdefault.webp%2Ciurlhq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FbhJ9Za9VhNM%252Fhqdefault.webp%26title%3D%25D7%2591%25D7%25A0%25D7%2598%2B%25D7%2591%25D7%25A2%25D7%25A8%25D7%2595%25D7%25A5%2B2%253A%2B%2522%25D7%2590%25D7%25A0%25D7%2599%2B%25D7%25A0%25D7%2590%25D7%259C%25D7%25A5%2B%25D7%259C%25D7%2594%25D7%25A1%25D7%2591%25D7%2599%25D7%25A8%2B%25D7%259C%25D7%2597%25D7%2591%25D7%25A8%25D7%2599%2B%25D7%25A7%25D7%2595%25D7%25A0%25D7%2592%25D7%25A8%25D7%25A1%2B%25D7%259C%25D7%259E%25D7%2594%2B%25D7%2594%25D7%25A9%25D7%259E%25D7%2590%25D7%259C%2B%25D7%2594%25D7%2599%25D7%25A9%25D7%25A8%25D7%2590%25D7%259C%25D7%2599%2B%25D7%25AA%25D7%2595%25D7%25A7%25D7%25A3%2B%25D7%2590%25D7%2595%25D7%25AA%25D7%25A0%25D7%2595%2522%26id%3DbhJ9Za9VhNM%26author%3D%25D7%25A0%25D7%25A4%25D7%25AA%25D7%259C%25D7%2599%2B%25D7%2591%25D7%25A0%25D7%2598%2B%257C%2BNaftali%2BBennett%26length_seconds%3D167%26session_data%3Dfeature%253Dendscreen%26iurlmq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FbhJ9Za9VhNM%252Fmqdefault.webp%2Cauthor%3Daviran15%26session_data%3Dfeature%253Dendscreen%26title%3D%25D7%2591%25D7%2595%25D7%2591%25D7%2594%2B%25D7%25A9%25D7%259C%2B%25D7%259E%25D7%2593%25D7%2599%25D7%25A0%25D7%2594%2B-%2B%25D7%259E%25D7%25A2%25D7%25A8%25D7%259B%25D7%2595%25D7%259F%2B%25D7%2590%25D7%2599%25D7%2599%25D7%259C%25D7%25AA%2B%25D7%25A9%25D7%25A7%25D7%2593%26length_seconds%3D98%26id%3Du7_1FOgPnQs%2Ciurlhq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252F_ihrEicKwOo%252Fhqdefault.webp%26title%3D%25D7%2594%25D7%2599%25D7%2592%2527%25D7%25A8%25D7%2594%2B%25D7%25A4%25D7%25A8%25D7%25A7%2B3%253A%2B%25D7%2594%25D7%25AA%25D7%25A1%25D7%259B%25D7%2595%25D7%259C%26id%3D_ihrEicKwOo%26author%3Dcapture_il%26length_seconds%3D1190%26session_data%3Dfeature%253Dendscreen%26iurlmq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252F_ihrEicKwOo%252Fmqdefault.webp%2Ciurlhq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FRYwEE7ZklCo%252Fhqdefault.webp%26title%3D%25D7%2594%25D7%2599%25D7%2592%2527%25D7%25A8%25D7%2594%2B%25D7%25A4%25D7%25A8%25D7%25A7%2B5%2B%25D7%2595%25D7%2590%25D7%2597%25D7%25A8%25D7%2595%25D7%259F%253A%2B%25D7%2594%25D7%25A4%25D7%25A6%25D7%25A6%25D7%2594%2B%25D7%2594%25D7%259E%25D7%25AA%25D7%25A7%25D7%25AA%25D7%25A7%25D7%25AA%26id%3DRYwEE7ZklCo%26author%3Dcapture_il%26length_seconds%3D986%26session_data%3Dfeature%253Dendscreen%26iurlmq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FRYwEE7ZklCo%252Fmqdefault.webp%2Ciurlhq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FVEvzFOMzgWM%252Fhqdefault.webp%26title%3D%25D7%25A0%25D7%25A4%25D7%25AA%25D7%259C%25D7%2599%2B%25D7%2594%25D7%2594%25D7%2599%25D7%25A4%25D7%25A1%25D7%2598%25D7%25A8%2B-%2B%25D7%259E%25D7%25A4%25D7%25A1%25D7%2599%25D7%25A7%25D7%2599%25D7%259D%2B%25D7%259C%25D7%2594%25D7%25AA%25D7%25A0%25D7%25A6%25D7%259C%26id%3DVEvzFOMzgWM%26author%3DEli%2BSinger%26length_seconds%3D167%26session_data%3Dfeature%253Dendscreen%26iurlmq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FVEvzFOMzgWM%252Fmqdefault.webp%2Ciurlhq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FiPJk7UbHGlU%252Fhqdefault.webp%26title%3D%25D7%259E%25D7%25A0%25D7%25A9%25D7%25A7%25D7%2599%2B%25D7%2594%25D7%259E%25D7%2596%25D7%2595%25D7%2596%25D7%2595%25D7%25AA%2B%25D7%2594%25D7%2595%25D7%259C%25D7%259B%25D7%2599%25D7%259D%2B%25D7%259C%25D7%25A0%25D7%25A6%25D7%2597%26id%3DiPJk7UbHGlU%26author%3D%25D7%25A0%25D7%25A4%25D7%25AA%25D7%259C%25D7%2599%2B%25D7%2591%25D7%25A0%25D7%2598%2B%257C%2BNaftali%2BBennett%26length_seconds%3D141%26session_data%3Dfeature%253Dendscreen%26iurlmq_webp%3D%252F%252Fi.ytimg.com%252Fvi_webp%252FiPJk7UbHGlU%252Fmqdefault.webp
         of=DI8ulxjA44_i6rKc8TzAhw
         iv_invideo_url=https%3A%2F%2Fwww.youtube.com%2Fannotations_invideo%3Fcap_hist%3D1%26cta%3D2%26playlist_id%3DPLSH1V8Iv8_1VZzhTkvVHYdz8KUPeBGfN9%26video_id%3D0ggR11jYS3A
-        length_seconds=68
+        length_seconds=${encodeURIComponent(videoDuration)}
         has_cc=False
         enablecsi=1
         pltype=contentugc
@@ -126,7 +136,7 @@ function handleGetVideoInfo(req, res) {
         plid=AAURQQWJOzsm_uzM
         watermark=%2Chttps%3A%2F%2Fs.ytimg.com%2Fyts%2Fimg%2Fwatermark%2Fyoutube_watermark-vflHX6b6E.png%2Chttps%3A%2F%2Fs.ytimg.com%2Fyts%2Fimg%2Fwatermark%2Fyoutube_hd_watermark-vflAzLcD6.png
         ytfocEnabled=1
-        video_id=0ggR11jYS3A
+        video_id=${encodeURIComponent(videoId)}
         atc=a%3D3%26b%3DYLfP9dWvt5WXPMSq9vEpZTP_ePU%26c%3D1426345847%26d%3D1%26e%3D0ggR11jYS3A%26c3a%3D18%26hh%3DlThS1p2buueLl16Okg75F2RkKXM
         thumbnail_url=https%3A%2F%2Fi.ytimg.com%2Fvi%2F0ggR11jYS3A%2Fdefault.jpg
         iurlhq=https%3A%2F%2Fi.ytimg.com%2Fvi%2F0ggR11jYS3A%2Fhqdefault.jpg
@@ -157,12 +167,12 @@ function handleGetVideoInfo(req, res) {
         idpj=-2
         cbrver=41.0.2272.89
         iurlsd=https%3A%2F%2Fi.ytimg.com%2Fvi%2F0ggR11jYS3A%2Fsddefault.jpg
-        title=%D7%9E%D7%93%D7%99%D7%A0%D7%94+%D7%91%D7%98%D7%99%D7%A4%D7%95%D7%9C
+        title=${encodeURIComponent(videoTitle)}
         iurlmaxres_webp=https%3A%2F%2Fi.ytimg.com%2Fvi_webp%2F0ggR11jYS3A%2Fmaxresdefault.webp
         csi_page_type=embed
         video_verticals=%5B16%2C+35%5D
         cl=88507848
-        no_get_video_log=1
+        no_get_video_log=0
         iv_allow_in_place_switch=1
         iurl_webp=https%3A%2F%2Fi.ytimg.com%2Fvi_webp%2F0ggR11jYS3A%2Fhqdefault.webp
         uid=4x7LYSzgGH-TMKc9J8pwgQ

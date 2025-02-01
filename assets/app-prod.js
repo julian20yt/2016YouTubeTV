@@ -16,6 +16,7 @@ if (!self.__WB_pmw) {
   let frames = _____WB$wombat$assign$function_____("frames");
   let opener = _____WB$wombat$assign$function_____("opener");
 
+  
   (function() {
       var d, aa = aa || {},
           h = this;
@@ -22625,10 +22626,13 @@ if (!self.__WB_pmw) {
       d.F0 = function() {
         var a = this.Fb(),
             b = [];
-        a && (b = a.getAvailableAudioTracks());
-        return b
-      };
-
+        console.log("Logging object 'a' from d.F0:", a); // Searchable label
+        if (a) {
+            b = a.getAvailableAudioTracks();
+        }
+        return b;
+    };
+    
       d.E0 = function() {
        
       };
@@ -27840,8 +27844,8 @@ if (!self.__WB_pmw) {
               this.g.stop();
               this.j = a || null;
               this.l = b || 0;
-              a =  "http://localhost:8070/http://youtube.com/api/lounge/bc/" + "/test";
-              b = "http://localhost:8090/api/lounge/bc" + "/bind";
+              a =  "http://localhost:8070/https://www.youtube.com/api/lounge/bc" + "/test";
+              b = "http://localhost:8070/https://www.youtube.com/api/lounge/bc" + "/bind";
               var e = this.YP(c),
                   f = this.f;
               f && f.Mz(null);
@@ -28054,7 +28058,7 @@ if (!self.__WB_pmw) {
               screen_id: this.f.id || "",
               screen_name: a
           };
-          this.j = (c = lq(("http://localhost:8070/https://www.youtube.com/api/lounge/pairing/get_pairing_code", {
+          this.j = (c = lq(("http://localhost:8070/https://www.youtube.com/api/lounge/pairing/generate_screen_id", {
               ctx: c
           }), {
               wc: a,
@@ -28092,24 +28096,69 @@ if (!self.__WB_pmw) {
               method: "POST"
           })
       };
+      
       d.mB = function(a, b) {
-          var c = x(function(c) {
-              c = yi(c.responseText);
-              var f = !1;
-              c.screens && Ka(c.screens, function(b) {
-                  b.screenId == a && (this.f ? this.f.token = b.loungeToken : this.f = new Kt(b), f = !0)
-              }, this);
-              b(f)
-          }, this);
-          lq(("http://localhost:8070/https://www.youtube.com/api/lounge/pairing/get_lounge_token_batch"), {
-              wc: {
-                  screen_ids: a
-              },
-              method: "POST",
-              yd: c,
-              onError: y(b, !1)
-          })
-      };
+        var c = x(function(c) {
+            try {
+                // Log the raw response
+                console.log("Response Text:", c.responseText);
+    
+                // Parse the response as JSON
+                c = JSON.parse(c.responseText);
+                console.log("Parsed Response:", c);
+    
+                var f = false;
+    
+                // Check if `screens` exists in the response
+                if (c.screens) {
+                    console.log("Screens found:", c.screens);
+                    
+                    // Loop through each screen to find the matching `screenId`
+                    c.screens.forEach(function(screen) {
+                        console.log("Checking screen:", screen);
+                        
+                        if (screen.screenId === a) {
+                            console.log("Found matching screenId:", screen.screenId);
+                            
+                            // If found, assign the `loungeToken` and mark `f` as true
+                            if (this.f) {
+                                console.log("Updating loungeToken:", screen.loungeToken);
+                                this.f.token = screen.loungeToken;
+                            } else {
+                                console.log("Creating new Kt instance with screen data");
+                                this.f = new Kt(screen);  // Assuming Kt is a constructor that handles the screen data
+                            }
+                            f = true;
+                        }
+                    }, this);
+                } else {
+                    console.log("No screens found in the response.");
+                }
+    
+                // Log the result of the operation
+                console.log("Operation result (f):", f);
+                
+                // Call the callback `b` with the result
+                b(f);
+            } catch (error) {
+                console.error("Error processing response:", error);
+                b(false);  // If an error occurs, return false
+            }
+        }, this);
+    
+        // Make the request to the YouTube API via the proxy
+        console.log("Sending request to proxy...");
+        lq("http://localhost:8070/https://www.youtube.com/api/lounge/pairing/get_lounge_token_batch", {
+            wc: {
+                screen_ids: a  // Pass the `screen_ids` as part of the request body
+            },
+            method: "POST",
+            yd: c,
+            onError: y(b, false)
+        });
+    };
+    
+    
 
       function Nt(a, b, c, e, f, g, k, l) {
           D.call(this);
@@ -32976,6 +33025,8 @@ if (!self.__WB_pmw) {
               if (!(c[e] in a && c[e] in b)) return !1;
           return Gb(a, b)
       };
+
+
       Vv.inject = ["environment", "captionsApi", "playerFacade", "timeService", "isWindowFocused"];
       !I || nd(9);
       var Wv = {
@@ -35585,7 +35636,7 @@ if (!self.__WB_pmw) {
           a.register("fresh_transport_controls.html", '<div class="fresh-transport-controls">  <div id="storyboard" class="$storyboard" data-hidden-by-default="true"></div>  <div id="fresh-rows-container">    <div class="more-row">      <div id="transport-more-button" class="$button"          data-model="{{moreOptionsButtonModel}}"></div>      <div id="transport-more-options-list" class="$list"          data-hidden-by-default="true"          data-model="{{moreOptionsListModel}}"></div>    </div>    <div class="main-row">      <div id="play-pause-button" class="$toggleButton"          data-model="{{playPauseButtonModel}}"></div>      <div id="player-time-elapsed" class="$elapsed-time"></div>      <div id="progress-bar" class="$progress-bar"></div>      <div class="player-time-total">{{totalTime}}</div>      <div class="live-indicator">[[Live|Label indicating that this is a live video.]]</div>    </div>  </div>  <div class="seeking-icon icon-player-rew"></div></div>');
           a.register("fresh_transport_controls_no_storyboard.html", '<div class="fresh-transport-controls">  <div id="fresh-rows-container">    <div class="more-row">      <div id="transport-more-button" class="$button"          data-model="{{moreOptionsButtonModel}}"></div>      <div id="transport-more-options-list" class="$list"          data-hidden-by-default="true"          data-model="{{moreOptionsListModel}}"></div>    </div>    <div class="main-row">      <div id="play-pause-button" class="$toggleButton"          data-model="{{playPauseButtonModel}}"></div>      <div id="player-time-elapsed" class="$elapsed-time"></div>      <div id="progress-bar" class="$progress-bar"></div>      <div class="player-time-total">{{totalTime}}</div>      <div class="live-indicator">[[Live|Label indicating that this is a live video.]]</div>    </div>  </div>  <div class="seeking-icon icon-player-rew"></div></div>');
           a.register("grid.html", '<div>  <div class="$list" data-catch-mouse-move="{{catchRowMouseMove}}" data-item-factory="{{itemFactory}}" data-is-vertical="false" data-loop="{{loopRows}}" data-consume-events="{{consumeEvents}}" data-rate-limit="{{rateLimit}}"></div></div>');
-          a.register("guide.html", '<div>  <div id="user-info-background">    <div class="user-info-container">      <div id="guide-user-avatar" rebound-style="background-image: url({http://localhost:8090/user/user_pfp})" style="background-image: url(http://localhost:8090/user/user_pfp);"></div>      <div class="guide-user-text">        <div class="guide-user-name">{{userName}}</div>        <div class="guide-user-unlimited">{{unlimitedStatus}}</div>      </div>    </div>  </div>  <div class="collapsed-guide"></div>  <div class="guide-carousel-background"></div>  <div class="collapsed-guide-icons">    <div class="collapsed-guide-icon icon-guide-what-to-watch"></div>    <div class="collapsed-guide-icon icon-guide-my-subs"></div>    <div class="collapsed-guide-icon icon-popular"></div>    <div class="collapsed-guide-icon icon-music"></div>    <div class="collapsed-guide-icon icon-ellipsis"></div>  </div>  <div id="error-message">[[Sorry, the rest of this Guide isn\u2019t available right now.|An error message displayed when the guide cannot be fully displayed.]]</div></div>');
+          a.register("guide.html", '<div>  <div id="user-info-background">    <div class="user-info-container">      <div id="guide-user-avatar" rebound-style="background-image: url({{userAvatar}})" style="background-image: url({{userAvatar}});"></div>      <div class="guide-user-text">        <div class="guide-user-name">{{userName}}</div>        <div class="guide-user-unlimited">{{unlimitedStatus}}</div>      </div>    </div>  </div>  <div class="collapsed-guide"></div>  <div class="guide-carousel-background"></div>  <div class="collapsed-guide-icons">    <div class="collapsed-guide-icon icon-guide-what-to-watch"></div>    <div class="collapsed-guide-icon icon-guide-my-subs"></div>    <div class="collapsed-guide-icon icon-popular"></div>    <div class="collapsed-guide-icon icon-music"></div>    <div class="collapsed-guide-icon icon-ellipsis"></div>  </div>  <div id="error-message">[[Sorry, the rest of this Guide isn\u2019t available right now.|An error message displayed when the guide cannot be fully displayed.]]</div></div>');
           a.register("guide_button.html", '<div>  <div class="guide-button-icon {{model.iconClass}}">    <div class="$image" data-image-url="{{model.iconUrl}}"></div>  </div>  <div class="guide-button-title">{{model.label}}</div></div>');
           a.register("horizontal_list.html", '<div>  <div class="no-content-message">    <div class="text">{{noContentMessage}}</div>  </div>  <div class="content"></div></div>');
           a.register("icon_button.html", '<div>  <span class="icon {{getIconClass()}}"></span>  <span class="label">{{model.label}}</span></div>');

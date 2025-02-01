@@ -64,6 +64,9 @@ wanna use.
 I mean YOU can now but you'll have to modify each refrence of localhost to your IP adress,
 I just used localhsot as it was easy to setup.
 
+Disable Oauth for now, you won't need to in the future since i can just get your access 
+token from the headers (I didn't think about that).
+
 We Use:
 
 - Port 8090

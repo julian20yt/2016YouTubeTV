@@ -142,29 +142,30 @@ const revokeToken = async (token) => {
 };
 
 
-async function getYouTubeChannelData() {
+async function getYouTubeChannelData(accessToken) {
     try {
-       
-        const accessToken = await getAccessToken();
+        const apiUrl = 'https://www.youtube.com/youtubei/v1/guide';
 
-        const response = await axios.post(
-            'https://www.youtube.com/youtubei/v1/guide',
-            {
-                context: {
-                    client: {
-                        clientName: 'TVHTML5',
-                        clientVersion: '7.20240701.16.00',
-                        hl: 'en',
-                        gl: 'US',
-                    }
+        const postData = {
+            context: {
+                client: {
+                    clientName: 'TVHTML5',
+                    clientVersion: '7.20240701.16.00',
+                    hl: 'en',
+                    gl: 'US',
                 }
-            },
-            {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                },
             }
-        );
+        };
+
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        if (accessToken) {
+            headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+
+        const response = await axios.post(apiUrl, postData, { headers });
 
         const guideItems = response.data.items.map(section => section.guideSectionRenderer.items).flat();
 
@@ -172,10 +173,9 @@ async function getYouTubeChannelData() {
             kind: 'youtube#channelListResponse',
             etag: 'etag_value_here',
             items: guideItems.map(item => {
-       
                 const guideAccount = item.guideAccountEntryRenderer;
                 if (guideAccount && guideAccount.title && guideAccount.thumbnail) {
-                    const channelData = {
+                    return {
                         kind: 'youtube#channel',
                         id: guideAccount.title.simpleText, 
                         snippet: {
@@ -197,10 +197,7 @@ async function getYouTubeChannelData() {
                             videoCount: '0', 
                         },
                     };
-
-                    return channelData;
                 } else {
-                 
                     console.warn('Skipping invalid entry:', item);
                     return null;
                 }
@@ -351,16 +348,19 @@ const oauthRouter = (app) => {
     });
     
     app.get('/api/youtube/channels', async (req, res) => {
-
         try {
-            const channelData = await getYouTubeChannelData();
+            const authorizationHeader = req.headers['authorization'];
+            const accessToken = authorizationHeader && authorizationHeader.startsWith('Bearer ') ? authorizationHeader.split(' ')[1] : null;
+    
+            const channelData = await getYouTubeChannelData(accessToken);
             res.json(channelData);
         } catch (error) {
             const errorMessage = `Error fetching YouTube channel data: ${error.message}`;
+            console.error(errorMessage);
             res.status(500).send(errorMessage);
-            logErrorToFile(errorMessage);
         }
     });
+
     app.get('/user/user_pfp', async (req, res) => {
         try {
 

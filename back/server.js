@@ -12,6 +12,8 @@ const { handleSearchRequest } = require('./search_api');
 const { fetchNextData } = require('./next_api'); 
 const { handleGetVideoInfo } = require('./get_video_info');
 
+const { fetchLoungeTokenBatch } = require('./lounge_api'); 
+
 const bodyParser = require('body-parser');
 const oauthRouter = require('./oauth_api_v3_api.js');
 
@@ -25,6 +27,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors());
 
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.header('Cross-Origin-Embedder-Policy', 'credentialless');
+    next();
+});
 
 const server = corsAnywhere.createServer({
     originWhitelist: ['http://localhost:8090', '*', '""', ''], 
@@ -229,6 +237,119 @@ app.get('/api/browse', async (req, res) => {
     }
 });
 
+app.post('/api/lounge/pairing/generate_screen_id', async (req, res) => {
+    const { pairingCode } = req.body;
+
+    if (!pairingCode) {
+        return res.status(400).json({
+            error: 'Missing pairingCode parameter in the request.'
+        });
+    }
+
+    try {
+        const screenIdData = await generateScreenId(pairingCode);  
+        res.json(screenIdData);
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).json({
+            error: 'Failed to generate screen ID',
+            details: error.message
+        });
+    }
+});
+
+// Handle /api/lounge/pairing/get_lounge_token_batch request
+// Handle /api/lounge/pairing/get_lounge_token_batch request
+app.post('/api/lounge/pairing/get_lounge_token_batch', async (req, res) => {
+    const { screenIds } = req.body; // Assuming it's passed in the body (for server-side use)
+
+    if (!screenIds) {
+        return res.status(400).json({
+            error: 'Missing screenIds parameter in the request.'
+        });
+    }
+
+    try {
+        // Call the helper function with the screenIds
+        const tokenBatchData = await getLoungeTokenBatch(screenIds);
+        res.json(tokenBatchData);
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).json({
+            error: 'Failed to get lounge token batch',
+            details: error.message
+        });
+    }
+});
+
+
+// Handle /api/lounge/pairing/get_pairing_code request
+app.get('/api/lounge/pairing/get_pairing_code', async (req, res) => {
+    const { screenId } = req.query;
+
+    if (!screenId) {
+        return res.status(400).json({
+            error: 'Missing screenId parameter in the request.'
+        });
+    }
+
+    try {
+        const pairingCodeData = await getPairingCode(screenId);
+        res.json(pairingCodeData);
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).json({
+            error: 'Failed to get pairing code',
+            details: error.message
+        });
+    }
+});
+
+// Handle /api/lounge/pairing/register_pairing_code request
+app.post('/api/lounge/pairing/register_pairing_code', async (req, res) => {
+    const { pairingCode } = req.body;
+
+    if (!pairingCode) {
+        return res.status(400).json({
+            error: 'Missing pairingCode parameter in the request.'
+        });
+    }
+
+    try {
+        const registrationData = await registerPairingCode(pairingCode);
+        res.json(registrationData);
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).json({
+            error: 'Failed to register pairing code',
+            details: error.message
+        });
+    }
+});
+
+// Handle /api/lounge/pairing/get_lounge_details request
+app.get('/api/lounge/pairing/get_lounge_details', async (req, res) => {
+    const { screenId } = req.query;
+
+    if (!screenId) {
+        return res.status(400).json({
+            error: 'Missing screenId parameter in the request.'
+        });
+    }
+
+    try {
+        const loungeDetailsData = await getLoungeDetails(screenId);
+        res.json(loungeDetailsData);
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).json({
+            error: 'Failed to get lounge details',
+            details: error.message
+        });
+    }
+});
+
+
 app.post('/api/browse', async (req, res) => {
     const { browseId } = req.body; 
 
@@ -268,9 +389,8 @@ async function handleGuideRequest(req, res) {
 app.get('/api/guide', handleGuideRequest);
 app.post('/api/guide', handleGuideRequest);
 
-
 app.post('/api/next', async (req, res) => {
-    const {videoId } = req.body;
+    const { videoId } = req.body;
 
     if (typeof videoId !== 'string' || !videoId.trim()) {
         return res.status(400).json({
@@ -278,8 +398,11 @@ app.post('/api/next', async (req, res) => {
         });
     }
 
+    const authorizationHeader = req.headers['authorization'];
+    const accessToken = authorizationHeader && authorizationHeader.startsWith('Bearer ') ? authorizationHeader.split(' ')[1] : null;
+
     try {
-        const nextData = await fetchNextData(videoId);
+        const nextData = await fetchNextData(videoId, accessToken);
 
         res.json(nextData);
     } catch (error) {
@@ -291,6 +414,7 @@ app.post('/api/next', async (req, res) => {
         });
     }
 });
+
 
 
 app.post('/api/search', handleSearchRequest);
