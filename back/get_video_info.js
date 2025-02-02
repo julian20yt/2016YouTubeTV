@@ -8,7 +8,7 @@ function handleGetVideoInfo(req, res) {
     const prettyPrint = req.query.prettyprint === 'true';
     const unurlencode = req.query.unurlencode === 'true';
 
-    const disableWebM = false; 
+    const disableWebM = false;
     if (!videoId) {
         return res.status(400).send('Video ID is required');
     }
@@ -18,103 +18,107 @@ function handleGetVideoInfo(req, res) {
         noWarnings: true,
         quiet: true,
     })
-    .then(output => {
-        //console.log('Video Info:', output);
+        .then(output => {
+            //console.log('Video Info:', output);
 
-        const logsDir = path.join(__dirname, 'logs');
-        if (!fs.existsSync(logsDir)) {
-            fs.mkdirSync(logsDir);
-        }
+            const logsDir = path.join(__dirname, 'logs');
+            if (!fs.existsSync(logsDir)) {
+                fs.mkdirSync(logsDir);
+            }
 
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const logFilePath = path.join(logsDir, `video-info-${timestamp}.json`);
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const logFilePath = path.join(logsDir, `video-info-${timestamp}.json`);
 
-        fs.writeFileSync(logFilePath, JSON.stringify(output, null, 2));
+            fs.writeFileSync(logFilePath, JSON.stringify(output, null, 2));
 
-        const videoIdFromOutput = output.id; // This is the video ID like "jNQXAC9IVRw"
-        const videoTitle = output.title;     // This is the video title like "Me at the zoo"
-        const videoDuration = output.duration; // This is the video duration in seconds
+            const videoIdFromOutput = output.id; // This is the video ID like "jNQXAC9IVRw"
+            const videoTitle = output.title;     // This is the video title like "Me at the zoo"
+            const videoDuration = output.duration; // This is the video duration in seconds
 
-        // Log video details
-        console.log('Video ID:', videoIdFromOutput);
-        console.log('Video Title:', videoTitle);
-        console.log('Video Duration:', videoDuration);
+            // Log video details
+            console.log('Video ID:', videoIdFromOutput);
+            console.log('Video Title:', videoTitle);
+            console.log('Video Duration:', videoDuration);
 
-        const adaptiveFmts = [];
-        const fmtListArr = [];
-        
-        //console.log('Video info logged to file:', logFilePath);
-        if (output.formats && Array.isArray(output.formats)) {
-            output.formats.forEach(format => {
-                const skipFormatIds = ["sb1", "sb2", "sb0"];
-                if (skipFormatIds.includes(format.format_id)) {
-                   // console.log('Skipping format with format_id:', format.format_id);
-                    return; 
-                }
-                if (disableWebM && (format.ext === 'webm' || format.acodec === 'vp9' || format.acodec === 'vp8')) {
-                    //console.log('Skipping WebM, VP9, or VP8 format');
-                    return; 
-                }
+            const adaptiveFmts = [];
+            const fmtListArr = [];
+            const urlEncodedFmtStreamMapArr = [];
 
-                if (format.url && format.format_id) {
-                    let mimeType;
-                    if (format.vcodec && format.vcodec !== "none" && format.acodec && format.acodec !== "none") {
-                        mimeType = `video/${format.ext || 'mp4'}; codecs="${format.vcodec},${format.acodec}"`;
-                    } else if (format.vcodec && format.vcodec !== "none") {
-                        mimeType = `video/${format.ext || 'mp4'}; codecs="${format.vcodec}"`;
-                    } else if (format.acodec && format.acodec !== "none") {
-                        mimeType = `audio/${format.ext || 'mp4'}; codecs="${format.acodec}"`;
+            //console.log('Video info logged to file:', logFilePath);
+            if (output.formats && Array.isArray(output.formats)) {
+                output.formats.forEach(format => {
+                    const skipFormatIds = ["sb1", "sb2", "sb0"];
+                    if (skipFormatIds.includes(format.format_id)) return;
+
+                    if (disableWebM && (format.ext === 'webm' || format.acodec === 'vp9' || format.acodec === 'vp8')) return;
+
+                    if (format.url && format.format_id) {
+                        let mimeType;
+                        if (format.vcodec && format.vcodec !== "none" && format.acodec && format.acodec !== "none") {
+                            mimeType = `video/${format.ext || 'mp4'}; codecs="${format.vcodec},${format.acodec}"`;
+                        } else if (format.vcodec && format.vcodec !== "none") {
+                            mimeType = `video/${format.ext || 'mp4'}; codecs="${format.vcodec}"`;
+                        } else if (format.acodec && format.acodec !== "none") {
+                            mimeType = `audio/${format.ext || 'mp4'}; codecs="${format.acodec}"`;
+                        } else {
+                            mimeType = `application/octet-stream`;
+                        }
+
+                        // Only push non-format_id 18 formats into adaptiveFmts
+                        if (format.format_id !== '18') {
+                            const urlParams = new URLSearchParams();
+                            urlParams.append('url', format.url);
+                            urlParams.append('itag', format.format_id);
+                            urlParams.append('clen', format.filesize || 'unknown');
+                            urlParams.append('lmt', format.lastModified || 'unknown');
+                            urlParams.append('dur', format.duration || 'unknown');
+                            urlParams.append('fps', format.fps || 'unknown');
+                            urlParams.append('size', `${format.width || 0}x${format.height || 0}`);
+                            urlParams.append('bitrate', format.tbr || 'unknown');
+                            urlParams.append('type', mimeType);
+
+                            adaptiveFmts.push(urlParams.toString());
+
+                            const width = format.width || "unknown";
+                            const height = format.height || "unknown";
+
+                            if (width === "unknown" || height === "unknown") {
+                                console.log('Skipping format with unknown width or height:', format);
+                                return;
+                            }
+
+                            if (format.format_id) {
+                                const fmtString = `${format.format_id}/${width}x${height}`;
+                                fmtListArr.push(fmtString);
+                            } else {
+                                console.log('Skipping format with missing format_id:', format);
+                            }
+                        }
+
+                        // Only for format_id = 18, push to urlEncodedFmtStreamMapArr
+                        if (format.format_id === '18') {
+                            const fmtString = `itag=${format.itag}&type=${mimeType}&url=${encodeURIComponent(format.url)}&quality=${format.quality || 'unknown'}`;
+                            urlEncodedFmtStreamMapArr.push(fmtString);
+                        }
                     } else {
-                        mimeType = `application/octet-stream`;
+                        console.log('Skipping format with missing URL or format_id:', format);
                     }
-            
-                    //console.log(`Determined MIME type for format_id ${format.format_id}: ${mimeType}`);
-            
-                    const urlParams = new URLSearchParams();
-                    urlParams.append('url', format.url);
-                    urlParams.append('itag', format.format_id);
-                    urlParams.append('clen', format.filesize || 'unknown');
-                    urlParams.append('lmt', format.lastModified || 'unknown');
-                    urlParams.append('dur', format.duration || 'unknown');
-                    urlParams.append('fps', format.fps || 'unknown');
-                    urlParams.append('size', `${format.width || 0}x${format.height || 0}`);
-                    urlParams.append('bitrate', format.tbr || 'unknown');
-                    urlParams.append('type', mimeType);
-            
-                    adaptiveFmts.push(urlParams.toString());
-            
-                    const width = format.width || "unknown";
-                    const height = format.height || "unknown";
-            
-                    if (width === "unknown" || height === "unknown") {
-                        console.log('Skipping format with unknown width or height:', format);
-                        return; 
-                    }
-            
-                    if (format.format_id) {
-                        const fmtString = `${format.format_id}/${width}x${height}`;
-                        fmtListArr.push(fmtString);
-                    } else {
-                        console.log('Skipping format with missing format_id:', format);
-                    }
-                } else {
-                    console.log('Skipping format with missing URL or format_id:', format);
-                }
-            });
-        }
+                });
+            }
 
-        if (adaptiveFmts.length === 0) {
-            console.log('No adaptive formats found');
-            return res.status(404).send('No adaptive formats found');
-        }
-    
-        const fmtList = encodeURIComponent(fmtListArr.join(','));
-        const adaptiveFmtsResponse = adaptiveFmts.join(',');
+            if (adaptiveFmts.length === 0) {
+                console.log('No adaptive formats found');
+                return res.status(404).send('No adaptive formats found');
+            }
 
-        //console.log('Constructed adaptive_fmts:', adaptiveFmtsResponse);
-        //console.log('Constructed fmt_list:', fmtList);
 
-        const videoInfo = `baseUrl=https%3A%2F%2Flocalhost%3A8090
+            const fmtList = encodeURIComponent(fmtListArr.join(','));
+            const adaptiveFmtsResponse = adaptiveFmts.join(',');
+            const urlEncodedFmtStreamMapResponse = urlEncodedFmtStreamMapArr.join(',');
+            //console.log('Constructed adaptive_fmts:', adaptiveFmtsResponse);
+            //console.log('Constructed fmt_list:', fmtList);
+
+            const videoInfo = `baseUrl=https%3A%2F%2Flocalhost%3A8090
         iv_module=https%3A%2F%2Fs.ytimg.com%2Fyts%2Fswfbin%2Fplayer-vflq9bo_X%2Fiv_module.swf
         account_playback_token=QUFFLUhqbUNlSEVkMTBaWWVFcjgtNC1KZ3VIRzA0X2I2d3xBQ3Jtc0tsYklEbEFDemhBNlJJOS01TkFZQzJNUmVrVERqeDhaV1pqQmJEOFZ3V3pSWjNNRnhiZnd5NnJWejJONzM3dFh0MG9PT0U2Q3gzVnVKS194cEphNkVPeFE3azlSSFhabmh0QkpITW90b2FEMnpvVGZPQQ%3D%3D
         cbr=Chrome
@@ -162,6 +166,7 @@ function handleGetVideoInfo(req, res) {
         iurl=https%3A%2F%2Fi.ytimg.com%2Fvi%2F0ggR11jYS3A%2Fhqdefault.jpg
         author=%D7%A0%D7%A4%D7%AA%D7%9C%D7%99+%D7%91%D7%A0%D7%98+%7C+Naftali+Bennett
         storyboard_spec=https%3A%2F%2Fi.ytimg.com%2Fsb%2F0ggR11jYS3A%2Fstoryboard3_L%24L%2F%24N.jpg%7C48%2327%23100%2310%2310%230%23default%23yvvsiusjZ_KiPonEenYmA1bW328%7C80%2345%2369%2310%2310%231000%23M%24M%23h24UdR4MSsVa86F4cpbra_vXmCM%7C160%2390%2369%235%235%231000%23M%24M%23d4EkeR6fEFwH1ZWjKntREyHAHn8
+        url_encoded_fmt_stream_map=${encodeURIComponent(adaptiveFmtsResponse)}
         adaptive_fmts=${encodeURIComponent(adaptiveFmtsResponse)}
         remarketing_url=https%3A%2F%2Fgoogleads.g.doubleclick.net%2Fpagead%2Fviewthroughconversion%2F962985656%2F%3Flabel%3Dfollowon_view%26cname%3D1%26foc_id%3D4x7LYSzgGH-TMKc9J8pwgQ%26backend%3Dplayer_vars%26cver%3DHTML5%26ptype%3Dno_rmkt%26aid%3DP989_XaxlmI
         idpj=-2
@@ -184,25 +189,25 @@ function handleGetVideoInfo(req, res) {
         use_cipher_signature=False
         `;
 
-    const properties = videoInfo.trim().split("\n");
+            const properties = videoInfo.trim().split("\n");
 
-    const encodedProperties = properties.map(prop => {
-        const [key, value] = prop.split('=');
-        const decodedValue = decodeURIComponent(value || '');
-        return `${key}=${decodedValue !== value ? value : encodeURIComponent(value || '')}`;
-    });
+            const encodedProperties = properties.map(prop => {
+                const [key, value] = prop.split('=');
+                const decodedValue = decodeURIComponent(value || '');
+                return `${key}=${decodedValue !== value ? value : encodeURIComponent(value || '')}`;
+            });
 
-    const encodedResponse = encodedProperties.join('&').replace(/\s+/g, '');
+            const encodedResponse = encodedProperties.join('&').replace(/\s+/g, '');
 
 
 
-        res.send(encodedResponse);
-    })
+            res.send(encodedResponse);
+        })
 
-    .catch(err => {
-        console.error('Error fetching video info:', err);
-        res.status(500).send('Failed to fetch video info');
-    });
+        .catch(err => {
+            console.error('Error fetching video info:', err);
+            res.status(500).send('Failed to fetch video info');
+        });
 }
 
 module.exports = { handleGetVideoInfo };
