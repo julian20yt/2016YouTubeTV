@@ -7,15 +7,6 @@ if (!self.__WB_pmw) {
         return this;
     }
 } {
-    let window = _____WB$wombat$assign$function_____("window");
-    let self = _____WB$wombat$assign$function_____("self");
-    let document = _____WB$wombat$assign$function_____("document");
-    let location = _____WB$wombat$assign$function_____("location");
-    let top = _____WB$wombat$assign$function_____("top");
-    let parent = _____WB$wombat$assign$function_____("parent");
-    let frames = _____WB$wombat$assign$function_____("frames");
-    let opener = _____WB$wombat$assign$function_____("opener");
-
 
     (function () {
         var g, aa = aa || {},
@@ -23,12 +14,7 @@ if (!self.__WB_pmw) {
 
         function p(a) {
             return void 0 !== a
-            const videoElement = document.querySelector('.html5-main-video');
-            console.trace("Video element src assigned", videoElement.src);
-
         }
-
-
 
         function q(a, b, c) {
             a = a.split(".");
@@ -4706,7 +4692,7 @@ if (!self.__WB_pmw) {
                 Rj(Ak(this, "Opening Xhr")), this.N = !0, this.b.open(b, String(a), !0), this.N = !1
             } catch (f) {
                 Rj(Ak(this, "Error opening Xhr: " + f.message));
-
+                Bk(this, f);
                 return
             }
             a = c || "";
@@ -6349,19 +6335,18 @@ if (!self.__WB_pmw) {
             console.log("a:", a);
             console.log("b:", b);
 
-            let aRangeStart = (a.range && a.range.start) ? a.range.start : 0;
-            let bRangeStart = (b.range && b.range.start) ? b.range.start : 0;
+            var aRangeStart = (a.range && a.range.start) ? a.range.start : 0;
+            var bRangeStart = (b.range && b.range.start) ? b.range.start : 0;
 
-            let aO = a.o || 0;
-            let aG = a.g || 0;
-            let bO = b.o || 0;
+            var aO = (typeof a.o !== "undefined") ? a.o : 0;
+            var aG = (typeof a.g !== "undefined") ? a.g : 0;
+            var bO = (typeof b.o !== "undefined") ? b.o : 0;
 
-            let result = (a.b == b.b) && (aRangeStart + aO + aG == bRangeStart + bO);
+            var result = (a.b === b.b) && ((aRangeStart + aO + aG) === (bRangeStart + bO));
             console.log("Result:", result);
 
             return result;
         }
-
 
 
         function Mn(a) {
@@ -7110,32 +7095,50 @@ if (!self.__WB_pmw) {
         }
         B(Vo, Hn);
         g = Vo.prototype;
+
         g.Sk = function (a) {
             var b = new In(1, this, this.initRange),
                 c = new In(2, this, this.indexRange),
                 d = [],
                 e = [b];
 
-            Ln(b, c) ? e.push(c) : (d.push(new Pn([c])), a = 0);
+            // Comparing b and c using the Ln function
+            if (Ln(b, c)) {
+                e.push(c);
+            } else {
+                d.push(new Pn([c]));
+                a = 0;
+            }
 
-            isNaN(this.g) ? a = 0 : a > this.g && (a = this.g);
+            // Ensuring a is a valid number and does not exceed this.g
+            if (isNaN(this.g)) {
+                a = 0;
+            } else if (a > this.g) {
+                a = this.g;
+            }
 
+            // Getting the last element in e array (b)
             b = e[e.length - 1];
 
-            let bRangeEnd = (b.range && typeof b.range.end !== "undefined") ? b.range.end : 0;
-            let eRangeStart = (e[0].range && typeof e[0].range.start !== "undefined") ? e[0].range.start : 0;
+            // Checking if range.end and range.start are defined
+            var bRangeEnd = (b.range && typeof b.range.end !== "undefined") ? b.range.end : 0;
+            var eRangeStart = (e[0].range && typeof e[0].range.start !== "undefined") ? e[0].range.start : 0;
 
-            let rangeDiff = bRangeEnd - eRangeStart + 1; // Renamed 'c' to 'rangeDiff'
+            // Calculating the range difference
+            var rangeDiff = bRangeEnd - eRangeStart + 1; // Renamed 'c' to 'rangeDiff'
 
+            // If a is greater than rangeDiff, create a new range
             if (a > rangeDiff) {
-                let newRangeStart = bRangeEnd + 1;
-                let newRange = rn(newRangeStart, a - rangeDiff);
+                var newRangeStart = bRangeEnd + 1;
+                var newRange = rn(newRangeStart, a - rangeDiff);
                 e.push(new In(4, this, newRange));
             }
 
+            // Adding the final range to d and returning d
             d.push(new Pn(e));
             return d;
         };
+
 
         g.fl = function (a) {
             if (1 == a.info.type) {
@@ -7621,44 +7624,22 @@ if (!self.__WB_pmw) {
             wp = ['audio/mp4; codecs="mp4a.40.2"'];
 
         function xp() {
-            console.log("Video element (a):", a); // Log the value of a
-
-
             var a = r("yt.player.utils.videoElement_");
-
-            if (!a) {
-                a = document.createElement("video");
-                q("yt.player.utils.videoElement_", a, void 0);
-            }
-
-            return a;
+            a || (a = document.createElement("video"), q("yt.player.utils.videoElement_", a, void 0));
+            return a
         }
-
 
         function yp(a) {
             var b = xp();
-            console.log("xp() result:", b); // Log the result of xp()
-
             try {
                 if (b.canPlayType) {
-                    console.log("canPlayType is available");
-                    a = a ? vp : wp;  // Set a to vp or wp based on the condition
-                    console.log("a is set to:", a); // Log the value of a
-
-                    for (var c = 0; c < a.length; c++) {
-                        console.log("Checking canPlayType for:", a[c]);
-                        if (b.canPlayType(a[c])) {
-                            console.log("b.canPlayType returned true for:", a[c]);
-                            return null;  // If canPlayType returns true, return null
-                        }
-                    }
+                    a = a ? vp : wp;
+                    for (var c = 0; c < a.length; c++)
+                        if (b.canPlayType(a[c])) return null
                 }
-
-                console.log("Returning 'fmt.noneavailable'"); // Log before returning "fmt.noneavailable"
-                return "fmt.noneavailable";
+                return "fmt.noneavailable"
             } catch (d) {
-                console.error("Error caught:", d);  // Log the error if one occurs
-                return "html5.missingapi";  // Return error message if an exception occurs
+                return "html5.missingapi"
             }
         };
 
@@ -8699,7 +8680,6 @@ if (!self.__WB_pmw) {
             this.o = !1;
             this.g = {}
         }
-
         Ir.prototype.dispose = function () {
             if (!this.o) {
                 if (this.b) try {
@@ -8708,7 +8688,6 @@ if (!self.__WB_pmw) {
                 this.o = !0
             }
         };
-
         Ir.prototype.isDisposed = function () {
             return this.o
         };
@@ -8821,18 +8800,163 @@ if (!self.__WB_pmw) {
             this.b.webkitSourceSetDuration && this.b.webkitSourceSetDuration(a)
         };
 
-        function Nr(a, b, c, d, e) {
+        function Nr(a, b, c, d, e, rawVideoInfo) {
+
+            console.log("Nr constructor called with parameters:", a, b, c, d, e, rawVideoInfo);
+
+            console.log("rawVideoInfo parameters:", rawVideoInfo);
+            // Call the parent constructor
             Cm.call(this);
+            console.log("Cm constructor called");
+
             this.g = this.b = null;
             this.B = b;
-            this.o = window.MediaSource ? new window.MediaSource : window.WebKitMediaSource ? new window.WebKitMediaSource : new Mr(a);
-            this.D = this.C = this.F = null;
-            this.G = d;
-            this.K = c;
-            this.R = e;
-            Dm(this, this.o, ["sourceopen", "webkitsourceopen"], this.J);
-            Dm(this, this.o, ["sourceclose", "webkitsourceclose"], this.H)
+
+            if (!window.MediaSource) {
+                console.error("MediaSource API is not supported.");
+                return;
+            }
+
+            console.log("Using MediaSource API");
+
+            this.o = new MediaSource();
+            console.log("Created MediaSource object:", this.o);
+
+            // Find the existing <video> element
+            const videoElement = document.querySelector(".html5-main-video"); // Ensure this matches your element
+            if (!videoElement) {
+                console.error("Video element not found!");
+                return;
+            }
+
+            videoElement.src = URL.createObjectURL(this.o);
+            console.log("Assigned MediaSource to video element:", videoElement.src);
+
+            this.o.addEventListener("sourceopen", async () => {
+                console.log("MediaSource opened");
+
+                const mediaSource = this.o;
+
+                const videoUrl = "http://localhost:8070/https://rr2---sn-tt1e7nlz.googlevideo.com/videoplayback?expire=1738547248&ei=0MufZ-TmBKGTlu8Pi-DByAQ&ip=67.144.118.91&id=o-ACt0AtN1TuuTIbEgwD89jgF4oJ0E5EB74IIxSk-M8GTr&itag=135&aitags=133%2C134%2C135%2C136%2C137%2C160%2C242%2C243%2C244%2C247%2C248%2C271%2C278%2C313&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&met=1738525648%2C&mh=_i&mm=31%2C26&mn=sn-tt1e7nlz%2Csn-vgqsrnz6&ms=au%2Conr&mv=m&mvi=2&pl=23&rms=au%2Cau&initcwndbps=5898750&bui=AY2Et-N1rIuFKv2tuew1h2bAxwN8ECxNbqOUj6S7CaCJetKa1mGG7sVWIfQLrMijQiY3D_pg5cUxZkXh&spc=9kzgDXJHKo2yfyQ3q4o5k36J4X1ef40fGjb3YUQceyCqLKs0TP2pbcNkdA&vprv=1&svpuc=1&mime=video%2Fmp4&ns=SltWLV9M2lExgvalxauKsQoQ&rqh=1&gir=yes&clen=70804690&dur=728.811&lmt=1724296892219333&mt=1738525266&fvip=4&keepalive=yes&lmw=1&fexp=51326932%2C51371294&c=TVHTML5&sefc=1&txp=6300224&n=Kf2iFeHCqX_06A&sparams=expire%2Cei%2Cip%2Cid%2Caitags%2Csource%2Crequiressl%2Cxpc%2Cbui%2Cspc%2Cvprv%2Csvpuc%2Cmime%2Cns%2Crqh%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIgclXOjwl0cMvNeEriI8PFV9d7QmMIBYwT9OXu8Zh2URYCIQC8gPPmJwg_d92YM2QQwNwK1jxw9fjHreK0WUvAPePcEA%3D%3D&lsparams=met%2Cmh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Crms%2Cinitcwndbps&lsig=AGluJ3MwRAIgajyVkh7SwP62_OpLSd6Tl-gIQ9L7V667EwRpN9uaOWACIHRMQBPNvVt6QB9B_4lNCfuyIVAYsmICoYHqcb2dLckf";
+                const audioUrl = "http://localhost:8070/https://rr2---sn-tt1e7nlz.googlevideo.com/videoplayback?expire=1738547248&ei=0MufZ-TmBKGTlu8Pi-DByAQ&ip=67.144.118.91&id=o-ACt0AtN1TuuTIbEgwD89jgF4oJ0E5EB74IIxSk-M8GTr&itag=250&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&met=1738525648%2C&mh=_i&mm=31%2C26&mn=sn-tt1e7nlz%2Csn-vgqsrnz6&ms=au%2Conr&mv=m&mvi=2&pl=23&rms=au%2Cau&initcwndbps=5898750&bui=AY2Et-N1rIuFKv2tuew1h2bAxwN8ECxNbqOUj6S7CaCJetKa1mGG7sVWIfQLrMijQiY3D_pg5cUxZkXh&spc=9kzgDXJHKo2yfyQ3q4o5k36J4X1ef40fGjb3YUQceyCqLKs0TP2pbcNkdA&vprv=1&svpuc=1&mime=audio%2Fwebm&ns=SltWLV9M2lExgvalxauKsQoQ&rqh=1&gir=yes&clen=5384564&dur=728.841&lmt=1724296042207931&mt=1738525266&fvip=4&keepalive=yes&lmw=1&fexp=51326932%2C51371294&c=TVHTML5&sefc=1&txp=6300224&n=Kf2iFeHCqX_06A&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Cbui%2Cspc%2Cvprv%2Csvpuc%2Cmime%2Cns%2Crqh%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIgNJjmgH6XWoFQoVn4OQ4Gaw7Q7zGM9yFt0zx92foT9RQCIQDWcRJ4OIUDwAxzHTEljVDqYNal39TjncEbYFYP-udz4Q%3D%3D&lsparams=met%2Cmh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Crms%2Cinitcwndbps&lsig=AGluJ3MwRAIgajyVkh7SwP62_OpLSd6Tl-gIQ9L7V667EwRpN9uaOWACIHRMQBPNvVt6QB9B_4lNCfuyIVAYsmICoYHqcb2dLckf";
+
+                const videoMime = getMimeTypeFromUrl(videoUrl);
+                const audioMime = getMimeTypeFromUrl(audioUrl);
+
+                const videoType = getTypeForVideo(videoMime);
+                const audioType = getTypeForAudio(audioMime);
+
+                if (!MediaSource.isTypeSupported(videoType) || !MediaSource.isTypeSupported(audioType)) {
+                    console.error("Detected codec is not supported:", videoType, audioType);
+                    return;
+                }
+
+                const videoSourceBuffer = mediaSource.addSourceBuffer(videoType);
+                const audioSourceBuffer = mediaSource.addSourceBuffer(audioType);
+
+                console.log("Created SourceBuffers:", videoType, audioType);
+
+                fetchSegment(videoUrl, videoSourceBuffer, 'video');
+                fetchSegment(audioUrl, audioSourceBuffer, 'audio');
+
+                function fetchSegment(url, sourceBuffer, type) {
+                    const controller = new AbortController();
+                    const signal = controller.signal;
+
+                    let rangeStart = 0;
+                    const chunkSize = 1024 * 1024;
+                    let rangeEnd = rangeStart + chunkSize - 1;
+
+                    async function loadSegment(retryCount = 3) {
+                        const rangeParam = `${rangeStart}-${rangeEnd}`;
+                        const requestOptions = {
+                            headers: { 'Range': `bytes=${rangeStart}-${rangeEnd}` },
+                            signal: signal
+                        };
+
+                        try {
+                            console.log(`Fetching segment: ${rangeParam}`);
+                            const response = await fetch(url, requestOptions);
+
+                            if (!response.ok) {
+                                throw new Error(`Failed to fetch segment, status: ${response.status}`);
+                            }
+
+                            const data = await response.arrayBuffer();
+                            console.log(`Segment received, range: ${rangeStart}-${rangeEnd}`);
+
+                            if (data && data.byteLength > 0) {
+                                sourceBuffer.appendBuffer(data);
+                                console.log(`Segment appended, range: ${rangeStart}-${rangeEnd}`);
+                            } else {
+                                console.error(`Invalid data received for range: ${rangeStart}-${rangeEnd}`);
+                            }
+
+                            rangeStart = rangeEnd + 1;
+                            rangeEnd = rangeStart + chunkSize - 1;
+
+                            const contentRange = response.headers.get('Content-Range');
+                            const totalSize = parseInt(contentRange.split('/')[1], 10);
+
+                            if (rangeStart < totalSize) {
+
+                                setTimeout(() => loadSegment(retryCount), 100);
+                            }
+                        } catch (err) {
+                            if (err.name === 'AbortError') {
+                                console.log("Fetch aborted.");
+                            } else {
+                                console.error("Error fetching segment:", err);
+                                if (retryCount > 0) {
+                                    console.log(`Retrying segment fetch, attempts remaining: ${retryCount}`);
+                                    setTimeout(() => loadSegment(retryCount - 1), 1000);
+                                } else {
+                                    console.error("Failed to fetch segment after retries.");
+                                }
+                            }
+                        }
+                    }
+
+                    loadSegment();
+                }
+
+                function getMimeTypeFromUrl(url) {
+                    const urlParams = new URLSearchParams(url.split('?')[1]);
+                    const mime = urlParams.get('mime');
+                    if (mime) {
+                        return mime;
+                    } else {
+                        console.error("No mime type found in URL");
+                        return '';
+                    }
+                }
+
+                function getTypeForVideo(mime) {
+                    if (mime === 'video/mp4') {
+                        return 'video/mp4; codecs="avc1.4d401e"';
+                    } else {
+                        console.error("Unsupported video MIME type:", mime);
+                        return '';
+                    }
+                }
+
+                function getTypeForAudio(mime) {
+                    if (mime === 'audio/webm') {
+                        return 'audio/webm; codecs="opus"';
+                    } else if (mime === 'audio/mp4') {
+                        return 'audio/mp4; codecs="mp4a.40.2"';
+                    } else {
+                        console.error("Unsupported audio MIME type:", mime);
+                        return '';
+                    }
+                }
+            });
         }
+
+
+
+
+
         B(Nr, Cm);
 
         function Or(a, b) {
@@ -8844,46 +8968,8 @@ if (!self.__WB_pmw) {
         }
 
         function Qr(a) {
-            if (!a.F) {
-                var b;
-                b = a.o;
 
-                // Log the raw data or object
-                console.log("Raw data (a.o):", b);
-
-                // Check the type of b by logging its constructor name
-                console.log("Constructor of b:", b.constructor.name);
-
-                // If the object has the property Ny, use webkitMediaSourceURL
-                if (b.Ny) {
-                    console.log("Using webkitMediaSourceURL");
-                    b = b.b.webkitMediaSourceURL;
-                } else {
-                    console.log("Using createObjectURL");
-                    b = window.URL.createObjectURL(b);
-                }
-
-                // Log the final media URL or Blob being created
-                console.log("Final media URL or Blob:", b);
-
-                // Check if it's a Blob, and log its properties
-                if (b instanceof Blob) {
-                    console.log("Blob type:", b.type);
-                    console.log("Blob size:", b.size);
-                } else {
-                    // Log if it's not a Blob, and attempt to understand its type
-                    console.log("Not a Blob, but the object is:", b);
-                }
-
-                // Create the instance of Ir with the media URL or Blob
-                a.F = new Ir(b, !0);
-            }
-
-            return a.F;
         }
-
-
-
         Nr.prototype.we = function (a) {
             Rr(this) ? this.o.duration = a : this.B = a
         };
@@ -9016,70 +9102,35 @@ if (!self.__WB_pmw) {
             for (d in b.b) {
                 var e = b.b[d],
                     f;
-
-                console.log("Processing:", e.info);  // Log the current 'e.info' object
-
-                if (f = "304" != Xm(e.info) || b.o) {
+                if (f = "304" != Xm(e.info) || b.o)
                     if (f = !("h" == e.info.o && e.info.video && 1080 < e.info.video.Lm)) a: {
                         f = a;
                         var h = e.info;
-
-                        console.log("Video info:", h);  // Log the video info
-
                         if ("0" != Xm(h) || f.g) {
                             var k = h.mimeType;
-                            if ("258" == Xm(h)) {
-                                k = 'audio/mp4; codecs="aac51"';
-                            }
-
+                            "258" == Xm(h) && (k = 'audio/mp4; codecs="aac51"');
                             var l = {};
-                            if (h.video) {
-                                if (h.video.width) l[Pm.name] = h.video.width;
-                                if (h.video.height) l[Qm.name] = h.video.height;
-                                if (h.video.fps) l[Rm.name] = h.video.fps;
-                                if (h.video.b) l[Tm.name] = h.video.b;
-                                if (h.b) l[Sm.name] = 8 * h.b;
-                            }
-
-                            if (h.audio && h.audio.b) {
-                                l[Um.name] = h.audio.b;
-                            }
-
+                            h.video && (h.video.width && (l[Pm.name] = h.video.width), h.video.height && (l[Qm.name] = h.video.height), h.video.fps && (l[Rm.name] = h.video.fps), h.video.b && (l[Tm.name] = h.video.b), h.b && (l[Sm.name] = 8 * h.b));
+                            h.audio && h.audio.b && (l[Um.name] = h.audio.b);
                             h = l;
                             l = void 0;
-
                             for (l in Vm) {
                                 var m = Vm[l];
-                                if (h[m.name] && ns(f, m)) {
+                                if (h[m.name] && ns(f, m))
                                     if (f.b) {
                                         if (f.b[m.name] < h[m.name]) {
                                             f = !1;
-                                            break a;
+                                            break a
                                         }
-                                    } else {
-                                        k = k + "; " + m.name + "=" + h[m.name];
-                                    }
-                                }
+                                    } else k = k + "; " + m.name + "=" + h[m.name]
                             }
-                            f = Wr(k);
-                        } else {
-                            f = !0;
-                        }
+                            f = Wr(k)
+                        } else f = !0
                     }
-                }
-
-                console.log("Resulting flag 'f':", f);  // Log the final 'f' value
-                if (f) {
-                    console.log("Adding to 'c':", e.info.o);  // Log the info object key
-                    c[e.info.o] = c[e.info.o] || [];
-                    c[e.info.o].push(e.info);
-                }
+                f && (c[e.info.o] = c[e.info.o] || [], c[e.info.o].push(e.info))
             }
-
-            console.log("Final output:", c);  // Log the final 'c' object
-            return c;
+            return c
         }
-
 
         function os(a, b, c) {
             var d = {},
@@ -9094,85 +9145,32 @@ if (!self.__WB_pmw) {
         }
 
         function ps(a, b, c, d) {
-            console.log("Starting ps function with parameters:", a, b, c, d); // Log input parameters
-
             function e(a) {
-                console.log("Checking existence of:", a); // Log the value being checked
-                return !!f[a];
+                return !!f[a]
             }
-
-            var f = ms(a, b); // Log the result of ms(a, b)
-            console.log("Result of ms(a, b):", f);
-
-            if (Zo(b)) {
-                f = os(a, f, c); // Log the result of os function call
-                console.log("Result after os(a, f, c):", f);
-            }
-
+            var f = ms(a, b);
+            Zo(b) && (f = os(a, f, c));
             c = $r;
-            if (a.g) {
-                console.log("Checking for Windows NT 5.1 and other conditions...");
-                if (!ql("windows nt 5.1") || Mh && !a.A.b("html5_prefer_h264_on_xp")) {
-                    console.log("Setting c to as (special conditions met)");
-                    c = as;
-                }
-            } else {
-                c = es;
-            }
+            a.g ? !ql("windows nt 5.1") || Mh && !a.A.b("html5_prefer_h264_on_xp") || (c = as) : c = es;
             b = bs;
-            if (d) {
-                console.log("Condition for d met, changing c and b values");
-                a.g && (c = as);
-                b = ds;
-            }
-
-            if (a.A.b("html5_enable_aac_51_clear")) {
-                console.log("html5_enable_aac_51_clear enabled, setting b to cs");
-                b = cs;
-            }
-
-            console.log("Result of gb(c, e):", gb(c, e));
-            console.log("Result of gb(b, e):", gb(b, e));
-
+            d && (a.g && (c = as), b = ds);
+            a.A.b("html5_enable_aac_51_clear") && (b = cs);
             d = gb(c, e);
             b = gb(b, e);
-
-            if (!d || !b) {
-                console.log("Either d or b is falsy, returning null");
-                return null;
-            }
-
+            if (!d || !b) return null;
             if ("9" == d && f.h) {
-                console.log("Special case when d is '9' and f.h exists, calculating max height");
                 c = function (a, b) {
-                    return Math.max(a, b.video.height);
+                    return Math.max(a, b.video.height)
                 };
                 var h = db(f["9"], c, 0);
-                console.log("h value after db(f['9'], c, 0):", h);
-                if (db(f.h, c, 0) > 1.5 * h) {
-                    console.log("Updating d to 'h' based on condition");
-                    d = "h";
-                }
+                db(f.h, c, 0) > 1.5 * h && (d = "h")
             }
-
-            // Log the selected c and h values
-            console.log("Selected c:", f[d]);
-            console.log("Selected h:", f[b]);
-
-            c = qs(a, f[d]); // Log result of qs function
-            console.log("Result of qs(a, f[d]):", c);
-
-            rs(c, f[b]); // Log rs function call
-            console.log("Called rs(c, f[b])");
-
-            console.log("Data being returned from $p constructor:");
-            console.log("c:", c);
-            console.log("f[b]:", f[b]);
-            console.log("ts(a, f, d, b):", ts(a, f, d, b));
-
-            return new $p(c, f[b], ts(a, f, d, b));
+            c = f[d];
+            h = f[b];
+            c = qs(a, c);
+            rs(c, h);
+            return new $p(c, h, ts(a, f, d, b))
         }
-
 
         function ts(a, b, c, d) {
             var e = b.h;
@@ -9207,40 +9205,15 @@ if (!self.__WB_pmw) {
         }
 
         function ns(a, b) {
-            console.log("Checking:", b.name); // Log the name of the 'b' object
-
             if (!(b.name in a.o)) {
                 var c = a.o,
                     d = b.name,
                     e;
-
-                console.log("b.name not found in a.o, processing...");
-
-                // Log the contents of 'a.o' before the operation
-                console.log("a.o before processing:", a.o);
-
-                a.b ? e = !!a.b[b.name] : (b.video ? (e = 'video/webm; codecs="vp9"', Wr(e) || (e = 'video/mp4; codecs="avc1.4d401e"')) : (e = 'audio/webm; codecs="opus"', Wr(e) || (e = 'audio/mp4; codecs="mp4a.40.2"')));
-
-                // Log the selected 'e' value after the conditional checks
-                console.log("Selected e value:", e);
-
-                e = Wr(e + "; " + b.name + "=" + b.valid) && !Wr(e + "; " + b.name + "=" + b.ie);
-
-                // Log the final 'e' value after validation
-                console.log("Final e value after Wr check:", e);
-
-                // Update the 'a.o' object with the result
-                c[d] = e;
-
-                // Log the updated 'a.o' object
-                console.log("Updated a.o:", a.o);
+                a.b ? e = !!a.b[b.name] : (b.video ? (e = 'video/webm; codecs="vp9"', Wr(e) || (e = 'video/mp4; codecs="avc1.4d401e"')) : (e = 'audio/webm; codecs="opus"', Wr(e) || (e = 'audio/mp4; codecs="mp4a.40.2"')), e = Wr(e + "; " + b.name + "=" + b.valid) && !Wr(e + "; " + b.name + "=" + b.ie));
+                c[d] = e
             }
-
-            // Log the return value
-            console.log("Returning value:", a.o[b.name]);
-
-            return a.o[b.name];
-        }
+            return a.o[b.name]
+        };
 
         function us(a, b) {
             this.g = a;
@@ -9735,81 +9708,29 @@ if (!self.__WB_pmw) {
         }
 
         function Us(a, b) {
-            // Check if the object is disposed, if not, proceed with logic
             if (!a.isDisposed()) {
-                // Log initial state
-                console.log("Initial state of a:", a);
-                console.log("Initial state of b:", b);
-
-                // Reset properties
                 a.g = null;
                 a.re = null;
                 a.R = null;
-
-                // Check if Rs or spacecastAdaptiveFormats exist and process accordingly
                 var c = Rs(a) || b.Fi;
-
-                console.log("Computed c from Rs or b.Fi:", c);
-
-                if (!c && a.spacecastAdaptiveFormats) {
-                    console.log("Processing spacecastAdaptiveFormats...");
-                    a.b = ap(Ss(a, a.spacecastAdaptiveFormats), a.Rg, a.lengthSeconds);
-                    L(a, a.b);
-                    a.g = ps(b.A, a.b, a.G, true);
-                    console.log("Assigned a.g after spacecastAdaptiveFormats:", a.g);
-                }
-                // If spacecastFormatMap exists, process the format map
+                if (!c && a.spacecastAdaptiveFormats) a.b = ap(Ss(a, a.spacecastAdaptiveFormats), a.Rg, a.lengthSeconds), L(a, a.b), a.g = ps(b.A, a.b, a.G, !0);
                 else if (a.spacecastFormatMap) {
-                    console.log("Processing spacecastFormatMap...");
                     var d = Ss(a, a.spacecastFormatMap);
                     a.R = Es(b, d);
-                    a.g = new $p(G(a.R, function (item) {
-                        return item.Gb;
-                    }));
-                    console.log("Assigned a.g after spacecastFormatMap:", a.g);
+                    a.g = new $p(G(a.R, function (a) {
+                        return a.Gb
+                    }))
                 }
-
-                // Find best video info if available
-                if (a.g) {
-                    d = db(a.g.videoInfos, function (a, b) {
-                        return b.video.isAccelerated && (!a || a.height < b.video.height) ? b.video : a;
-                    }, null);
-                    if (d) {
-                        d = Up(d.quality, d.quality, true);
-                        a.nf = d;
-                        a.rf = d;
-                        console.log("Best video info found and assigned:", d);
-                    }
-                }
-
-                // If no valid video or format, process again
-                if (!a.g && !c && a.b) {
-                    console.log("No valid video or format found, re-processing...");
-                    if (b.B || op(a.b, a.ma)) {
-                        a.g = ps(b.A, a.b, a.G);
-                        console.log("Assigned a.g after re-processing:", a.g);
-                    }
-                }
-
-                // Handle case if no valid video or format was found
-                if (!a.g) {
-                    a.R = Vs(a, b);
-                    if (a.R.length) {
-                        a.g = new $p(G(a.R, function (item) {
-                            return item.Gb;
-                        }));
-                        console.log("Assigned a.g after Vs processing:", a.g);
-                    }
-                }
-
-                // Final log statement for completion
-                console.log("Final state of a after processing:", a);
-
-                // Execute any additional logic with Ws function
-                Ws(a);
+                a.g && (d = db(a.g.videoInfos, function (a, b) {
+                    return b.video.isAccelerated && (!a || a.height < b.video.height) ? b.video : a
+                }, null)) && (d = Up(d.quality, d.quality, !0), a.nf = d, a.rf = d);
+                a.g || c || !a.b || (b.B || op(a.b, a.ma), a.g = ps(b.A, a.b, a.G));
+                a.g || (a.R = Vs(a, b), a.R.length && (a.g = new $p(G(a.R, function (a) {
+                    return a.Gb
+                }))));
+                Ws(a)
             }
         }
-
 
         function Vs(a, b) {
             if (a.hlsFormats) {
@@ -15425,7 +15346,7 @@ if (!self.__WB_pmw) {
 
 
 
-        g = $z.prototype;
+        g = 'null';
         g.by = function (a) {
             if (!this.o) {
                 this.status = this.b.status;
@@ -15583,7 +15504,8 @@ if (!self.__WB_pmw) {
                         f = y(this.Lv, this),
                         h = y(this.Kv, this),
                         k = y(this.Jv, this);
-                    this.b = (this.A.F || this.A.ba && 5 > this.N) && "function" == typeof window.fetch && window.ReadableByteStream && eA(this) ? new Vz(a, f, h, e, k) : new $z(a, f, h, e, k)
+                    // we use our own system
+                    //this.b = (this.A.F || this.A.ba && 5 > this.N) && "function" == typeof window.fetch && window.ReadableByteStream && eA(this) ? new Vz(a, f, h, e, k) : new $z(a, f, h, e, k)
                 } catch (l) {
                     this.F = "net.ssl", dA(this, 7)
                 }
@@ -17134,7 +17056,6 @@ if (!self.__WB_pmw) {
             a.na = !!b;
             CB(a) && !a.$.g && (a.$.start(), a.o && a.o.ze(), a.Bk())
         }
-
         g.Bk = function () {
             if (bt(this.b)) bt(this.b), this.$.b = !0, 4 != this.J && (this.X = sb(this.b.K)), Us(this.b, this.M), Ps(this.b) && (this.b.ma && (this.N = new Ly), this.b.g.b && EB(this), FB(this, "i")), AB(this, "dataloaded"), this.P.g && GB(this);
             else {
@@ -17204,7 +17125,6 @@ if (!self.__WB_pmw) {
                                 sts: 16961,
                                 lact: Bv()
                             };
-
                             b.forcedExperiments && (e.forced_experiments = b.forcedExperiments);
                             a.J ? e.vvt = a.J : a.oauthToken && (e.access_token = a.oauthToken);
                             b.adFormat && (e.adformat = b.adFormat);
@@ -17323,117 +17243,51 @@ if (!self.__WB_pmw) {
         };
 
         function KB(a, b, c, d) {
-            console.log("Executing KB function with parameters:", { a, b, c, d });
-
             a.b.o = c;
             a.b.D = d || c;
-            console.log("a.b.o and a.b.D updated:", a.b.o, a.b.D);
-
             if (a.o) {
-                var e = a.b;
-                console.log("Inside a.o block, e:", e);
-
-                var f = mB(a.pa, e);
-                console.log("mB(a.pa, e) result:", f);
-
-                e = gb(e.g.videoInfos, y(f.A, f));
-                console.log("gb(e.g.videoInfos, y(f.A, f)) result:", e);
-
-                e = new jB(a.b, c, b, e ? Xm(e) : "");
-                console.log("Created new jB object:", e);
-
-                if (d && "i" == b) {
-                    console.log("Calling LB function with parameters:", { a, b, d });
-                    LB(a, b, d);
-                }
-
-                var d = a.o.g;
+                var e = a.b,
+                    f = mB(a.pa, e),
+                    e = gb(e.g.videoInfos, y(f.A, f)),
+                    e = new jB(a.b, c, b, e ? Xm(e) : "");
+                d && "i" == b && LB(a, b, d);
+                d = a.o.g;
                 c = mv(d.b)();
-                console.log("mv(d.b)() result:", c);
-
                 tv(d, c, "vfs", [e.b.id, e.g, d.U, e.reason]);
-                console.log("tv(d, c, 'vfs', ...): vfs event sent");
-
                 d.U = e.b.id;
                 e = d.b.G();
-                console.log("d.b.G() result:", e);
-
-                if (0 < e.width && 0 < e.height) {
-                    e = [Math.round(e.width), Math.round(e.height)];
-                    var f = window.devicePixelRatio || 1;
-                    if (1 < f) e.push(f);
-                    tv(d, c, "view", e);
-                    console.log("Sent view event:", e);
-                }
-
+                0 < e.width && 0 < e.height && (e = [Math.round(e.width), Math.round(e.height)], f = window.devicePixelRatio || 1, 1 < f && e.push(f), tv(d, c, "view", e));
                 tv(d, c, "vps", [d.g]);
-                console.log("Sent vps event:", d.g);
-
-                d.kf(c);
-                console.log("Called d.kf(c) with c:", c);
+                d.kf(c)
             }
-
-            a.W("internalvideoformatchange", a.b, "m" == b);
-            console.log("Called a.W('internalvideoformatchange', ...)");
+            a.W("internalvideoformatchange", a.b, "m" == b)
         }
 
-
         function LB(a, b, c) {
-            console.log("Executing LB function with parameters:", { a, b, c });
-
             a.b.D = c;
-            console.log("Updated a.b.D:", a.b.D);
-
             if (a.o) {
                 var d = a.o.g;
-                console.log("Inside a.o block, d:", d);
-
                 c = new jB(a.b, c, b, "");
-                console.log("Created new jB object:", c);
-
                 var e = mv(d.b)();
-                console.log("mv(d.b)() result:", e);
-
-                if (c.b.id != d.H) {
-                    tv(d, e, "afs", [c.b.id, d.H, c.reason]);
-                    console.log("Sent afs event:", { id: c.b.id, reason: c.reason });
-                    d.H = c.b.id;
-                }
+                c.b.id != d.H && (tv(d, e, "afs", [c.b.id, d.H, c.reason]), d.H = c.b.id)
             }
-
-            if ("i" != b) {
-                a.W("internalaudioformatchange", a.b, "m" == b);
-                console.log("Called a.W('internalaudioformatchange', ...)");
-            }
+            "i" != b && a.W("internalaudioformatchange", a.b, "m" == b)
         }
 
         function Lu(a, b, c, d) {
-            console.log("Executing Lu function with parameters:", { a, b, c, d });
-
             var e, f;
-
+            Yb(Ct, c) ? e = c : c ? f = c : e = "YTP_ERROR_GENERIC_WITHOUT_LINK";
             b = {
                 errorCode: b,
                 errorDetail: d,
                 message: f || pi(e),
                 messageKey: e
             };
-            console.log("Error object created:", b);
-
             BB(a, Pt(a.A, 128, b));
-            console.log("Called BB with parameters:", { a, b });
-
             vB(a);
-            console.log("Called vB(a)");
-
             xB(a);
-            console.log("Called xB(a)");
-
-            MB(a);
-            console.log("Called MB(a)");
+            MB(a)
         }
-
-
         g.Hg = function (a) {
             this.X = this.X.filter(function (b) {
                 return a != b
@@ -17467,8 +17321,59 @@ if (!self.__WB_pmw) {
         }
 
 
-        function RB(a) {
+        function ExtractFormatsForCustomPlayerThingMaBob(adaptiveFormats) {
+            if (adaptiveFormats) {
+                try {
+                    let formatsArray = adaptiveFormats.split(',');
+
+                    let result = formatsArray.map(format => {
+                        if (format.startsWith('url=')) {
+                            let decodedUrl = decodeURIComponent(format.substring(4));
+                            console.log('Unformatted URL: ' + decodedUrl);
+
+                            if (decodedUrl.includes('manifest')) {
+                                return null;
+                            }
+
+
+                            let resolutionMatch = decodedUrl.match(/&size=([\dx]+)/);
+                            let resolution = resolutionMatch ? resolutionMatch[1] : null;
+                            let processedUrl = decodedUrl.split(/&itag=/, 2).join('&itag=');
+                            console.log('Processed URL: ' + processedUrl);
+
+                            let params = new URLSearchParams(processedUrl);
+
+                            return {
+                                url: processedUrl,
+                                type: params.get('mime'),
+                                codec: params.get('codecs'),
+                                resolution: resolution
+                            };
+                        }
+                        return null;
+                    });
+
+                    return result.filter(format => format !== null);
+
+                } catch (error) {
+                    console.error('Error decoding adaptiveFormats: ', error);
+                }
+            } else {
+                console.log('adaptiveFormats is undefined or empty');
+                return null;
+            }
+        }
+
+
+
+        function RB(a, videoData) {
+
             console.log("Entering RB function");
+
+            var meidaLinks = ExtractFormatsForCustomPlayerThingMaBob(videoData.adaptiveFormats);
+
+            console.log("RB function input:", meidaLinks);
+
 
             if (!T(a.A, 128)) {
                 console.log("T(a.A, 128) is false");
@@ -17520,7 +17425,7 @@ if (!self.__WB_pmw) {
 
                             if (a.b.g.b) {
                                 console.log("a.b.g.b is true, calling UB(a)");
-                                b = UB(a);
+                                b = UB(a, meidaLinks);
                                 a.B.resume();
                             } else {
                                 console.log("a.b.g.b is false, calling xB(a) and other actions");
@@ -17733,18 +17638,54 @@ if (!self.__WB_pmw) {
             a.H && (a.H.dispose(), a.H = null)
         }
 
-        function UB(a) {
-            a.H || (a.B ? a.B.seek(a.getCurrentTime()) : EB(a), a.H = new Nr(a.g.Wa(), a.b.lengthSeconds, a.b.g.videoInfos[0].mimeType, a.b.g.b[0].mimeType, a.M.B), Or(a.H, y(a.B.Fq, a.B)), Pr(a.H, y(function (a) {
-                Lu(this, "fmt.unplayable", void 0, "msi.1;ename." + a.name)
-            }, a)));
-            try {
-                return Qr(a.H)
-            } catch (b) {
-                return b.message = "window.URL object overwritten by external code", window.setTimeout(function () {
-                    throw b;
-                }, 0), Lu(a, "html5.missingapi", "YTP_HTML5_NO_AVAILABLE_FORMATS_FALLBACK", "updateMs.1"), null
+        function UB(a, meidaLinks) {
+            if (!a.H) {
+                try {
+                    if (a.B) {
+                        a.B.seek(a.getCurrentTime());
+                    } else {
+                        EB(a);
+                    }
+
+                    console.log("RB function input:", JSON.stringify(meidaLinks, null, 2));
+
+                    a.H = new Nr(
+                        a.g.Wa(),
+                        a.b.lengthSeconds,
+                        a.b.g.videoInfos[0].mimeType, //c
+                        a.b.g.b[0].mimeType,
+                        a.M.B,
+                        a
+                    );
+
+                    Or(a.H, y(a.B.Fq, a.B));
+
+                    Pr(a.H, y(function (error) {
+                        console.error("Unplayable format:", error.name);
+                        Lu(this, "fmt.unplayable", void 0, "msi.1;ename." + error.name);
+                    }, a));
+
+                    console.log("UB function executed successfully", a.H);
+
+                    // this is because we use our new system this would create the object url/media sourc
+                    // return Qr(a.H);
+
+                } catch (error) {
+                    console.error("Error in UB function:", error);
+
+                    error.message = "window.URL object overwritten by external code";
+                    window.setTimeout(function () {
+                        throw error;
+                    }, 0);
+
+                    Lu(a, "html5.missingapi", "YTP_HTML5_NO_AVAILABLE_FORMATS_FALLBACK", "updateMs.1");
+
+                    return null;
+                }
             }
         }
+
+
         g.yu = function (a) {
             if (this.G) {
                 var b = this.G;
@@ -41783,13 +41724,13 @@ if (!self.__WB_pmw) {
         }
 
         function l4(a) {
+            se(a.b, "video-stream");
             se(a.b, "html5-main-video");
             var b = a.app.M;
             b.sa && a.b.setAttribute("data-no-fullscreen", !0);
             b.La && a.b.setAttribute("webkit-playsinline", "");
             b.Cb && a.Aa(a.b, "click", a.b.play, a.b)
         }
-
         g.nd = function () {
             if (this.b) {
                 var a = this.sb();
@@ -43601,8 +43542,61 @@ if (!self.__WB_pmw) {
         }
 
         function g1(a, b) {
-            a.C != b && (a.C && (eE(a.F), Jl(a, "cuerangesremoved", a.C.D.b.b || []), a4(a)), b != a.g && (a.pa[b.J] = b), a.C = b, b.ca = a.ya, a.o && OB(b, a.o), z5(a, b, a.jb), a.uj("newdata", b, b.getVideoData()), b.$.b && a.uj("dataloaded", b, b.getVideoData()), Jl(a, "cuerangesadded", a.C.D.b.b || []), Nt(b.getPlayerState()) && RB(b))
+            console.log("Entering g1 function");
+            console.log("g1 function arguments:", { a, b });
+
+            if (!a || !b) {
+                console.error("g1 function received invalid arguments:", { a, b });
+                return;
+            }
+
+            try {
+                if (a.C !== b) {
+                    if (a.C) {
+                        console.log("Clearing previous cue range.");
+                        eE(a.F);
+                        console.log("Triggering 'cuerangesremoved' event with:", a.C.D.b.b || []);
+                        Jl(a, "cuerangesremoved", a.C.D.b.b || []);
+                        a4(a);
+                    }
+
+                    if (b !== a.g) {
+                        console.log(`Updating 'pa' mapping: a.pa[${b.J}] = b`);
+                        a.pa[b.J] = b;
+                    }
+
+                    a.C = b;
+                    b.ca = a.ya;
+
+                    if (a.o) {
+                        console.log("Applying OB function to 'b' with 'a.o'.");
+                        OB(b, a.o);
+                    }
+
+                    console.log("Executing z5 function with:", { a, b, jb: a.jb });
+                    z5(a, b, a.jb);
+
+                    console.log("Triggering 'newdata' event with:", b.getVideoData());
+                    a.uj("newdata", b, b.getVideoData());
+
+                    if (b.$.b) {
+                        console.log("Triggering 'dataloaded' event with:", b.getVideoData());
+                        a.uj("dataloaded", b, b.getVideoData());
+                    }
+
+                    console.log("Triggering 'cuerangesadded' event with:", a.C.D.b.b || []);
+                    Jl(a, "cuerangesadded", a.C.D.b.b || []);
+
+                    if (Nt(b.getPlayerState())) {
+                        console.log("Player state is valid, calling RB function.");
+                        RB(b);
+                    }
+                }
+            } catch (error) {
+                console.error("Error in g1 function:", error);
+            }
         }
+
 
         function z5(a, b, c) {
             for (var d in c) b.subscribe(d, c[d], a)
@@ -43876,83 +43870,42 @@ if (!self.__WB_pmw) {
             var b = this.C.getVideoData();
             a == b && this.b.ra("onPlaybackQualityChange", a.o.video.quality)
         };
-
         g.uj = function (a, b, c) {
-            console.log('Event Type:', a); // Log the event type
-            console.log('Player State:', this.g);
-
-            if ("newdata" == a) {
-                eE(this.F);
-                console.log('Video Player Resetting...');
-                this.g == this.C ? (this.o.b.loop = this.fa, this.o.b.playbackRate = this.Y) : (this.o.b.loop = !1, this.o.b.playbackRate = 1);
-                this.b.W("videoplayerreset", b);
-            } else {
+            if ("newdata" == a) eE(this.F), this.g == this.C ? (this.o.b.loop = this.fa, this.o.b.playbackRate = this.Y) : (this.o.b.loop = !1, this.o.b.playbackRate = 1), this.b.W("videoplayerreset", b);
+            else {
                 if (!this.o) return;
-                if ("dataloaded" == a) {
-                    console.log('Data Loaded: Processing...');
-                    if (vy(b.M, c.A), this.C == this.g) {
+                if ("dataloaded" == a)
+                    if (vy(b.M, c.A), this.C == this.g)
                         if (yC(this).ll && !this.M.isMobile) {
                             var d = "YTP_DEVICE_FALLBACK";
                             yc || wl() || ql("xbox") && ql("trident") || vl() || (d = "YTP_HTML5_NO_AVAILABLE_FORMATS_FALLBACK_FLASH");
-                            console.log('Device Fallback:', d);
+                            Lu(this.g, "html5.unsupportedads", d, void 0)
                         } else {
                             var e = yC(this);
                             if (!$s(e) || Ps(this.g.b)) {
-                                console.log('HTML5 supported. Fallback needed.');
                                 bt(e);
-                                var e = !1, f = X3.Bb;
-                                if (!this.D && f(this)) {
-                                    this.D = new X3(this);
-                                    e = this.D;
-                                    L(this, e);
-                                    e.subscribe("loaded", this.qm, this);
-                                    e.subscribe("unloaded", this.rm, this);
-                                    e.subscribe("command_pause", C5(this.pauseVideo, this));
-                                    e.subscribe("command_play", C5(this.Md, this));
-                                    e.subscribe("command_seek", C5(this.seekTo, this));
-                                    e.subscribe("command_redirect_controls", this.wn, this);
-                                    e.subscribe("command_stop_redirect_controls", this.Ig, this);
-                                    e = !0;
-                                    console.log('HTML5 Player Created.');
-                                }
+                                var e = !1,
+                                    f = X3.Bb;
+                                !this.D && f(this) && (this.D = new X3(this), e = this.D, L(this, e), e.subscribe("loaded", this.qm, this), e.subscribe("unloaded", this.rm, this), e.subscribe("command_pause", C5(this.pauseVideo, this)), e.subscribe("command_play", C5(this.Md, this)), e.subscribe("command_seek", C5(this.seekTo, this)), e.subscribe("command_redirect_controls", this.wn, this), e.subscribe("command_stop_redirect_controls", this.Ig, this), e = !0);
                                 try {
-                                    if ((d = this.D)) {
-                                        console.log('d is set to:', d);
-                                        if (!d.H) {
-                                            console.log('d.H is false');
-                                            if (d.Bb(this.Ga)) {
-                                                console.log('d.Bb(this.Ga) returned true');
-                                                d.create();
-                                                console.log('d.create() was called');
-                                            } else {
-                                                console.log('d.Bb(this.Ga) returned false');
-                                            }
-                                        } else {
-                                            console.log('d.H is true');
-                                        }
-                                    } else {
-                                        console.log('this.D is not set or is falsy');
-                                    }
+                                    (d = this.D) && !d.H && d.Bb(this.Ga) && d.create()
                                 } catch (h) {
-                                    ni(h);
-                                    this.g && this.g.Hg("ad");
+                                    ni(h), this.g && this.g.Hg("ad")
                                 }
-                                console.log('HTML5 Player Initialized:', e);
-                            }
+                                e &&
+                                    (e = this.D, f = yC(this), d = Il(this), f.subscribe("cuepointupdated", e.hu, e), e.Y = f, e = Z3(e), null != e && (e.F = d), this.D.subscribe("overlay_ad_open", pa(this.gn, !0), this), this.D.subscribe("overlay_ad_close", pa(this.gn, !1), this));
+                                F5(this)
+                            } else d = e.ma && !ks() ? "html5.unsupportedlive" : "fmt.noneavailable", f = "YTP_HTML5_NO_AVAILABLE_FORMATS_FALLBACK", yc || wl() || ql("xbox") && ql("trident") || vl() || (f = Xs(e) ? "YTP_HTML5_PROTECTED_FLASH_FALLBACK" : "YTP_HTML5_NO_AVAILABLE_FORMATS_FALLBACK_FLASH"), Lu(this.g, d, f, "nosupported.1")
                         }
-                    } else F5(this);
-                }
+                    else F5(this);
+                1 == b.J && (this.getVideoData().Rf ? (d = this.o, d.A = !0, d.b.muted = !0) : (this.o.A = !1, pC(this, this.L)), this.getVideoData().ma && !this.M.pd && Lu(this.g, "html5.unsupportedlive", "YTP_DEVICE_FALLBACK", void 0), bt(c) && (c.aa || c.la || c.B.focEnabled || c.B.rmktEnabled || this.getVideoData().Je) && (d = this.getVideoData(), O5(this, "part2viewed", 1, 0x8000000000000), O5(this, "engagedview", Math.max(1, 1E3 * d.Nd), 0x8000000000000), d.ma || (d = 1E3 * d.lengthSeconds, O5(this, "videoplaytime25", .25 * d, d), O5(this, "videoplaytime50", .5 * d, d), O5(this,
+                    "videoplaytime75", .75 * d, d), O5(this, "videoplaytime100", d, 0x8000000000000), O5(this, "conversionview", d, 0x8000000000000))));
+                this.b.W("videodatachange", a, c, b.J)
             }
-
-            console.log('Video Data Change Detected:', a);
-
-            this.b.W("videodatachange", a, c, b.J);
-
             this.M.Ka && this.b.ra("onVideoDataChange", {
                 type: a,
                 playertype: b.J
-            });
-
+            })
         };
 
         function OC(a) {
@@ -44366,9 +44319,37 @@ if (!self.__WB_pmw) {
                 d && a.b.ra(d, c)
             }
         }
+
         g.Md = function (a) {
-            (a = Il(this, a)) && (2 == this.K ? J5(this) : !this.M.experiments.b("new_ended_replay") && T(a.getPlayerState(), 2) ? this.seekTo(0) : RB(a))
+            console.log("Entering g.Md function with argument:", a);
+
+            try {
+                var playerInstance = Il(this, a);
+                console.log("Resolved player instance:", this.getVideoData());
+
+                videoData = this.getVideoData();
+
+                if (playerInstance) {
+                    console.log("Current player state (K):", this.K);
+
+                    if (this.K === 2) {
+                        console.log("Player state is 2, calling J5 function.");
+                        J5(this);
+                    } else if (!this.M.experiments.b("new_ended_replay") && T(playerInstance.getPlayerState(), 2)) {
+                        console.log("Experiment 'new_ended_replay' is disabled and player state is 2, seeking to 0.");
+                        this.seekTo(0);
+                    } else {
+                        console.log("Calling RB function with player instance.");
+                        RB(playerInstance, videoData);
+                    }
+                } else {
+                    console.warn("No valid player instance found for given input:", a);
+                }
+            } catch (error) {
+                console.error("Error in g.Md function:", error);
+            }
         };
+
         g.pauseVideo = function (a) {
             (a = Il(this, a)) && a.pauseVideo()
         };

@@ -17,6 +17,7 @@
     "cors-anywhere": "^0.4.4",
     "express": "^4.21.2",
     "node-cache": "^5.1.2",
+    "qrcode": "^1.5.4",
     "youtube-dl-exec": "^3.0.13"
   }
 }

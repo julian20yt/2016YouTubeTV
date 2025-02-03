@@ -7,14 +7,6 @@ if (!self.__WB_pmw) {
         return this;
     }
 } {
-    let window = _____WB$wombat$assign$function_____("window");
-    let self = _____WB$wombat$assign$function_____("self");
-    let document = _____WB$wombat$assign$function_____("document");
-    let location = _____WB$wombat$assign$function_____("location");
-    let top = _____WB$wombat$assign$function_____("top");
-    let parent = _____WB$wombat$assign$function_____("parent");
-    let frames = _____WB$wombat$assign$function_____("frames");
-    let opener = _____WB$wombat$assign$function_____("opener");
 
 
     (function () {
@@ -7986,24 +7978,24 @@ if (!self.__WB_pmw) {
         };
 
         function findSectionListRenderer(obj) {
-            // Base case: if the current object is a "sectionListRenderer", return it
+            // Base case: if the current object has "sectionListRenderer", return it
             if (obj && obj.sectionListRenderer) {
                 return obj.sectionListRenderer;
             }
 
             // If the current object is an array, recursively search each item
-            if (Array.isArray(obj)) {
-                for (let i = 0; i < obj.length; i++) {
-                    const result = findSectionListRenderer(obj[i]);
+            if (Object.prototype.toString.call(obj) === "[object Array]") { // Old-school array check
+                for (var i = 0; i < obj.length; i++) { // Use var for compatibility
+                    var result = findSectionListRenderer(obj[i]);
                     if (result) return result;
                 }
             }
 
             // If the current object is an object, recursively search its keys
-            if (typeof obj === 'object') {
-                for (const key in obj) {
-                    if (obj.hasOwnProperty(key)) {
-                        const result = findSectionListRenderer(obj[key]);
+            if (obj !== null && typeof obj === "object") {
+                for (var key in obj) { // Use var for compatibility
+                    if (Object.prototype.hasOwnProperty.call(obj, key)) { // Older hasOwnProperty check
+                        var result = findSectionListRenderer(obj[key]);
                         if (result) return result;
                     }
                 }
@@ -8012,6 +8004,7 @@ if (!self.__WB_pmw) {
             // Return null if "sectionListRenderer" is not found
             return null;
         }
+
 
         d.YX = function (a, b) {
             // Log initial state
@@ -32253,11 +32246,11 @@ if (!self.__WB_pmw) {
             return !0
         };
         d.DS = function () {
-            this.Cg("https://web.archive.org/web/20160228021433/http://www.youtube.com/tv");
+            this.Cg("http://www.youtube.com/tv");
             return !0
         };
         d.ZO = function () {
-            this.Cg("https://web.archive.org/web/20160228021433/https://kcdsfrdvcs.appspot.com");
+            this.Cg("https://kcdsfrdvcs.appspot.com");
             return !0
         };
         d.vM = function (a) {
@@ -32590,7 +32583,7 @@ if (!self.__WB_pmw) {
 
         function Nv() { }
         Nv.prototype.f = function (a) {
-            return "https://chart.googleapis.com/chart?cht=qr&chs=350x350&chl=" + encodeURIComponent(a)
+            return "http://localhost:8090/api/chart?cht=qr&chs=350x350&chl=" + encodeURIComponent(a)
         };
 
         function Ov(a, b, c, e, f, g, k, l, p, r, u, w, A, G, T, W, Y, ma, va, eb, fb, Lb) {

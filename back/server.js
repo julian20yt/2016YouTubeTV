@@ -3,16 +3,16 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
+const QRCode = require('qrcode');
+const corsAnywhere = require('cors-anywhere');
 
-const corsAnywhere = require('cors-anywhere'); 
-
-const { fetchGuideData } = require('./guide_api'); 
-const { fetchBrowseData } = require('./browse_api'); 
-const { handleSearchRequest } = require('./search_api'); 
-const { fetchNextData } = require('./next_api'); 
+const { fetchGuideData } = require('./guide_api');
+const { fetchBrowseData } = require('./browse_api');
+const { handleSearchRequest } = require('./search_api');
+const { fetchNextData } = require('./next_api');
 const { handleGetVideoInfo } = require('./get_video_info');
 
-const { fetchLoungeTokenBatch } = require('./lounge_api'); 
+const { fetchLoungeTokenBatch } = require('./lounge_api');
 
 const bodyParser = require('body-parser');
 const oauthRouter = require('./oauth_api_v3_api.js');
@@ -35,27 +35,27 @@ app.use((req, res, next) => {
 });
 
 const server = corsAnywhere.createServer({
-    originWhitelist: ['http://localhost:8090', '*', '""', ''], 
+    originWhitelist: ['http://localhost:8090', '*', '""', ''],
     removeHeaders: ['cookie', 'cookie2'],
     handleInitialRequest: (req, res) => {
-        const origin = req.headers.origin;  
+        const origin = req.headers.origin;
 
         if (origin === 'http://localhost:8090' || origin === '*') {
-            res.setHeader('Access-Control-Allow-Origin', origin);  
+            res.setHeader('Access-Control-Allow-Origin', origin);
         } else {
-            res.setHeader('Access-Control-Allow-Origin', '*'); 
+            res.setHeader('Access-Control-Allow-Origin', '*');
         }
 
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-        
+
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-        
+
         if (req.method === 'OPTIONS') {
             res.writeHead(204);
             res.end();
-            return true; 
+            return true;
         }
-        return false; 
+        return false;
     }
 });
 
@@ -67,7 +67,7 @@ server.listen(8070, 'localhost', () => {
 
 app.use((req, res, next) => {
     console.log(`Received ${req.method} request for ${req.originalUrl}`);
-    next(); 
+    next();
 });
 
 const logsDir = path.join(__dirname, 'logs');
@@ -109,10 +109,10 @@ app.get('/get-thumbnail', async (req, res) => {
 
 
 app.get('/web/*', (req, res) => {
-    const requestedUrl = req.params[0];  
+    const requestedUrl = req.params[0];
 
     const urlStartIndex = requestedUrl.indexOf('http');
-    const youtubeUrl = requestedUrl.substring(urlStartIndex);  
+    const youtubeUrl = requestedUrl.substring(urlStartIndex);
     const fileName = path.basename(youtubeUrl);
 
     console.log(`Redirecting to asset: /assets/${fileName}`);
@@ -121,26 +121,26 @@ app.get('/web/*', (req, res) => {
 });
 
 app.get('/assets/:folder/*', (req, res) => {
-    const folder = req.params.folder; 
-    const requestedPath = req.params[0];  
+    const folder = req.params.folder;
+    const requestedPath = req.params[0];
 
     const fileName = path.basename(requestedPath);
 
-    const redirectUrl = `/assets/${fileName}`; 
+    const redirectUrl = `/assets/${fileName}`;
     console.log(`Redirecting from /assets/${folder}/${requestedPath} to ${redirectUrl}`);
-    
-    res.redirect(redirectUrl);  
+
+    res.redirect(redirectUrl);
 });
 
 app.get('/assets/:filename', (req, res) => {
     const filename = req.params.filename;
-    
+
     const cleanedFilename = filename.replace(/^[a-f0-9]{8}/, '');
 
     console.log(`Serving file: /assets/${cleanedFilename}`);
 
     const filePath = path.join(__dirname, '../assets', cleanedFilename);
- 
+
     fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
             console.error(`File not found: ${filePath}`);
@@ -185,7 +185,7 @@ app.get('/device_204', async (req, res) => {
 
 
 app.get('/api/stats/qoe', (req, res) => {
-    const qoeData = req.query; 
+    const qoeData = req.query;
     console.log('QoE Data received:', qoeData);
 
     const { event, fmt, afmt, cpn, ei, el, docid, ns, fexp, html5, c, cver, cplayer, cbrand, cbr, cbrver, ctheme, cmodel, cnetwork, cos, cosver, cplatform, vps, cmt, afs, vfs, view, bwe, bh, vis } = qoeData;
@@ -217,8 +217,36 @@ app.get('/api/stats/qoe', (req, res) => {
     });
 });
 
+app.get('/api/chart', async (req, res) => {
+    const { cht, chs, chl } = req.query;
+
+    if (!cht || cht !== 'qr' || !chl || !chs) {
+        return res.status(400).send('Invalid request. Parameters "cht", "chs", and "chl" are required.');
+    }
+
+    const size = chs.split('x');
+    if (size.length !== 2 || isNaN(size[0]) || isNaN(size[1])) {
+        return res.status(400).send('Invalid "chs" parameter. Expected format "widthxheight".');
+    }
+
+    const width = parseInt(size[0]);
+    const height = parseInt(size[1]);
+
+    try {
+        const decodedUrl = decodeURIComponent(chl);
+
+        const qrImage = await QRCode.toBuffer(decodedUrl, { width, height });
+
+        res.setHeader('Content-Type', 'image/png');
+        res.send(qrImage);
+    } catch (error) {
+        console.error('Error generating QR code:', error);
+        res.status(500).send('Failed to generate QR code');
+    }
+});
+
 app.get('/api/browse', async (req, res) => {
-    const { browseId } = req.query;  
+    const { browseId } = req.query;
 
     if (!browseId) {
         return res.status(400).json({
@@ -227,7 +255,7 @@ app.get('/api/browse', async (req, res) => {
     }
 
     try {
-        const browseData = await fetchBrowseData(browseId);  
+        const browseData = await fetchBrowseData(browseId);
         res.json(browseData);
     } catch (error) {
         console.error('Error:', error.message);
@@ -247,7 +275,7 @@ app.post('/api/lounge/pairing/generate_screen_id', async (req, res) => {
     }
 
     try {
-        const screenIdData = await generateScreenId(pairingCode);  
+        const screenIdData = await generateScreenId(pairingCode);
         res.json(screenIdData);
     } catch (error) {
         console.error('Error:', error.message);
@@ -351,7 +379,7 @@ app.get('/api/lounge/pairing/get_lounge_details', async (req, res) => {
 
 
 app.post('/api/browse', async (req, res) => {
-    const { browseId } = req.body; 
+    const { browseId } = req.body;
 
     if (!browseId) {
         return res.status(400).json({

@@ -50,6 +50,7 @@ function handleGetVideoInfo(req, res) {
                     const skipFormatIds = ["sb1", "sb2", "sb0"];
                     if (skipFormatIds.includes(format.format_id)) return;
 
+
                     if (disableWebM && (format.ext === 'webm' || format.acodec === 'vp9' || format.acodec === 'vp8')) return;
 
                     if (format.url && format.format_id) {
