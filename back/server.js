@@ -286,10 +286,9 @@ app.post('/api/lounge/pairing/generate_screen_id', async (req, res) => {
     }
 });
 
-// Handle /api/lounge/pairing/get_lounge_token_batch request
-// Handle /api/lounge/pairing/get_lounge_token_batch request
+
 app.post('/api/lounge/pairing/get_lounge_token_batch', async (req, res) => {
-    const { screenIds } = req.body; // Assuming it's passed in the body (for server-side use)
+    const { screenIds } = req.body;
 
     if (!screenIds) {
         return res.status(400).json({
@@ -310,8 +309,6 @@ app.post('/api/lounge/pairing/get_lounge_token_batch', async (req, res) => {
     }
 });
 
-
-// Handle /api/lounge/pairing/get_pairing_code request
 app.get('/api/lounge/pairing/get_pairing_code', async (req, res) => {
     const { screenId } = req.query;
 
@@ -333,7 +330,7 @@ app.get('/api/lounge/pairing/get_pairing_code', async (req, res) => {
     }
 });
 
-// Handle /api/lounge/pairing/register_pairing_code request
+
 app.post('/api/lounge/pairing/register_pairing_code', async (req, res) => {
     const { pairingCode } = req.body;
 
@@ -355,7 +352,6 @@ app.post('/api/lounge/pairing/register_pairing_code', async (req, res) => {
     }
 });
 
-// Handle /api/lounge/pairing/get_lounge_details request
 app.get('/api/lounge/pairing/get_lounge_details', async (req, res) => {
     const { screenId } = req.query;
 

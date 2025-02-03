@@ -31,9 +31,9 @@ function handleGetVideoInfo(req, res) {
 
             fs.writeFileSync(logFilePath, JSON.stringify(output, null, 2));
 
-            const videoIdFromOutput = output.id; // This is the video ID like "jNQXAC9IVRw"
-            const videoTitle = output.title;     // This is the video title like "Me at the zoo"
-            const videoDuration = output.duration; // This is the video duration in seconds
+            const videoIdFromOutput = output.id;
+            const videoTitle = output.title;
+            const videoDuration = output.duration;
 
             // Log video details
             console.log('Video ID:', videoIdFromOutput);
@@ -44,7 +44,6 @@ function handleGetVideoInfo(req, res) {
             const fmtListArr = [];
             const urlEncodedFmtStreamMapArr = [];
 
-            //console.log('Video info logged to file:', logFilePath);
             if (output.formats && Array.isArray(output.formats)) {
                 output.formats.forEach(format => {
                     const skipFormatIds = ["sb1", "sb2", "sb0"];
@@ -65,7 +64,6 @@ function handleGetVideoInfo(req, res) {
                             mimeType = `application/octet-stream`;
                         }
 
-                        // Only push non-format_id 18 formats into adaptiveFmts
                         if (format.format_id !== '18') {
                             const urlParams = new URLSearchParams();
                             urlParams.append('url', format.url);
@@ -96,7 +94,6 @@ function handleGetVideoInfo(req, res) {
                             }
                         }
 
-                        // Only for format_id = 18, push to urlEncodedFmtStreamMapArr
                         if (format.format_id === '18') {
                             const fmtString = `itag=${format.itag}&type=${mimeType}&url=${encodeURIComponent(format.url)}&quality=${format.quality || 'unknown'}`;
                             urlEncodedFmtStreamMapArr.push(fmtString);
@@ -166,7 +163,7 @@ function handleGetVideoInfo(req, res) {
         vq=auto
         iurl=https%3A%2F%2Fi.ytimg.com%2Fvi%2F0ggR11jYS3A%2Fhqdefault.jpg
         author=%D7%A0%D7%A4%D7%AA%D7%9C%D7%99+%D7%91%D7%A0%D7%98+%7C+Naftali+Bennett
-        storyboard_spec=https%3A%2F%2Fi.ytimg.com%2Fsb%2F0ggR11jYS3A%2Fstoryboard3_L%24L%2F%24N.jpg%7C48%2327%23100%2310%2310%230%23default%23yvvsiusjZ_KiPonEenYmA1bW328%7C80%2345%2369%2310%2310%231000%23M%24M%23h24UdR4MSsVa86F4cpbra_vXmCM%7C160%2390%2369%235%235%231000%23M%24M%23d4EkeR6fEFwH1ZWjKntREyHAHn8
+        storyboard_spec=https://i.ytimg.com/sb/OxoOSohmaag/storyboard3_L0/default.jpg?sqp=-oaymwENSDfyq4qpAwVwAcABBqLzl_8DBgjvjc-oBg==&sigh=rs$AOn4CLCM4gaqvsBmP9olCrnqXWONsDTRCQ
         url_encoded_fmt_stream_map=${encodeURIComponent(adaptiveFmtsResponse)}
         adaptive_fmts=${encodeURIComponent(adaptiveFmtsResponse)}
         remarketing_url=https%3A%2F%2Fgoogleads.g.doubleclick.net%2Fpagead%2Fviewthroughconversion%2F962985656%2F%3Flabel%3Dfollowon_view%26cname%3D1%26foc_id%3D4x7LYSzgGH-TMKc9J8pwgQ%26backend%3Dplayer_vars%26cver%3DHTML5%26ptype%3Dno_rmkt%26aid%3DP989_XaxlmI

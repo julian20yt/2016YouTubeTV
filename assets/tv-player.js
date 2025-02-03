@@ -6085,7 +6085,7 @@ if (!self.__WB_pmw) {
 
         function qn(a) {
             // Check if 'a' is a string and contains '-'
-            if (typeof a !== 'string' || !a.includes('-')) {
+            if (typeof a !== 'string' || a.indexOf('-') === -1) {
                 return null;  // Return null if input is not valid
             }
 
@@ -6095,12 +6095,12 @@ if (!self.__WB_pmw) {
             // Check if the array contains exactly two parts
             if (a.length === 2) {
                 // Try to parse the two parts into integers
-                let start = parseInt(a[0], 10);
-                let end = parseInt(a[1], 10);
+                var start = parseInt(a[0], 10);
+                var end = parseInt(a[1], 10);
 
                 // Ensure that both start and end are valid numbers
                 if (!isNaN(start) && !isNaN(end)) {
-                    let length = end - start;  // Calculate length based on start and end
+                    var length = end - start;  // Calculate length based on start and end
                     // Check if length is greater than 0
                     if (length > 0) {
                         // Create and return the 'pn' object
@@ -6112,6 +6112,7 @@ if (!self.__WB_pmw) {
             // Return null if any of the conditions fail
             return null;
         }
+
 
 
         function rn(a, b) {
@@ -8800,11 +8801,11 @@ if (!self.__WB_pmw) {
             this.b.webkitSourceSetDuration && this.b.webkitSourceSetDuration(a)
         };
 
-        function Nr(a, b, c, d, e, rawVideoInfo) {
+        function Nr(a, b, c, d, e, mediaLinks) {
 
-            console.log("Nr constructor called with parameters:", a, b, c, d, e, rawVideoInfo);
+            console.log("Nr constructor called with parameters:", a, b, c, d, e, mediaLinks);
 
-            console.log("rawVideoInfo parameters:", rawVideoInfo);
+            console.log("mediaLinks parameters:", mediaLinks);
             // Call the parent constructor
             Cm.call(this);
             console.log("Cm constructor called");
@@ -8823,7 +8824,7 @@ if (!self.__WB_pmw) {
             console.log("Created MediaSource object:", this.o);
 
             // Find the existing <video> element
-            const videoElement = document.querySelector(".html5-main-video"); // Ensure this matches your element
+            var videoElement = document.querySelector(".html5-main-video"); // Ensure this matches your element
             if (!videoElement) {
                 console.error("Video element not found!");
                 return;
@@ -8831,129 +8832,171 @@ if (!self.__WB_pmw) {
 
             videoElement.src = URL.createObjectURL(this.o);
             console.log("Assigned MediaSource to video element:", videoElement.src);
+            videoElement.play();
 
-            this.o.addEventListener("sourceopen", async () => {
+            // Listen for the 'sourceopen' event to be fired before calling addSourceBuffer
+            this.o.addEventListener("sourceopen", function () {
                 console.log("MediaSource opened");
 
-                const mediaSource = this.o;
+                var mediaSource = this;
 
-                const videoUrl = "http://localhost:8070/https://rr2---sn-tt1e7nlz.googlevideo.com/videoplayback?expire=1738547248&ei=0MufZ-TmBKGTlu8Pi-DByAQ&ip=67.144.118.91&id=o-ACt0AtN1TuuTIbEgwD89jgF4oJ0E5EB74IIxSk-M8GTr&itag=135&aitags=133%2C134%2C135%2C136%2C137%2C160%2C242%2C243%2C244%2C247%2C248%2C271%2C278%2C313&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&met=1738525648%2C&mh=_i&mm=31%2C26&mn=sn-tt1e7nlz%2Csn-vgqsrnz6&ms=au%2Conr&mv=m&mvi=2&pl=23&rms=au%2Cau&initcwndbps=5898750&bui=AY2Et-N1rIuFKv2tuew1h2bAxwN8ECxNbqOUj6S7CaCJetKa1mGG7sVWIfQLrMijQiY3D_pg5cUxZkXh&spc=9kzgDXJHKo2yfyQ3q4o5k36J4X1ef40fGjb3YUQceyCqLKs0TP2pbcNkdA&vprv=1&svpuc=1&mime=video%2Fmp4&ns=SltWLV9M2lExgvalxauKsQoQ&rqh=1&gir=yes&clen=70804690&dur=728.811&lmt=1724296892219333&mt=1738525266&fvip=4&keepalive=yes&lmw=1&fexp=51326932%2C51371294&c=TVHTML5&sefc=1&txp=6300224&n=Kf2iFeHCqX_06A&sparams=expire%2Cei%2Cip%2Cid%2Caitags%2Csource%2Crequiressl%2Cxpc%2Cbui%2Cspc%2Cvprv%2Csvpuc%2Cmime%2Cns%2Crqh%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIgclXOjwl0cMvNeEriI8PFV9d7QmMIBYwT9OXu8Zh2URYCIQC8gPPmJwg_d92YM2QQwNwK1jxw9fjHreK0WUvAPePcEA%3D%3D&lsparams=met%2Cmh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Crms%2Cinitcwndbps&lsig=AGluJ3MwRAIgajyVkh7SwP62_OpLSd6Tl-gIQ9L7V667EwRpN9uaOWACIHRMQBPNvVt6QB9B_4lNCfuyIVAYsmICoYHqcb2dLckf";
-                const audioUrl = "http://localhost:8070/https://rr2---sn-tt1e7nlz.googlevideo.com/videoplayback?expire=1738547248&ei=0MufZ-TmBKGTlu8Pi-DByAQ&ip=67.144.118.91&id=o-ACt0AtN1TuuTIbEgwD89jgF4oJ0E5EB74IIxSk-M8GTr&itag=250&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&met=1738525648%2C&mh=_i&mm=31%2C26&mn=sn-tt1e7nlz%2Csn-vgqsrnz6&ms=au%2Conr&mv=m&mvi=2&pl=23&rms=au%2Cau&initcwndbps=5898750&bui=AY2Et-N1rIuFKv2tuew1h2bAxwN8ECxNbqOUj6S7CaCJetKa1mGG7sVWIfQLrMijQiY3D_pg5cUxZkXh&spc=9kzgDXJHKo2yfyQ3q4o5k36J4X1ef40fGjb3YUQceyCqLKs0TP2pbcNkdA&vprv=1&svpuc=1&mime=audio%2Fwebm&ns=SltWLV9M2lExgvalxauKsQoQ&rqh=1&gir=yes&clen=5384564&dur=728.841&lmt=1724296042207931&mt=1738525266&fvip=4&keepalive=yes&lmw=1&fexp=51326932%2C51371294&c=TVHTML5&sefc=1&txp=6300224&n=Kf2iFeHCqX_06A&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Cbui%2Cspc%2Cvprv%2Csvpuc%2Cmime%2Cns%2Crqh%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIgNJjmgH6XWoFQoVn4OQ4Gaw7Q7zGM9yFt0zx92foT9RQCIQDWcRJ4OIUDwAxzHTEljVDqYNal39TjncEbYFYP-udz4Q%3D%3D&lsparams=met%2Cmh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Crms%2Cinitcwndbps&lsig=AGluJ3MwRAIgajyVkh7SwP62_OpLSd6Tl-gIQ9L7V667EwRpN9uaOWACIHRMQBPNvVt6QB9B_4lNCfuyIVAYsmICoYHqcb2dLckf";
-
-                const videoMime = getMimeTypeFromUrl(videoUrl);
-                const audioMime = getMimeTypeFromUrl(audioUrl);
-
-                const videoType = getTypeForVideo(videoMime);
-                const audioType = getTypeForAudio(audioMime);
-
-                if (!MediaSource.isTypeSupported(videoType) || !MediaSource.isTypeSupported(audioType)) {
-                    console.error("Detected codec is not supported:", videoType, audioType);
+                // Check if mediaSource is still defined and open
+                if (!mediaSource || mediaSource.readyState !== "open") {
+                    console.error("MediaSource is not in the open state");
                     return;
                 }
 
-                const videoSourceBuffer = mediaSource.addSourceBuffer(videoType);
-                const audioSourceBuffer = mediaSource.addSourceBuffer(audioType);
+                var videoUrl = getBestVideoUrl(mediaLinks);
+                var audioUrl = getAudioUrl(mediaLinks);
 
-                console.log("Created SourceBuffers:", videoType, audioType);
+                var videoMime = 'video/webm; codecs="vp9"';  // Default to 'vp9' for video
+                var audioMime = 'audio/webm; codecs="opus"'; // Default to 'opus' for audio
+
+                if (!MediaSource.isTypeSupported(videoMime) || !MediaSource.isTypeSupported(audioMime)) {
+                    console.error("Detected codec is not supported:", videoMime, audioMime);
+                    return;
+                }
+
+                // Add Source Buffers for video and audio only after the MediaSource is open
+                var videoSourceBuffer = mediaSource.addSourceBuffer(videoMime);
+                var audioSourceBuffer = mediaSource.addSourceBuffer(audioMime);
+
+                console.log("Created SourceBuffers:", videoMime, audioMime);
 
                 fetchSegment(videoUrl, videoSourceBuffer, 'video');
                 fetchSegment(audioUrl, audioSourceBuffer, 'audio');
 
                 function fetchSegment(url, sourceBuffer, type) {
-                    const controller = new AbortController();
-                    const signal = controller.signal;
+                    var rangeStart = 0;
+                    var chunkSize = 1024 * 1024;  // 1 MB per chunk by default
+                    var rangeEnd = rangeStart + chunkSize - 1;
 
-                    let rangeStart = 0;
-                    const chunkSize = 1024 * 1024;
-                    let rangeEnd = rangeStart + chunkSize - 1;
+                    function loadSegment(retryCount) {
+                        if (retryCount === undefined) {
+                            retryCount = 3;
+                        }
+                        var rangeParam = rangeStart + '-' + rangeEnd;
+                        var xhr = new XMLHttpRequest();
 
-                    async function loadSegment(retryCount = 3) {
-                        const rangeParam = `${rangeStart}-${rangeEnd}`;
-                        const requestOptions = {
-                            headers: { 'Range': `bytes=${rangeStart}-${rangeEnd}` },
-                            signal: signal
+                        xhr.open('GET', url, true);
+                        xhr.setRequestHeader('Range', 'bytes=' + rangeStart + '-' + rangeEnd);
+
+                        xhr.responseType = 'arraybuffer';
+
+                        xhr.onload = function () {
+                            if (xhr.status >= 200 && xhr.status < 300) {
+                                var data = xhr.response;
+                                console.log('Segment received, range: ' + rangeStart + '-' + rangeEnd);
+
+                                if (data && data.byteLength > 0) {
+                                    sourceBuffer.appendBuffer(data);
+                                    console.log('Segment appended, range: ' + rangeStart + '-' + rangeEnd);
+                                } else {
+                                    console.error('Invalid data received for range: ' + rangeStart + '-' + rangeEnd);
+                                }
+
+                                rangeStart = rangeEnd + 1;
+                                rangeEnd = rangeStart + chunkSize - 1;
+
+                                var contentRange = xhr.getResponseHeader('Content-Range');
+                                var totalSize = parseInt(contentRange.split('/')[1], 10);
+
+                                if (rangeStart < totalSize) {
+                                    var nextFetchDelay = Math.min(500, Math.max(100, totalSize / 1000000));
+                                    setTimeout(function () {
+                                        loadSegment(retryCount);
+                                    }, nextFetchDelay);
+                                }
+                            } else {
+                                console.error('Failed to fetch segment, status: ' + xhr.status);
+                            }
                         };
 
-                        try {
-                            console.log(`Fetching segment: ${rangeParam}`);
-                            const response = await fetch(url, requestOptions);
-
-                            if (!response.ok) {
-                                throw new Error(`Failed to fetch segment, status: ${response.status}`);
-                            }
-
-                            const data = await response.arrayBuffer();
-                            console.log(`Segment received, range: ${rangeStart}-${rangeEnd}`);
-
-                            if (data && data.byteLength > 0) {
-                                sourceBuffer.appendBuffer(data);
-                                console.log(`Segment appended, range: ${rangeStart}-${rangeEnd}`);
+                        xhr.onerror = function () {
+                            console.error('Error fetching segment:', xhr.statusText);
+                            if (retryCount > 0) {
+                                console.log('Retrying segment fetch, attempts remaining: ' + retryCount);
+                                var retryDelay = Math.min(2000, Math.pow(2, (3 - retryCount)) * 1000);  // Exponential backoff for retries
+                                setTimeout(function () {
+                                    loadSegment(retryCount - 1);
+                                }, retryDelay);
                             } else {
-                                console.error(`Invalid data received for range: ${rangeStart}-${rangeEnd}`);
+                                console.error('Failed to fetch segment after retries.');
                             }
+                        };
 
-                            rangeStart = rangeEnd + 1;
-                            rangeEnd = rangeStart + chunkSize - 1;
-
-                            const contentRange = response.headers.get('Content-Range');
-                            const totalSize = parseInt(contentRange.split('/')[1], 10);
-
-                            if (rangeStart < totalSize) {
-
-                                setTimeout(() => loadSegment(retryCount), 100);
-                            }
-                        } catch (err) {
-                            if (err.name === 'AbortError') {
-                                console.log("Fetch aborted.");
-                            } else {
-                                console.error("Error fetching segment:", err);
-                                if (retryCount > 0) {
-                                    console.log(`Retrying segment fetch, attempts remaining: ${retryCount}`);
-                                    setTimeout(() => loadSegment(retryCount - 1), 1000);
-                                } else {
-                                    console.error("Failed to fetch segment after retries.");
-                                }
-                            }
-                        }
+                        xhr.send();
                     }
 
-                    loadSegment();
+                    loadSegment();  // Start fetching the first segment
                 }
 
-                function getMimeTypeFromUrl(url) {
-                    const urlParams = new URLSearchParams(url.split('?')[1]);
-                    const mime = urlParams.get('mime');
-                    if (mime) {
-                        return mime;
-                    } else {
-                        console.error("No mime type found in URL");
-                        return '';
+                function getBestVideoUrl(mediaLinks) {
+                    // Filter out any links with null type and select only 'video/webm' type
+                    var validVideoLinks = mediaLinks.filter(function (link) {
+                        return link.type && link.type === 'video/webm';
+                    });
+
+                    if (validVideoLinks.length === 0) {
+                        console.error('No valid video formats found.');
+                        return null;
                     }
+
+                    // Filter out videos with resolution higher than 720p
+                    var filteredVideoLinks = validVideoLinks.filter(function (link) {
+                        var resolution = link.resolution.split('x');
+                        var height = parseInt(resolution[1], 10);
+                        return height <= 720;
+                    });
+
+                    if (filteredVideoLinks.length === 0) {
+                        console.error('No video formats found with resolution <= 720p.');
+                        return null;
+                    }
+
+                    var sortedVideoLinks = filteredVideoLinks.sort(function (a, b) {
+                        return parseInt(b.resolution.split('x')[1]) - parseInt(a.resolution.split('x')[1]);
+                    });
+
+                    console.log('Best video URL found:', sortedVideoLinks[0].url);
+
+                    var proxyVideoUrl = 'http://localhost:8070/' + sortedVideoLinks[0].url;
+                    console.log('Proxy Video URL:', proxyVideoUrl);
+
+                    return proxyVideoUrl;
                 }
 
-                function getTypeForVideo(mime) {
-                    if (mime === 'video/mp4') {
-                        return 'video/mp4; codecs="avc1.4d401e"';
-                    } else {
-                        console.error("Unsupported video MIME type:", mime);
-                        return '';
+                function getAudioUrl(mediaLinks) {
+                    // First try to find an 'audio/webm' track
+                    var audioLink = mediaLinks.find(function (link) {
+                        return link.type && link.type === 'audio/webm';
+                    });
+
+                    // If no 'audio/webm' is found, fallback to 'audio/mp4' track
+                    if (!audioLink) {
+                        console.log("No 'audio/webm' found, searching for 'audio/mp4'...");
+                        audioLink = mediaLinks.find(function (link) {
+                            return link.type && link.type === 'audio/mp4';
+                        });
                     }
+
+                    if (!audioLink) {
+                        console.error('No valid audio format found.');
+                        return null;
+                    }
+
+                    // Log the audio URL found
+                    console.log('Audio URL found:', audioLink.url);
+
+                    // Prepend the local proxy URL to the audio URL
+                    var proxyAudioUrl = 'http://localhost:8070/' + audioLink.url;
+                    console.log('Proxy Audio URL:', proxyAudioUrl);
+
+                    return proxyAudioUrl;
                 }
 
-                function getTypeForAudio(mime) {
-                    if (mime === 'audio/webm') {
-                        return 'audio/webm; codecs="opus"';
-                    } else if (mime === 'audio/mp4') {
-                        return 'audio/mp4; codecs="mp4a.40.2"';
-                    } else {
-                        console.error("Unsupported audio MIME type:", mime);
-                        return '';
-                    }
-                }
             });
         }
-
-
 
 
 
@@ -14080,8 +14123,6 @@ if (!self.__WB_pmw) {
             // Ensure the media is loaded before playing
             a.load();
 
-            // Mute and attempt to play the media
-            a.muted = true;  // Mute the media
 
             a.play().then(function () {
                 // Media played successfully
@@ -15184,15 +15225,35 @@ if (!self.__WB_pmw) {
             this.ia = Wz++;
             this.J = NaN;
             this.A = null;
-            a = new Request(a, {
-                method: "GET",
-                credentials: "include"
-            });
-            fetch(a).then(ji(y(this.Wv, this)), ji(y(this.$g, this)));
+
+            // Using XMLHttpRequest for AJAX request
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', a, true);
+            xhr.withCredentials = true;
+
+            // Handle success
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    ji(y(this.Wv, this)); // Assuming 'this.Wv' is the correct context
+                } else {
+                    ji(y(this.$g, this)); // Assuming 'this.$g' is the correct context
+                }
+            };
+
+            // Handle error
+            xhr.onerror = function () {
+                ji(y(this.$g, this)); // Assuming 'this.$g' is the correct context
+            };
+
+            // Send the request
+            xhr.send();
+
             A();
-            this.G = !1;
-            b()
+            this.G = false;
+            b();
         }
+
+
         var Wz = 0;
         g = Vz.prototype;
         g.Wv = function (a) {
@@ -17320,40 +17381,40 @@ if (!self.__WB_pmw) {
             a.g && (a.o && a.$.g && T(a.A, 64) && !a.b.Pc && QB(a), zB(a), Em(a.Z), ay(a.g), a.g = null)
         }
 
-
         function ExtractFormatsForCustomPlayerThingMaBob(adaptiveFormats) {
             if (adaptiveFormats) {
                 try {
-                    let formatsArray = adaptiveFormats.split(',');
+                    var formatsArray = adaptiveFormats.split(',');
 
-                    let result = formatsArray.map(format => {
+                    var result = formatsArray.map(function (format) {
                         if (format.startsWith('url=')) {
-                            let decodedUrl = decodeURIComponent(format.substring(4));
+                            var decodedUrl = decodeURIComponent(format.substring(4));
                             console.log('Unformatted URL: ' + decodedUrl);
 
                             if (decodedUrl.includes('manifest')) {
                                 return null;
                             }
 
-
-                            let resolutionMatch = decodedUrl.match(/&size=([\dx]+)/);
-                            let resolution = resolutionMatch ? resolutionMatch[1] : null;
-                            let processedUrl = decodedUrl.split(/&itag=/, 2).join('&itag=');
+                            var resolutionMatch = decodedUrl.match(/&size=([\dx]+)/);
+                            var resolution = resolutionMatch ? resolutionMatch[1] : null;
+                            var processedUrl = decodedUrl.split(/&itag=/, 2).join('&itag=');
                             console.log('Processed URL: ' + processedUrl);
 
-                            let params = new URLSearchParams(processedUrl);
+                            var params = getQueryParams(processedUrl); // Custom function to extract query parameters
 
                             return {
                                 url: processedUrl,
-                                type: params.get('mime'),
-                                codec: params.get('codecs'),
+                                type: params['mime'],
+                                codec: params['codecs'],
                                 resolution: resolution
                             };
                         }
                         return null;
                     });
 
-                    return result.filter(format => format !== null);
+                    return result.filter(function (format) {
+                        return format !== null;
+                    });
 
                 } catch (error) {
                     console.error('Error decoding adaptiveFormats: ', error);
@@ -17363,6 +17424,21 @@ if (!self.__WB_pmw) {
                 return null;
             }
         }
+
+        // Helper function to mimic URLSearchParams (for older JavaScript versions)
+        function getQueryParams(url) {
+            var params = {};
+            var queryString = url.split('?')[1];
+            if (queryString) {
+                var pairs = queryString.split('&');
+                for (var i = 0; i < pairs.length; i++) {
+                    var pair = pairs[i].split('=');
+                    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+                }
+            }
+            return params;
+        }
+
 
 
 
@@ -17647,7 +17723,6 @@ if (!self.__WB_pmw) {
                         EB(a);
                     }
 
-                    console.log("RB function input:", JSON.stringify(meidaLinks, null, 2));
 
                     a.H = new Nr(
                         a.g.Wa(),
@@ -17655,7 +17730,7 @@ if (!self.__WB_pmw) {
                         a.b.g.videoInfos[0].mimeType, //c
                         a.b.g.b[0].mimeType,
                         a.M.B,
-                        a
+                        meidaLinks
                     );
 
                     Or(a.H, y(a.B.Fq, a.B));
@@ -32767,6 +32842,7 @@ if (!self.__WB_pmw) {
             this.b = d;
             this.C = e
         }
+
         WW.prototype.fetch = function (a, b, c) {
             C(D(a.g)) ? NO(a.b) && null != this.b && !this.b.F ? this.b.start(a, y(function () {
                 XW(this, a, b, c)
@@ -43932,6 +44008,7 @@ if (!self.__WB_pmw) {
             }
             b && (a.R && (b.fetch = 0), a.A = new ht(b), a.A.subscribe("error", a.Fh, a))
         }
+
         g.Fh = function () {
             NC(this, null);
             this.b.ra("onPlaylistUpdate")

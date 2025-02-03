@@ -3845,13 +3845,14 @@ if (!self.__WB_pmw) {
         function Ve(title, items, continuation) {
 
             console.log("yap");
+
             // Step 1: Wrap the 'items' into an object with the key 'items'
-            const itemList = {
+            var itemList = {
                 items: items // 'items' is wrapped inside 'itemList' for clarity
             };
 
             // Step 2: Build the 'shelfRenderer' object with the provided title and items
-            const shelfRendererStructure = {
+            var shelfRendererStructure = {
                 shelfRenderer: {
                     title: {
                         runs: [{ text: title }] // 'title' becomes the text inside the 'runs' array
@@ -3867,10 +3868,8 @@ if (!self.__WB_pmw) {
                 itemList.continuations = continuation; // 'continuation' is added as 'continuations' inside 'itemList'
             }
 
-            // Return the final structured object
             return shelfRendererStructure;
         }
-
 
         function We(a, b, c, e, f, g, k, l, p, r, u, w) {
 
@@ -5814,7 +5813,7 @@ if (!self.__WB_pmw) {
                 u = p.errorCode || "",
                 w = "auth" === u,
                 A = "html5.nopurchaseflow" === u;
-            (w || A) && c.isFling || (c = "", l = l[1], w || A || !l || (c = "drm.auth" == u ? f.ia("[[Playback ID: {{cpn}}|Message that displays the playback ID.]]").replace("{{cpn}}", String(l)) : f.ia("[[Please report this ID to help us fix the problem: {{cpn}}|Message to user to report an error number to help fix a problem.]]").replace("{{cpn}}", String(l))), f = !ub(p) || -1 != mg.f.indexOf(u),
+            (w || A) && c.isFling || (c = "", l = l[1], w || A || !l || (c = "drm.auth" == u ? f.ia("[[Playback ID: {{cpn}}|Message that displays the playback ID.]]").replace("{{cpn}}", String(l)) : f.ia("[[Please report this ID to help us fix the problem: {{cpn}}, However there's a good chance the video just is missing a specific track in a specific and I forgot to include a fallback!|Message to user to report an error number to help fix a problem.]]").replace("{{cpn}}", String(l))), f = !ub(p) || -1 != mg.f.indexOf(u),
                 u = p = !1, w && ("2" == k || "3" == k ? u = !0 : "1" == k && (p = !0)), p ? b.Ve ? a.J("request-player-error", r, c) : a.J("request-playback-authorization", r) : u ? g(k, r) : (f && e.i(), a.J("request-player-error", r, c)))
         }
         mg.f = ["net.badstatus", "net.closed", "net.connect", "net.retryexhausted"];
@@ -5979,7 +5978,7 @@ if (!self.__WB_pmw) {
                     src: `url('/assets/${font.file}') format('${font.format}')`
                 });
 
-                const styles = {
+                var styles = {
                     "font-family": font.name
                 };
 
@@ -8007,10 +8006,10 @@ if (!self.__WB_pmw) {
 
 
         d.YX = function (a, b) {
-            // Log initial state
-            console.log("d.YX() called with:", { a, b });
 
-            this.M = !1;
+            console.log("d.YX() called with:", { a: a, b: b });
+
+            this.M = false;
             this.o = a;
             console.log("Setting this.o to:", a);
 
@@ -8019,21 +8018,18 @@ if (!self.__WB_pmw) {
 
             this.za("no-background");
 
-            // Get the result of hN and log it
             var c = this.hN(a, b);
             console.log("hN() result:", c);
 
             this.I = c !== this.j;
             console.log("this.I set to:", this.I);
 
-            // Check if `this.g` is different from `c`
             if (this.g !== c) {
                 var e = this.g;
-                e.model = null;  // Reset the old model
-                this.g = c;      // Update this.g
-                this.g.model = this.model;  // Assign the current model to the new `this.g`
+                e.model = null;
+                this.g = c;
+                this.g.model = this.model;
 
-                // Update the DOM if necessary
                 if (e.H !== this.g.H) {
                     console.log("Replacing child:", e.H, "with", this.g.H);
                     this.H.replaceChild(this.g.H, e.H);
@@ -8048,7 +8044,6 @@ if (!self.__WB_pmw) {
                 }
             }
 
-            // Handle visibility and background logic
             if (this.I) {
                 console.log("Showing this.g and adding header content");
                 this.g.show();
@@ -8059,45 +8054,39 @@ if (!self.__WB_pmw) {
                 }
             } else {
                 console.log("Hiding this.g header content");
-                this.g.qq(!1);
+                this.g.qq(false);
                 this.Ha("has-header-content");
             }
 
-            // Process the section list renderer
-            const sectionData = findSectionListRenderer(a) || {};
+            var sectionData = findSectionListRenderer(a) || {};
             console.log("sectionListRenderer data:", sectionData);
-
 
             this.h.Ia(sectionData, b, this.model ? this.model.Lc() : "");
 
-            // Handle playlist header renderer
-            const playlistHeader = n("header.playlistHeaderRenderer", a);
+            var playlistHeader = n("header.playlistHeaderRenderer", a);
             console.log("playlistHeaderRenderer data:", playlistHeader);
             this.h.kN(playlistHeader);
 
-            // Handle overlay if it exists
-            const overlay = a.overlay;
+            var overlay = a.overlay;
             if (overlay) {
                 console.log("Handling overlay:", overlay);
                 this.jN(overlay);
             }
         };
 
+
         d.hN = function (a, b) {
             console.log("d.hN() called with:", { a, b });
 
             try {
-                // Log the function call and parameters before calling this.rb.f
+
                 console.log("Calling this.rb.f() with parameters:", { b: b, header: a.header, g: this.g });
 
-                // Execute the original logic
-                const result = this.rb.f(b, a.header, this.g);
+                var result = this.rb.f(b, a.header, this.g);
 
-                // Log the result of this.rb.f
                 console.log("this.rb.f() result:", result);
                 return result;
             } catch (c) {
-                // Log the caught error
                 console.error("Error caught in d.hN:", c);
 
                 if (c instanceof ki) {
@@ -8105,7 +8094,6 @@ if (!self.__WB_pmw) {
                     return this.j;
                 }
 
-                // Re-throw the error if it's not an instance of `ki`
                 throw c;
             }
         };
@@ -22062,19 +22050,15 @@ if (!self.__WB_pmw) {
         };
 
         d.Vx = function () {
-            // Sets this.g to false
             console.log('Network error occurred. Setting this.g to false.');
 
-            // Log the message being sent to this.J
-            const errorMessage = "[[A network error has occurred. Please check your network connection.|Dialog subtitle telling user that a network error has occurred, and asking the user to check their network connection]]";
+            var errorMessage = "[[A network error has occurred. Please check your network connection.|Dialog subtitle telling user that a network error has occurred, and asking the user to check their network connection]]";
             console.log('Calling this.J with error message:', errorMessage);
 
-            // Trigger the J method with the error message
             this.J("error", {
                 message: errorMessage
             });
         };
-
 
         er.inject = "window csiService environment jsloader playerFactoryService timeService".split(" ");
 
@@ -28787,35 +28771,30 @@ if (!self.__WB_pmw) {
 
 
         function extractValue(path, obj) {
-            const value = path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : null), obj);
+            var value = path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : null), obj);
             console.log(`Path: ${path}, Extracted Value:`, value);
             return value;
         }
 
         d.zL = function (a) {
-            // Log the entire object 'a' to inspect its structure
+
             console.log("Received object a:", a);
 
-            // Extract the lengthText if it exists
-            const lengthText = a.lengthText;
+            var lengthText = a.lengthText;
 
-            // Log the extracted lengthText
             console.log("Extracted lengthText:", lengthText);
 
-            // Process the extracted lengthText with 'this.f'
-            const result = lengthText;
+            var result = lengthText;
 
-            // Log the final result after passing through 'this.f'
             console.log("Result after passing through this.f:", result);
 
-            // Return the processed result
             return result;
         };
 
 
 
         d.x_ = function (a) {
-            const videoId = n("videoId", a);
+            var videoId = n("videoId", a);
             console.log("Extracted Video ID:", videoId);
             return videoId;
         };
@@ -28825,42 +28804,30 @@ if (!self.__WB_pmw) {
         };
 
         d.BL = function (a) {
-            // Log the entire object 'a' to inspect its structure
             console.log("Received object a:", a);
 
-            // Extract the viewCountText if it exists
-            const viewCountText = a.views;
+            var viewCountText = a.views;
 
-            // Log the extracted viewCountText
             console.log("Extracted viewCountText:", viewCountText);
 
-            // Process the extracted viewCountText with 'this.f'
-            const result = this.f(viewCountText);
+            var result = this.f(viewCountText);
 
-            // Log the final result after passing through 'this.f'
             console.log("Result after passing through this.f:", result);
 
-            // Return the processed result
             return result;
         };
 
         d.w_ = function (a) {
-            // Log the entire object 'a' to inspect its structure
             console.log("Received object a:", a);
 
-            // Extract the 'publishedTimeText' from 'a' if it exists
-            const publishedTimeText = a.publishedTime;
+            var publishedTimeText = a.publishedTime;
 
-            // Log the extracted 'publishedTimeText'
             console.log("Extracted publishedTimeText:", publishedTimeText);
 
-            // Process the extracted 'publishedTimeText' with 'this.f'
-            const result = this.f(publishedTimeText);
+            var result = this.f(publishedTimeText);
 
-            // Log the final result after passing through 'this.f'
             console.log("Result after passing through this.f:", result);
 
-            // Return the processed result
             return result;
         };
 

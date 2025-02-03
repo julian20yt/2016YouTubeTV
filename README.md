@@ -6,7 +6,7 @@ A project to revive the old 2015-2016 YouTubeTV HTML5 Web App.
 
 ## Screenshots
 
-**[Note These Are As Of The 30th Of January At 14:18 EST, Things Will Have Changed]**
+**[Note These Are As Of The 3rd Of February At 2:00 EST, Things Will Have Changed]**
 
 ![Screenshot 1](screenshots/s1.png)
 ![Screenshot 2](screenshots/s2.png)
@@ -24,6 +24,8 @@ A project to revive the old 2015-2016 YouTubeTV HTML5 Web App.
 - youtube-dl-exec [https://github.com/microlinkhq/youtube-dl-exec] 
 
 - cors-anywhere [https://github.com/Rob--W/cors-anywhere?tab=readme-ov-file]
+
+- qr-code [https://www.npmjs.com/package/qrcode]
 
 - dx for his knowlage 
 
@@ -44,10 +46,30 @@ PLEASE disable Oauth, so just delete refrences to it in server.js, why
 because this is designed for someone to host themeselves and only themeselves
 so I save your token/refresh token in a .json file.
 
+## Cool Things To Know
+
+- This doesn't need FFMPEG, videos are streamed straight from googlevideo link throw a CORS proxy! (idk if yt-dlp requires it
+I don't think so, you only need it to merge formats iirc).
+
+- This uses DASH formats, so this should work into the future (of course APIs may change, but the video playback is yt-dlp based
+so it'll probbaly be fine).
+
+- The TV Player uses a custom system for fetching videos, as I had troubles with the original MediaSource BS it uses, it 
+used media-source but ran into too many issues with how the player set it up. So yeah this player script is quite modifed.
+
+- This **should** support JavaScript ES5 now, before I used const and let and for a little time fetch(), now
+it uses XHR for the custom MediaStream stuff. Which means now it can run on era appropriate smart devices, well
+at least when I do IP adressed rather than localhost!
+
+
 ## Why We Use "youtube-dl-exec"
 
 This is so we can get video urls, without having to deal with all the chiper bs you have
 to deal with no  ** you will now need python3.7 or higher installed! though **
+
+## Why We Use "qr-code"
+
+Just to make qr codes for the google chart api implementation.
 
 ## Why We Use "cors-anywhere"
 
@@ -94,7 +116,7 @@ innertube for search and stuff, but not fully GDATA ones. Just use YT2009 at tha
 
 ## Setup
 
-**[Note This Really Is Very Early On In The Project, So Guide Won't Be Super Great]**
+**[Note This Project Isn't Done, So Guide Won't Be Super Great]**
 
 [Make sure you have nodejs, npm, and python3 (version 3.7.something or above!)]
 
@@ -122,20 +144,22 @@ Progress Report
     Status: The Browse API (which is what channels use and the homepage and such), loads off a static json file but loads fine!
     Next Steps: Work on getting the data from the youtubei browse api and converting it into that format.
 
-4a. Watch - 65% Done
+4a. Watch - 90% Done
 
-    Status: Got to use a custom /get_video_info, and prase it.
-    Next Steps: Format it properly and add the other metadata it needs.
+    Status: Videos play, a tiny bit buggy somtimes **you need to play and pause and play again** for progress to work, but works.
+    Next Steps: Make it less bugger and chunk less data.
+
+    ** Right now SOME videos don't work, this is just because I haven't done the WebM to H264 fallback yet, it will be fixed **
 
 4b. Watch Interactions - 100% Done
 
     Status: You can sub, unsub, like, and they'll all load.
     Next Steps: Nothing.
 
-5. Pairing - 0% Done
+5. Pairing - 20% Done
 
-    Status: Pairing functionality has not been started.
-    Next Steps: Fixing pairing features with the TV app.
+    Status: Got some end points implemented, but they don't create the code.
+    Next Steps: Get it to create the pairing code.
 
 6. Sign In - 65% Done
 
@@ -153,8 +177,14 @@ Progress Report
 
  ̶-̶ ̶M̶a̶k̶e̶ ̶l̶i̶v̶e̶.̶j̶s̶ ̶w̶o̶r̶k̶ ̶b̶e̶t̶t̶e̶r̶ ̶(̶i̶t̶ ̶s̶o̶m̶e̶t̶i̶m̶e̶s̶ ̶c̶a̶u̶s̶e̶s̶ ̶i̶s̶s̶u̶e̶s̶ ̶w̶i̶t̶h̶ ̶t̶h̶e̶ ̶g̶u̶i̶d̶e̶,̶ ̶h̶o̶w̶e̶v̶e̶r̶ ̶i̶t̶ ̶i̶s̶n̶'̶t̶ ̶t̶h̶e̶ ̶g̶u̶i̶d̶e̶s̶ ̶f̶a̶u̶l̶t̶.̶)̶
 
+-̶ ̶F̶i̶x̶ ̶o̶l̶d̶e̶r̶ ̶b̶r̶o̶w̶s̶e̶r̶ ̶s̶u̶p̶p̶o̶r̶t̶,̶ ̶r̶i̶g̶h̶t̶ ̶n̶o̶w̶ ̶w̶e̶ ̶u̶s̶e̶ ̶s̶o̶m̶e̶ ̶t̶h̶i̶n̶g̶ ̶f̶r̶o̶m̶ ̶E̶C̶M̶A̶S̶c̶r̶i̶p̶t̶ ̶6̶ ̶a̶n̶d̶ ̶7̶,̶ ̶l̶i̶k̶e̶ ̶l̶e̶t̶ ̶a̶n̶d̶ ̶f̶e̶t̶c̶h̶ ̶I̶ ̶a̶m̶ ̶w̶o̶r̶k̶i̶n̶g̶ ̶o̶n̶ ̶s̶u̶p̶p̶o̶r̶t̶i̶n̶g̶ ̶b̶r̶o̶w̶s̶e̶r̶ ̶t̶h̶e̶ ̶o̶f̶f̶i̶c̶a̶l̶ ̶c̶l̶i̶e̶n̶t̶ ̶w̶o̶u̶l̶d̶.̶
+
+- Make it so you can use an IP adress rather than localhost:8090 so you can use it on a real TV or something.
+
 - Support other versions of YouTube TV
 
 - Other languages
 
 - Fix grammar
+
+
