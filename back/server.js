@@ -35,7 +35,7 @@ app.use((req, res, next) => {
 });
 
 const server = corsAnywhere.createServer({
-    originWhitelist: ['http://localhost:8090', '*', '""', ''],
+    originWhitelist: ['http://localhost:8090', '*', '""', '', 'null', "null"],
     removeHeaders: ['cookie', 'cookie2'],
     handleInitialRequest: (req, res) => {
         const origin = req.headers.origin;

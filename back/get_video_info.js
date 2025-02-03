@@ -35,7 +35,6 @@ function handleGetVideoInfo(req, res) {
             const videoTitle = output.title;
             const videoDuration = output.duration;
 
-            // Log video details
             console.log('Video ID:', videoIdFromOutput);
             console.log('Video Title:', videoTitle);
             console.log('Video Duration:', videoDuration);
@@ -65,6 +64,12 @@ function handleGetVideoInfo(req, res) {
                         }
 
                         if (format.format_id !== '18') {
+
+                            if (format.url.includes('manifest')) {
+                                console.log('Skipping manifest URL:', format.url);
+                                return;
+                            }
+
                             const urlParams = new URLSearchParams();
                             urlParams.append('url', format.url);
                             urlParams.append('itag', format.format_id);
