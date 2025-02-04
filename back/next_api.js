@@ -38,14 +38,13 @@ async function fetchNextData(videoId, accessToken) {
             'Content-Type': 'application/json',
         };
 
-        // Add Authorization header only if accessToken is provided
         if (accessToken) {
             headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
         const response = await axios.post(apiUrl, postData, { headers });
 
-        return response.data;  // Return the response data
+        return response.data;
     } catch (error) {
         console.error('Error fetching next data:', error.message);
 
