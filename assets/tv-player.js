@@ -8794,218 +8794,329 @@
         
         function Nr(a, b, c, d, e, mediaLinks) {
             console.log("Nr constructor called with parameters:", a, b, c, d, e, mediaLinks);
-        
             console.log("mediaLinks parameters:", mediaLinks);
             Cm.call(this);
             console.log("Cm constructor called");
-        
+          
             this.g = this.b = null;
             this.B = b;
-        
+          
             if (!window.MediaSource) {
-                console.error("MediaSource API is not supported.");
-                return;
+              console.error("MediaSource API is not supported.");
+              return;
             }
-        
+          
             console.log("Using MediaSource API");
-        
             this.o = new MediaSource();
             console.log("Created MediaSource object:", this.o);
-        
-            // Find the existing <video> element
+          
             var videoElement = document.querySelector(".html5-main-video");
             if (!videoElement) {
-                console.error("Video element not found!");
-                return;
+              console.error("Video element not found!");
+              return;
             }
-        
             videoElement.src = URL.createObjectURL(this.o);
             console.log("Assigned MediaSource to video element:", videoElement.src);
-        
-            // Listen for the 'sourceopen' event
+          
             this.o.addEventListener("sourceopen", function () {
-                console.log("MediaSource opened");
-        
-                var mediaSource = this;
-        
-                if (!mediaSource || mediaSource.readyState !== "open") {
-                    console.error("MediaSource is not in the open state");
+              console.log("MediaSource opened");
+              var mediaSource = this;
+              if (!mediaSource || mediaSource.readyState !== "open") {
+                console.error("MediaSource is not in the open state");
+                return;
+              }
+          
+              var videoData = getBestVideoUrl(mediaLinks);
+              var audioData = getAudioUrl(mediaLinks);
+              console.log("Video MIME:", videoData.mimeType);
+              console.log("Audio MIME:", audioData.mimeType);
+          
+              var videoSourceBuffer = mediaSource.addSourceBuffer(videoData.mimeType);
+              var audioSourceBuffer = mediaSource.addSourceBuffer(audioData.mimeType);
+              console.log("Created SourceBuffers:", videoData, audioData);
+          
+              fetchSegment(videoData.url, videoSourceBuffer, videoElement, 'video');
+              fetchSegment(audioData.url, audioSourceBuffer, videoElement, 'audio');
+          
+              function fetchSegment(url, sourceBuffer, videoElement, type) {
+                var rangeStart = 0;
+                var chunkSize = 2 * 1024 * 1024;
+                var rangeEnd = rangeStart + chunkSize;
+                var totalSize = Number.MAX_SAFE_INTEGER;
+                var isPaused = false;
+                var isSeeking = false;
+                var minBufferAhead = 30; 
+                var maxBufferAhead = 90;
+                var isLoading = true;
+                var pendingAppends = [];
+          
+                function loadSegment(retryCount = 3) {
+                  if (isLoading) {
+                    console.log("Already loading a segment, queuing request");
                     return;
+                  }
+          
+                  if (sourceBuffer.updating) {
+                    console.log("SourceBuffer is updating, waiting...");
+                    setTimeout(() => loadSegment(retryCount), 100);
+                    return;
+                  }
+          
+                  
+                  if (sourceBuffer.buffered.length > 0) {
+                    const currentTime = videoElement.currentTime;
+                    const bufferedEnd = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1);
+                    const bufferedAhead = bufferedEnd - currentTime;
+          
+                    console.log(`Current buffer status: ${bufferedAhead.toFixed(2)} seconds ahead`);
+          
+                   
+                    if (bufferedAhead >= maxBufferAhead) {
+                      console.log(`Buffer full (${bufferedAhead.toFixed(2)} sec), delaying load`);
+                      setTimeout(() => loadSegment(retryCount), 1000);
+                      return;
+                    }
+          
+                    
+                    if (bufferedAhead < minBufferAhead) {
+                      console.log("Buffer getting low, prioritizing next segment");
+                    }
+                  }
+          
+                  if (isPaused || isSeeking) {
+                    console.log("Playback paused or seeking, delaying load");
+                    return;
+                  }
+          
+                  if (rangeStart >= totalSize) {
+                    if (mediaSource.readyState === "open") {
+                      mediaSource.endOfStream();
+                    }
+                    return;
+                  }
+          
+                  isLoading = true;
+                  const xhr = new XMLHttpRequest();
+                  xhr.open('GET', url, true);
+                  xhr.setRequestHeader('Range', `bytes=${rangeStart}-${rangeEnd}`);
+                  xhr.responseType = 'arraybuffer';
+          
+                  xhr.onload = function() {
+                    isLoading = false;
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                      const data = xhr.response;
+                      if (data && data.byteLength > 0) {
+                        appendSegment(data, xhr);
+                      } else {
+                        console.error(`Invalid data received for range: ${rangeStart}-${rangeEnd}`);
+                        if (retryCount > 0) loadSegment(retryCount - 1);
+                      }
+                    } else {
+                      console.error(`Failed to fetch segment, status: ${xhr.status}`);
+                      if (retryCount > 0) setTimeout(() => loadSegment(retryCount - 1), 1000);
+                    }
+                  };
+          
+                  xhr.onerror = function() {
+                    isLoading = false;
+                    console.error('Error fetching segment:', xhr.statusText);
+                    if (retryCount > 0) {
+                      setTimeout(() => loadSegment(retryCount - 1), 2000);
+                    }
+                  };
+          
+                  xhr.send();
                 }
-        
-                var videoData = getBestVideoUrl(mediaLinks);
-                var audioData = getAudioUrl(mediaLinks);
-        
-                console.log("Video MIME:", videoData.mimeType);
-                console.log("Audio MIME:", audioData.mimeType);
-        
-                // Add Source Buffers
-                var videoSourceBuffer = mediaSource.addSourceBuffer(videoData.mimeType);
-                var audioSourceBuffer = mediaSource.addSourceBuffer(audioData.mimeType);
-        
-                console.log("Created SourceBuffers:", videoData, audioData);
-        
-                fetchSegment(videoData.url, videoSourceBuffer, 'video');
-                fetchSegment(audioData.url, audioSourceBuffer, 'audio');
-        
-                function fetchSegment(url, sourceBuffer, type) {
-                    var rangeStart = 0;
-                    var chunkSize = 1024 * 1024;  // 1 MB per chunk
-                    var rangeEnd = rangeStart + chunkSize;
-        
-                    function loadSegment(retryCount) {
-                        if (retryCount === undefined) {
-                            retryCount = 3;
-                        }
-                        var rangeParam = rangeStart + '-' + rangeEnd;
-                        var xhr = new XMLHttpRequest();
-        
-                        xhr.open('GET', url, true);
-                        xhr.setRequestHeader('Range', 'bytes=' + rangeStart + '-' + rangeEnd);
-                        xhr.responseType = 'arraybuffer';
-        
-                        xhr.onload = function () {
-                            if (xhr.status >= 200 && xhr.status < 300) {
-                                var data = xhr.response;
-                                console.log('Segment received, range: ' + rangeStart + '-' + rangeEnd);
-        
-                                if (data && data.byteLength > 0) {
-                                    sourceBuffer.appendBuffer(data);
-                                    console.log('Segment appended, range: ' + rangeStart + '-' + rangeEnd);
-                                } else {
-                                    console.error('Invalid data received for range: ' + rangeStart + '-' + rangeEnd);
-                                }
-        
-                                rangeStart = rangeEnd + 1;
-                                rangeEnd = rangeStart + chunkSize - 1;
-        
-                                var contentRange = xhr.getResponseHeader('Content-Range');
-                                var totalSize = parseInt(contentRange.split('/')[1], 10);
-        
-                                if (rangeStart < totalSize) {
-                                    var nextFetchDelay = Math.min(500, Math.max(100, totalSize / 1000000));
-                                    setTimeout(function () {
-                                        loadSegment(retryCount);
-                                    }, nextFetchDelay);
-                                }
-                            } else {
-                                console.error('Failed to fetch segment, status: ' + xhr.status);
-                            }
-                        };
-        
-                        xhr.onerror = function () {
-                            console.error('Error fetching segment:', xhr.statusText);
-                            if (retryCount > 0) {
-                                console.log('Retrying segment fetch, attempts remaining: ' + retryCount);
-                                var retryDelay = Math.min(2000, Math.pow(2, (3 - retryCount)) * 1000);
-                                setTimeout(function () {
-                                    loadSegment(retryCount - 1);
-                                }, retryDelay);
-                            } else {
-                                console.error('Failed to fetch segment after retries.');
-                            }
-                        };
-        
-                        xhr.send();
-                    }
-        
-                    loadSegment();  // Start fetching the first segment
-                }
-        
-                function getBestVideoUrl(mediaLinks) {
-                    var validVideoLinks = mediaLinks.filter(function (link) {
-                        return link.type && link.type === 'video/webm';
-                    });
-        
-                    if (validVideoLinks.length === 0) {
-                        console.log("No 'video/webm' found, searching for 'video/mp4'...");
-                        validVideoLinks = mediaLinks.filter(function (link) {
-                            return link.type && link.type === 'video/mp4';
-                        });
-        
-                        if (validVideoLinks.length === 0) {
-                            console.error('No valid video formats found.');
-                            return null;
-                        }
-                    }
-        
-                    var filteredVideoLinks = validVideoLinks.filter(function (link) {
-                        var resolution = link.resolution.split('x');
-                        var height = parseInt(resolution[1], 10);
-                        return height <= 720;
-                    });
-        
-                    if (filteredVideoLinks.length === 0) {
-                        console.error('No video formats found with resolution <= 720p.');
-                        return null;
-                    }
-        
-                    var sortedVideoLinks = filteredVideoLinks.sort(function (a, b) {
-                        return parseInt(b.resolution.split('x')[1]) - parseInt(a.resolution.split('x')[1]);
-                    });
-        
-                    console.log('Best video URL found:', sortedVideoLinks[0].url);
-        
-                    var proxyVideoUrl = 'http://localhost:8070/' + sortedVideoLinks[0].url;
-                    console.log('Proxy Video URL:', proxyVideoUrl);
-        
-                    return {
-                        url: proxyVideoUrl,
-                        mimeType: sortedVideoLinks[0].type === 'video/webm'
-                            ? 'video/webm; codecs="vp9"'
-                            : 'video/mp4; codecs="avc1.4d401e"'
-                    };
-                }
-        
-                function getAudioUrl(mediaLinks) {
-                    console.log('Received media links:', mediaLinks);
-        
-                    // Find audio/webm format
-                    var audioLink = mediaLinks.find(function (link) {
-                        return link.type && link.type === 'audio/webm' && link.url;
-                    });
-        
-                    if (audioLink) {
-                        console.log("Found 'audio/webm' format:", audioLink);
-                    }
-        
-                    // If no audio/webm found, search for audio/mp4 format
-                    if (!audioLink) {
-                        console.log("No 'audio/webm' found, searching for 'audio/mp4'...");
-                        audioLink = mediaLinks.find(function (link) {
-                            return link.type && link.type === 'audio/mp4' && link.url;
-                        });
-        
-                        if (audioLink) {
-                            console.log("Found 'audio/mp4' format:", audioLink);
-                        }
-                    }
-        
-                    if (!audioLink) {
-                        console.error('No valid audio format found.');
-                        return null;
-                    }
-        
-                    console.log('Audio URL found:', audioLink.url);
-        
-                    var proxyAudioUrl = 'http://localhost:8070/' + audioLink.url;
-                    console.log('Proxy Audio URL:', proxyAudioUrl);
-        
-                    const result = {
-                        url: proxyAudioUrl,
-                        mimeType: audioLink.type === 'audio/webm'
-                            ? 'audio/webm; codecs="opus"'
-                            : 'audio/mp4; codecs="mp4a.40.2"'
-                    };
-        
-                    console.log('Returning result:', result);
-        
-                    return result;
-                }
-        
-            });
-        }        
+          
+                function appendSegment(data, xhr) {
+                  if (sourceBuffer.updating) {
+                    pendingAppends.push(() => appendSegment(data, xhr));
+                    return;
+                  }
+          
+                  try {
+                  
+                    if (sourceBuffer.buffered.length > 0) {
+                      const currentTime = videoElement.currentTime;
+                      const bufferedStart = sourceBuffer.buffered.start(0);
+                      const bufferedEnd = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1);
 
+                      if (currentTime - bufferedStart > 60) {
+                        const removeEnd = Math.max(currentTime - 30, bufferedStart);
+                        console.log(`Removing old buffer: ${bufferedStart} to ${removeEnd}`);
+                        sourceBuffer.remove(bufferedStart, removeEnd);
+                        return; 
+                      }
+                    }
+          
+                    sourceBuffer.appendBuffer(data);
+                    console.log(`Segment appended: ${rangeStart}-${rangeEnd}`);
+          
+        
+                    rangeStart = rangeEnd + 1;
+                    rangeEnd = rangeStart + chunkSize;
+          
+            
+                    const contentRange = xhr.getResponseHeader('Content-Range');
+                    if (contentRange) {
+                      totalSize = parseInt(contentRange.split('/')[1], 10);
+                    }
+        
+                    const bufferAhead = sourceBuffer.buffered.length > 0 ? 
+                      sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1) - videoElement.currentTime : 0;
+                    
+                    const nextSegmentDelay = bufferAhead > maxBufferAhead / 2 ? 1000 : 100;
+                    setTimeout(loadSegment, nextSegmentDelay);
+          
+                  } catch (e) {
+                    console.error("Error appending segment:", e);
+                    setTimeout(loadSegment, 1000);
+                  }
+                }
+
+                sourceBuffer.addEventListener('updateend', () => {
+                  if (pendingAppends.length > 0) {
+                    const nextAppend = pendingAppends.shift();
+                    nextAppend();
+                  }
+                });
+          
+                if (type === 'video' && videoElement) {
+                  videoElement.addEventListener('seeking', () => {
+                    console.log("Seeking detected");
+                    isSeeking = true;
+                    pendingAppends = []; 
+                    
+                    const seekTime = videoElement.currentTime;
+            
+                    const videoDuration = videoElement.duration || 0;
+                    if (videoDuration > 0) {
+                      rangeStart = Math.floor((seekTime / videoDuration) * totalSize);
+                      rangeStart = Math.floor(rangeStart / chunkSize) * chunkSize; // Align to chunk boundaries
+                      rangeEnd = rangeStart + chunkSize;
+                    }
+          
+                  
+                    if (sourceBuffer.buffered.length > 0) {
+                      const clearStart = Math.max(0, seekTime - 10);
+                      const clearEnd = Math.min(seekTime + 30, videoElement.duration);
+                      try {
+                        sourceBuffer.remove(clearStart, clearEnd);
+                      } catch (e) {
+                        console.error("Error clearing buffer during seek:", e);
+                      }
+                    }
+          
+                    setTimeout(() => {
+                      isSeeking = false;
+                      loadSegment();
+                    }, 100);
+                  });
+          
+                  videoElement.addEventListener('pause', () => {
+                    console.log("Playback paused");
+                    isPaused = true;
+                  });
+          
+                  videoElement.addEventListener('play', () => {
+                    console.log("Playback resumed");
+                    isPaused = false;
+                    loadSegment();
+                  });
+
+
+                  setInterval(() => {
+                    if (sourceBuffer.buffered.length > 0) {
+                      const currentTime = videoElement.currentTime;
+                      const bufferedEnd = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1);
+                      const bufferedAhead = bufferedEnd - currentTime;
+                      console.log(`Buffer status: ${bufferedAhead.toFixed(2)} seconds ahead`);
+                      
+                      if (bufferedAhead < minBufferAhead && !isPaused && !isSeeking && !isLoading) {
+                        console.log("Buffer running low, triggering load");
+                        loadSegment();
+                      }
+                    }
+                  }, 1000);
+                }
+          
+                loadSegment();
+              }
+          
+
+              function getBestVideoUrl(mediaLinks) {
+                var validVideoLinks = mediaLinks.filter(function (link) {
+                  return link.type && link.type === 'video/webm';
+                });
+                if (validVideoLinks.length === 0) {
+                  console.log("No 'video/webm' found, searching for 'video/mp4'...");
+                  validVideoLinks = mediaLinks.filter(function (link) {
+                    return link.type && link.type === 'video/mp4';
+                  });
+                  if (validVideoLinks.length === 0) {
+                    console.error('No valid video formats found.');
+                    return null;
+                  }
+                }
+                var filteredVideoLinks = validVideoLinks.filter(function (link) {
+                  var resolution = link.resolution.split('x');
+                  var height = parseInt(resolution[1], 10);
+                  return height <= 720;
+                });
+                if (filteredVideoLinks.length === 0) {
+                  console.error('No video formats found with resolution <= 720p.');
+                  return null;
+                }
+                var sortedVideoLinks = filteredVideoLinks.sort(function (a, b) {
+                  return parseInt(b.resolution.split('x')[1]) - parseInt(a.resolution.split('x')[1]);
+                });
+                console.log('Best video URL found:', sortedVideoLinks[0].url);
+                var proxyVideoUrl = 'http://localhost:8070/' + sortedVideoLinks[0].url;
+                console.log('Proxy Video URL:', proxyVideoUrl);
+                return {
+                  url: proxyVideoUrl,
+                  mimeType: sortedVideoLinks[0].type === 'video/webm'
+                    ? 'video/webm; codecs="vp9"'
+                    : 'video/mp4; codecs="avc1.4d401e"'
+                };
+              }
+              
+              function getAudioUrl(mediaLinks) {
+                console.log('Received media links:', mediaLinks);
+                var audioLink = mediaLinks.find(function (link) {
+                  return link.type && link.type === 'audio/webm' && link.url;
+                });
+                if (audioLink) {
+                  console.log("Found 'audio/webm' format:", audioLink);
+                }
+                if (!audioLink) {
+                  console.log("No 'audio/webm' found, searching for 'audio/mp4'...");
+                  audioLink = mediaLinks.find(function (link) {
+                    return link.type && link.type === 'audio/mp4' && link.url;
+                  });
+                  if (audioLink) {
+                    console.log("Found 'audio/mp4' format:", audioLink);
+                  }
+                }
+                if (!audioLink) {
+                  console.error('No valid audio format found.');
+                  return null;
+                }
+                console.log('Audio URL found:', audioLink.url);
+                var proxyAudioUrl = 'http://localhost:8070/' + audioLink.url;
+                console.log('Proxy Audio URL:', proxyAudioUrl);
+                const result = {
+                  url: proxyAudioUrl,
+                  mimeType: audioLink.type === 'audio/webm'
+                    ? 'audio/webm; codecs="opus"'
+                    : 'audio/mp4; codecs="mp4a.40.2"'
+                };
+                console.log('Returning result:', result);
+                return result;
+              }
+            });
+          }
+          
         B(Nr, Cm);
 
         function Or(a, b) {
