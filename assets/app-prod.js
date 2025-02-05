@@ -27834,91 +27834,65 @@ if (!self.__WB_pmw) {
         d.Tw = function (a) {
             return 2 == a && 401 == this.f.aw()
         };
+
         d.connect = function (a, b, c) {
             if (!this.f || this.f.rg() !== 2) {
+                console.log("Initializing connection...");
+        
                 this.G = "";
                 this.g.stop();
                 this.j = a || null;
                 this.l = b || 0;
-
+        
                 // Use the proxy URLs
-                a = "http://localhost:8070/http://youtube.com/api/lounge/bc/" + "/test";
-                b = "http://localhost:8070/http://youtube.com/api/lounge/bc" + "/bind";
-
+                a = "http://localhost:8070/http://youtube.com/api/lounge/bc/test";
+                b = "http://localhost:8090/api/lounge/bc/bind";
+        
+                console.log("Connection URLs:", { connectUrl: a, bindUrl: b });
+        
+                // Log c before processing
+                console.log("Session data (c):", c);
+        
                 var e = this.YP(c),
                     f = this.f;
-
+        
+                // Log e after YP(c) call
+                console.log("Processed session object (e):", e);
+        
                 if (f) {
+                    console.log("Clearing old session...");
                     f.Mz(null); // Clear old session
                 }
-
+        
                 e.Mz(this);
                 this.f = e;
-
+        
                 if (f) {
                     var sid = f.cw(); // Get previous SID
                     var arrayId = f.vv(); // Get previous Array ID
-
+                    console.log("Previous SID:", sid, "Previous Array ID:", arrayId);
+        
                     // If SID exists, reconnect with it
                     if (sid) {
+                        console.log("Reconnecting with previous session...");
                         this.f.connect(a, b, this.i, sid, arrayId);
                         return;
                     }
                 }
-
-                // If no previous session, use `c.sessionId` if available
+        
                 if (c && c.sessionId) {
+                    console.log("Connecting with provided session ID:", c.sessionId);
                     this.f.connect(a, b, this.i, c.sessionId, c.arrayId);
                 } else {
-                    // Fall back to connecting without session if not available
+                    console.log("No session available, connecting as new...");
                     this.f.connect(a, b, this.i);
                 }
+            } else {
+                console.log("Already connected, skipping initialization.");
             }
         };
-
-        d.connect = function (a, b, c) {
-            if (!this.f || this.f.rg() !== 2) {
-                this.G = "";
-                this.g.stop();
-                this.j = a || null;
-                this.l = b || 0;
-
-                // Use the proxy URLs
-                a = "http://localhost:8070/http://youtube.com/api/lounge/bc/" + "/test";
-                b = "http://localhost:8070/http://youtube.com/api/lounge/bc" + "/bind";
-
-                var e = this.YP(c),
-                    f = this.f;
-
-                if (f) {
-                    f.Mz(null); // Clear old session
-                }
-
-                e.Mz(this);
-                this.f = e;
-
-                if (f) {
-                    var sid = f.cw(); // Get previous SID
-                    var arrayId = f.vv(); // Get previous Array ID
-
-                    // If SID exists, reconnect with it
-                    if (sid) {
-                        this.f.connect(a, b, this.i, sid, arrayId);
-                        return;
-                    }
-                }
-
-                // If no previous session, use `c.sessionId` if available
-                if (c && c.sessionId) {
-                    this.f.connect(a, b, this.i, c.sessionId, c.arrayId);
-                } else {
-                    // Fall back to connecting without session if not available
-                    this.f.connect(a, b, this.i);
-                }
-            }
-        };
-
-
+        
+        
         d.YP = function (a) {
             return new wt("1", a ? a.firstTestResults : null, a ? a.secondTestResults : null)
         };
@@ -28161,6 +28135,7 @@ if (!self.__WB_pmw) {
                 method: "POST"
             })
         };
+        
         d.mB = function (a, b) {
             var c = x(function (c) {
                 c = yi(c.responseText);
@@ -28389,16 +28364,30 @@ if (!self.__WB_pmw) {
                 for (var c = 0, e = b.length; c < e; ++c) b[c](a)
             }
         };
+
         d.Rt = function (a) {
-            if (a)
-                if (this.g) switch (this.g.dv()) {
-                    case 3:
-                        this.Lg(!0);
-                        break;
-                    case 0:
-                        this.Lg(!1)
+            console.log("Rt function called with argument:", a);
+        
+            if (a) {
+                if (this.g) {
+                    console.log("Checking g.dv() state:", this.g.dv());
+                    switch (this.g.dv()) {
+                        case 3:
+                            console.log("State is 3, calling Lg(true)");
+                            this.Lg(true);
+                            break;
+                        case 0:
+                            console.log("State is 0, calling Lg(false)");
+                            this.Lg(false);
+                            break;
+                        default:
+                            console.log("Unhandled state:", this.g.dv());
+                    }
                 } else {
+                    console.log("Creating new connection object...");
                     var b = this.M ? 3 : 2;
+                    console.log("mdx-version set to:", b);
+        
                     this.g = this.ZP({
                         device: "LOUNGE_SCREEN",
                         id: this.h.id,
@@ -28408,14 +28397,42 @@ if (!self.__WB_pmw) {
                         capabilities: this.h.cv(),
                         "mdx-version": b
                     });
-                    this.g.kU(a.token);
+        
+                    console.log("Device info:", {
+                        id: this.h.id,
+                        name: this.h.name,
+                        app: this.h.app,
+                        theme: this.h.theme,
+                        capabilities: this.h.cv(),
+                        "mdx-version": b
+                    });
+        
+                    if (a.token) {
+                        console.log("Setting token:", a.token);
+                        this.g.kU(a.token);
+                    } else {
+                        console.warn("No token provided!");
+                    }
+        
                     this.g.subscribe("handlerOpened", this.rM, this);
                     this.g.subscribe("handlerError", this.qM, this);
                     this.g.subscribe("handlerMessage", this.tX, this);
+        
+                    console.log("Connecting...");
                     this.g.connect();
-                    this.l && this.g.Hz("OAuth " + this.l)
-                } else this.Lg(!1)
+        
+                    if (this.l) {
+                        console.log("Sending OAuth token:", this.l);
+                        this.g.Hz("OAuth " + this.l);
+                    }
+                }
+            } else {
+                console.log("No argument provided, calling Lg(false)");
+                this.Lg(false);
+            }
         };
+        
+
         d.rM = function () {
             this.Lg(!0)
         };

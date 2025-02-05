@@ -373,6 +373,73 @@ app.get('/api/lounge/pairing/get_lounge_details', async (req, res) => {
     }
 });
 
+app.all('/api/lounge/bc/bind', async (req, res) => {
+    try {
+        const youtubeApiUrl = 'https://www.youtube.com/api/lounge/bc/bind';
+        
+        // Extract necessary parameters from the request
+        const loungeIdToken = req.query.loungeIdToken;
+        const device = req.query.device || 'LOUNGE_SCREEN';
+        
+        if (!loungeIdToken) {
+            return res.status(400).json({ error: 'Missing loungeIdToken' });
+        }
+        
+        // Construct the correct request to YouTube API
+        const params = new URLSearchParams({
+            device,
+            id: 'deff2a47-89f4-4d02-a940-c00d0abf2809',
+            obfuscatedGaiaId: '',
+            name: 'YouTube on TV',
+            app: 'lb-v4',
+            theme: 'cl',
+            capabilities: 'dsp,mic,dpa,ntb,pas,dcn,dcp,drq,isg,els',
+            cst: 'm',
+            mdxVersion: '2',
+            loungeIdToken,
+            VER: '8',
+            v: '2',
+            deviceInfo: JSON.stringify({
+                brand: 'Samsung',
+                model: 'SmartTV',
+                year: 0,
+                os: 'Tizen',
+                osVersion: '5.0',
+                chipset: '',
+                clientName: 'TVHTML5',
+                dialAdditionalDataSupportLevel: 'unsupported',
+                mdxDialServerType: 'MDX_DIAL_SERVER_TYPE_UNKNOWN',
+                hasIdentityDifferentFromCurrent: false,
+                switchableIdentitiesSuffix: ''
+            }),
+            RID: '9551',
+            CVER: '1',
+            zx: Date.now().toString(),
+            t: '1'
+        });
+        
+        const apiUrlWithQuery = `${youtubeApiUrl}?${params.toString()}`;
+        console.log(`Forwarding request to YouTube API: ${apiUrlWithQuery}`);
+        
+        // Forward request
+        const response = await axios.post(apiUrlWithQuery, req.body, {
+            headers: {
+                ...req.headers,
+                Host: 'www.youtube.com',
+            }
+        });
+        
+        res.status(response.status).send(response.data);
+    } catch (error) {
+        console.error('Error forwarding request:', error.message);
+        res.status(500).json({
+            error: 'Failed to communicate with YouTube Lounge API',
+            details: error.message,
+        });
+    }
+});
+
+
 
 app.post('/api/browse', async (req, res) => {
     const { browseId } = req.body;

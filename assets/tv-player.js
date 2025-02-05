@@ -1,12 +1,3 @@
-var _____WB$wombat$assign$function_____ = function (name) {
-    return (self._wb_wombat && self._wb_wombat.local_init && self._wb_wombat.local_init(name)) || self[name];
-};
-if (!self.__WB_pmw) {
-    self.__WB_pmw = function (obj) {
-        this.__WB_source = obj;
-        return this;
-    }
-} {
 
     (function () {
         var g, aa = aa || {},
@@ -8800,94 +8791,97 @@ if (!self.__WB_pmw) {
             this.g = a;
             this.b.webkitSourceSetDuration && this.b.webkitSourceSetDuration(a)
         };
-
+        
         function Nr(a, b, c, d, e, mediaLinks) {
             console.log("Nr constructor called with parameters:", a, b, c, d, e, mediaLinks);
+        
             console.log("mediaLinks parameters:", mediaLinks);
             Cm.call(this);
             console.log("Cm constructor called");
-
+        
             this.g = this.b = null;
             this.B = b;
-
+        
             if (!window.MediaSource) {
                 console.error("MediaSource API is not supported.");
                 return;
             }
-
+        
             console.log("Using MediaSource API");
-
+        
             this.o = new MediaSource();
             console.log("Created MediaSource object:", this.o);
-
+        
+            // Find the existing <video> element
             var videoElement = document.querySelector(".html5-main-video");
             if (!videoElement) {
                 console.error("Video element not found!");
                 return;
             }
-
+        
             videoElement.src = URL.createObjectURL(this.o);
             console.log("Assigned MediaSource to video element:", videoElement.src);
-
+        
+            // Listen for the 'sourceopen' event
             this.o.addEventListener("sourceopen", function () {
                 console.log("MediaSource opened");
-
+        
                 var mediaSource = this;
-
+        
                 if (!mediaSource || mediaSource.readyState !== "open") {
                     console.error("MediaSource is not in the open state");
                     return;
                 }
-
+        
                 var videoData = getBestVideoUrl(mediaLinks);
                 var audioData = getAudioUrl(mediaLinks);
-
+        
                 console.log("Video MIME:", videoData.mimeType);
                 console.log("Audio MIME:", audioData.mimeType);
-
-
+        
+                // Add Source Buffers
                 var videoSourceBuffer = mediaSource.addSourceBuffer(videoData.mimeType);
                 var audioSourceBuffer = mediaSource.addSourceBuffer(audioData.mimeType);
-
+        
                 console.log("Created SourceBuffers:", videoData, audioData);
-
+        
                 fetchSegment(videoData.url, videoSourceBuffer, 'video');
                 fetchSegment(audioData.url, audioSourceBuffer, 'audio');
-
+        
                 function fetchSegment(url, sourceBuffer, type) {
                     var rangeStart = 0;
-                    var chunkSize = 1024 * 1024;
-                    var rangeEnd = rangeStart + chunkSize - 1;
-
+                    var chunkSize = 1024 * 1024;  // 1 MB per chunk
+                    var rangeEnd = rangeStart + chunkSize;
+        
                     function loadSegment(retryCount) {
                         if (retryCount === undefined) {
                             retryCount = 3;
                         }
                         var rangeParam = rangeStart + '-' + rangeEnd;
                         var xhr = new XMLHttpRequest();
-
+        
                         xhr.open('GET', url, true);
                         xhr.setRequestHeader('Range', 'bytes=' + rangeStart + '-' + rangeEnd);
                         xhr.responseType = 'arraybuffer';
-
+        
                         xhr.onload = function () {
                             if (xhr.status >= 200 && xhr.status < 300) {
                                 var data = xhr.response;
                                 console.log('Segment received, range: ' + rangeStart + '-' + rangeEnd);
-
+        
                                 if (data && data.byteLength > 0) {
                                     sourceBuffer.appendBuffer(data);
                                     console.log('Segment appended, range: ' + rangeStart + '-' + rangeEnd);
                                 } else {
                                     console.error('Invalid data received for range: ' + rangeStart + '-' + rangeEnd);
                                 }
-
+        
                                 rangeStart = rangeEnd + 1;
                                 rangeEnd = rangeStart + chunkSize - 1;
-
+        
                                 var contentRange = xhr.getResponseHeader('Content-Range');
                                 var totalSize = parseInt(contentRange.split('/')[1], 10);
-
+        
                                 if (rangeStart < totalSize) {
                                     var nextFetchDelay = Math.min(500, Math.max(100, totalSize / 1000000));
                                     setTimeout(function () {
@@ -8898,7 +8892,7 @@ if (!self.__WB_pmw) {
                                 console.error('Failed to fetch segment, status: ' + xhr.status);
                             }
                         };
-
+        
                         xhr.onerror = function () {
                             console.error('Error fetching segment:', xhr.statusText);
                             if (retryCount > 0) {
@@ -8911,74 +8905,50 @@ if (!self.__WB_pmw) {
                                 console.error('Failed to fetch segment after retries.');
                             }
                         };
-
+        
                         xhr.send();
                     }
-
-                    loadSegment();
+        
+                    loadSegment();  // Start fetching the first segment
                 }
-
-
-                function checkBuffer() {
-                    var buffered = videoElement.buffered;
-                    var currentTime = videoElement.currentTime;
-                    var bufferThreshold = currentTime + 20;
-
-                    if (buffered.length > 0) {
-                        var bufferEnd = buffered.end(buffered.length - 1);
-
-
-                        if (bufferEnd < bufferThreshold) {
-                            console.log('Buffer health is low, loading more segments...');
-                            fetchSegment(videoData.url, videoSourceBuffer, 'video');
-                            fetchSegment(audioData.url, audioSourceBuffer, 'audio');
-                        }
-                    }
-
-
-                    setTimeout(checkBuffer, 500);
-                }
-
-
-                checkBuffer();
-
+        
                 function getBestVideoUrl(mediaLinks) {
                     var validVideoLinks = mediaLinks.filter(function (link) {
                         return link.type && link.type === 'video/webm';
                     });
-
+        
                     if (validVideoLinks.length === 0) {
                         console.log("No 'video/webm' found, searching for 'video/mp4'...");
                         validVideoLinks = mediaLinks.filter(function (link) {
                             return link.type && link.type === 'video/mp4';
                         });
-
+        
                         if (validVideoLinks.length === 0) {
                             console.error('No valid video formats found.');
                             return null;
                         }
                     }
-
+        
                     var filteredVideoLinks = validVideoLinks.filter(function (link) {
                         var resolution = link.resolution.split('x');
                         var height = parseInt(resolution[1], 10);
                         return height <= 720;
                     });
-
+        
                     if (filteredVideoLinks.length === 0) {
                         console.error('No video formats found with resolution <= 720p.');
                         return null;
                     }
-
+        
                     var sortedVideoLinks = filteredVideoLinks.sort(function (a, b) {
                         return parseInt(b.resolution.split('x')[1]) - parseInt(a.resolution.split('x')[1]);
                     });
-
+        
                     console.log('Best video URL found:', sortedVideoLinks[0].url);
-
+        
                     var proxyVideoUrl = 'http://localhost:8070/' + sortedVideoLinks[0].url;
                     console.log('Proxy Video URL:', proxyVideoUrl);
-
+        
                     return {
                         url: proxyVideoUrl,
                         mimeType: sortedVideoLinks[0].type === 'video/webm'
@@ -8986,54 +8956,55 @@ if (!self.__WB_pmw) {
                             : 'video/mp4; codecs="avc1.4d401e"'
                     };
                 }
-
+        
                 function getAudioUrl(mediaLinks) {
                     console.log('Received media links:', mediaLinks);
-
-
+        
+                    // Find audio/webm format
                     var audioLink = mediaLinks.find(function (link) {
                         return link.type && link.type === 'audio/webm' && link.url;
                     });
-
+        
                     if (audioLink) {
                         console.log("Found 'audio/webm' format:", audioLink);
                     }
-
+        
+                    // If no audio/webm found, search for audio/mp4 format
                     if (!audioLink) {
                         console.log("No 'audio/webm' found, searching for 'audio/mp4'...");
                         audioLink = mediaLinks.find(function (link) {
                             return link.type && link.type === 'audio/mp4' && link.url;
                         });
-
+        
                         if (audioLink) {
                             console.log("Found 'audio/mp4' format:", audioLink);
                         }
                     }
-
+        
                     if (!audioLink) {
                         console.error('No valid audio format found.');
                         return null;
                     }
-
+        
                     console.log('Audio URL found:', audioLink.url);
-
+        
                     var proxyAudioUrl = 'http://localhost:8070/' + audioLink.url;
                     console.log('Proxy Audio URL:', proxyAudioUrl);
-
+        
                     const result = {
                         url: proxyAudioUrl,
                         mimeType: audioLink.type === 'audio/webm'
                             ? 'audio/webm; codecs="opus"'
                             : 'audio/mp4; codecs="mp4a.40.2"'
                     };
-
+        
                     console.log('Returning result:', result);
-
+        
                     return result;
                 }
-
+        
             });
-        }
+        }        
 
         B(Nr, Cm);
 
@@ -10415,6 +10386,24 @@ if (!self.__WB_pmw) {
                 if ("pause" == b.type && h.b.ended || "ended" == b.type && (h.b.ended || 1 > Math.abs(h.getCurrentTime() - h.b.duration))) 0 < h.b.networkState && h.b.src && (e = 14, f = null);
                 else if ("pause" == b.type) T(a, 256) ? (e ^= 256) || (e = 64) : T(a, 32) || T(a, 2) || T(a, 4) || (e = 4, T(a, 1) && T(a, 8) && (e |= 1), f = null);
                 else if ("playing" == b.type) e = 8, f = null, T(a, 32) && (e |= 32), d && T(a, 1) && Mt(c, h) && (e |= 1);
+                else if ("error" == b.type) {
+                    a: {
+                        if (2 == h.Ha()) b = "progressive.net";
+                        else if (3 == h.Ha()) b = "fmt.decode";
+                        else if (4 == h.Ha()) b = "fmt.unplayable";
+                        else {
+                            b = null;
+                            break a
+                        }
+                        b = {
+                            errorCode: b,
+                            errorDetail: "mediaElem.1",
+                            message: pi("YTP_ERROR_GENERIC_WITHOUT_LINK"),
+                            messageKey: "YTP_ERROR_GENERIC_WITHOUT_LINK"
+                        }
+                    }
+                    b && (f = b, e |= 128)
+                }
                 else if ("progress" == b.type) Nt(a) && Mt(c, h) && (e |= 1);
                 else if ("seeked" == b.type) e &= -17;
                 else if ("seeking" == b.type) e |= 16, 0 >= Ot(h) && (e |= 1), e &= -3;
@@ -14122,65 +14111,65 @@ if (!self.__WB_pmw) {
             this.b.pause()
         };
 
-        g.play = function () {
-            var a = this.b;
+     g.play = function () {
+    var a = this.b;
 
-            // Log the current media source and type being used
-            console.log('Attempting to play media:', a.src);
-            console.log('Media type:', a.type);
+    // Log the current media source and type being used
+    console.log('Attempting to play media:', a.src);
+    console.log('Media type:', a.type);
 
-            // Check if there are multiple sources and log each one
-            var sources = a.getElementsByTagName('source');
-            if (sources.length > 0) {
-                console.log('Multiple sources detected, checking each one:');
-                for (var i = 0; i < sources.length; i++) {
-                    console.log(`Source ${i + 1}: ${sources[i].src} (Type: ${sources[i].type})`);
-                }
-            } else {
-                console.log('No additional sources found, using the primary source.');
+    // Check if there are multiple sources and log each one
+    var sources = a.getElementsByTagName('source');
+    if (sources.length > 0) {
+        console.log('Multiple sources detected, checking each one:');
+        for (var i = 0; i < sources.length; i++) {
+            console.log(`Source ${i + 1}: ${sources[i].src} (Type: ${sources[i].type})`);
+        }
+    } else {
+        console.log('No additional sources found, using the primary source.');
+    }
+
+    // Ensure the media is properly loaded before trying to play it
+    a.load();
+
+    // Play the media and handle success or failure
+    a.play().then(function () {
+        // Log success
+        console.log('Media played successfully');
+    }).catch(function (error) {
+        // Log error details
+        console.error('Play failed:', error);
+
+        // If the error is related to unsupported formats, provide a detailed message
+        if (error.name === 'NotSupportedError') {
+            console.error('The media format is not supported. Please try a different format.');
+
+            // Check if the media type is unsupported and suggest a format change
+            if (a.type && !['video/mp4', 'audio/mp4', 'video/webm', 'audio/webm'].includes(a.type)) {
+                console.error('The current media type is not supported. Consider switching to a supported format (e.g., MP4 or WebM).');
             }
+        } else {
+            // Log any other errors that might occur
+            console.error('Unexpected error:', error);
+        }
 
-            // Ensure the media is properly loaded before trying to play it
-            a.load();
+        // Retry logic for handling failed play attempts (with exponential backoff)
+        var retryCount = 3;
+        function retryPlay() {
+            if (retryCount > 0) {
+                console.log(`Retrying play in 2 seconds... Attempts left: ${retryCount}`);
+                retryCount--;
+                setTimeout(function () {
+                    a.play().catch(retryPlay);  // Retry play and catch errors again
+                }, 2000);  // Wait 2 seconds before retrying
+            } else {
+                console.error('Failed to play media after multiple attempts.');
+            }
+        }
 
-            // Play the media and handle success or failure
-            a.play().then(function () {
-                // Log success
-                console.log('Media played successfully');
-            }).catch(function (error) {
-                // Log error details
-                console.error('Play failed:', error);
-
-                // If the error is related to unsupported formats, provide a detailed message
-                if (error.name === 'NotSupportedError') {
-                    console.error('The media format is not supported. Please try a different format.');
-
-                    // Check if the media type is unsupported and suggest a format change
-                    if (a.type && !['video/mp4', 'audio/mp4', 'video/webm', 'audio/webm'].includes(a.type)) {
-                        console.error('The current media type is not supported. Consider switching to a supported format (e.g., MP4 or WebM).');
-                    }
-                } else {
-                    // Log any other errors that might occur
-                    console.error('Unexpected error:', error);
-                }
-
-                // Retry logic for handling failed play attempts (with exponential backoff)
-                var retryCount = 3;
-                function retryPlay() {
-                    if (retryCount > 0) {
-                        console.log(`Retrying play in 2 seconds... Attempts left: ${retryCount}`);
-                        retryCount--;
-                        setTimeout(function () {
-                            a.play().catch(retryPlay);  // Retry play and catch errors again
-                        }, 2000);  // Wait 2 seconds before retrying
-                    } else {
-                        console.error('Failed to play media after multiple attempts.');
-                    }
-                }
-
-                retryPlay();
-            });
-        };
+        retryPlay();
+    });
+};
 
         g.Ha = function () {
             return this.b.error ? this.b.error.code : null
@@ -45211,8 +45200,6 @@ if (!self.__WB_pmw) {
         gi("TIMING_AFT_KEYS", ["pbs", "pbr"]);
     })();
 
-
-}
 /*
    FILE ARCHIVED ON 06:23:16 Jun 18, 2016 AND RETRIEVED FROM THE
    INTERNET ARCHIVE ON 18:33:03 Jan 24, 2025.
