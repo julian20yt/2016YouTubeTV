@@ -8838,59 +8838,85 @@
               fetchSegment(videoData.url, videoSourceBuffer, videoElement, 'video');
               fetchSegment(audioData.url, audioSourceBuffer, videoElement, 'audio');
           
+              // --- Begin fetchSegment function ---
               function fetchSegment(url, sourceBuffer, videoElement, type) {
                 var rangeStart = 0;
-                var chunkSize = 2 * 1024 * 1024;
+                var chunkSize = 2 * 1024 * 1024; // 2 MB per segment
                 var rangeEnd = rangeStart + chunkSize;
                 var totalSize = Number.MAX_SAFE_INTEGER;
                 var isPaused = false;
                 var isSeeking = false;
-                var minBufferAhead = 30; 
-                var maxBufferAhead = 90;
-                var isLoading = true;
+                var minBufferAhead = 20; // seconds minimum buffered ahead
+                var maxBufferAhead = 60; // seconds maximum buffered ahead
+                var removalMargin = 30;  // seconds to keep behind currentTime
+                var isLoading = false;
                 var pendingAppends = [];
           
                 function loadSegment(retryCount = 3) {
+                  // Ensure MediaSource is still open.
+                  if (mediaSource.readyState !== "open") {
+                    console.warn("MediaSource is no longer open. Aborting segment load.");
+                    return;
+                  }
+          
+                  // If a segment is already loading, exit.
                   if (isLoading) {
-                    console.log("Already loading a segment, queuing request");
+                    console.log("Already loading a segment, skipping new load.");
                     return;
                   }
           
-                  if (sourceBuffer.updating) {
-                    console.log("SourceBuffer is updating, waiting...");
-                    setTimeout(() => loadSegment(retryCount), 100);
-                    return;
-                  }
-          
-                  
+                  // Check buffer status (only for video).
                   if (sourceBuffer.buffered.length > 0) {
                     const currentTime = videoElement.currentTime;
                     const bufferedEnd = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1);
                     const bufferedAhead = bufferedEnd - currentTime;
+                    console.log(`Current buffer: ${bufferedAhead.toFixed(2)} sec ahead`);
           
-                    console.log(`Current buffer status: ${bufferedAhead.toFixed(2)} seconds ahead`);
-          
-                   
+                    // If buffer is too full, clear old data.
                     if (bufferedAhead >= maxBufferAhead) {
-                      console.log(`Buffer full (${bufferedAhead.toFixed(2)} sec), delaying load`);
-                      setTimeout(() => loadSegment(retryCount), 1000);
-                      return;
-                    }
-          
-                    
-                    if (bufferedAhead < minBufferAhead) {
-                      console.log("Buffer getting low, prioritizing next segment");
+                      if (!sourceBuffer.updating) {
+                        const bufferedStart = sourceBuffer.buffered.start(0);
+                        // Remove data older than (currentTime - removalMargin).
+                        const removalEnd = currentTime - removalMargin;
+                        if (removalEnd > bufferedStart) {
+                          console.log(
+                            `Buffer is full (${bufferedAhead.toFixed(2)} sec). Removing old data from ${bufferedStart.toFixed(2)} to ${removalEnd.toFixed(2)}.`
+                          );
+                          try {
+                            sourceBuffer.remove(bufferedStart, removalEnd);
+                            sourceBuffer.addEventListener(
+                              'updateend',
+                              function onRemoval() {
+                                console.log(`Buffer removal completed from ${bufferedStart.toFixed(2)} to ${removalEnd.toFixed(2)}.`);
+                                sourceBuffer.removeEventListener('updateend', onRemoval);
+                                setTimeout(() => loadSegment(retryCount), 100);
+                              },
+                              { once: true }
+                            );
+                          } catch (e) {
+                            console.error("Error removing old buffer data:", e);
+                            setTimeout(() => loadSegment(retryCount), 1000);
+                          }
+                        } else {
+                          setTimeout(() => loadSegment(retryCount), 1000);
+                        }
+                        return;
+                      } else {
+                        setTimeout(() => loadSegment(retryCount), 1000);
+                        return;
+                      }
                     }
                   }
           
                   if (isPaused || isSeeking) {
-                    console.log("Playback paused or seeking, delaying load");
+                    console.log("Playback paused or seeking; delaying segment load.");
                     return;
                   }
           
                   if (rangeStart >= totalSize) {
                     if (mediaSource.readyState === "open") {
                       mediaSource.endOfStream();
+                      console.log("End of stream reached.");
                     }
                     return;
                   }
@@ -8905,10 +8931,11 @@
                     isLoading = false;
                     if (xhr.status >= 200 && xhr.status < 300) {
                       const data = xhr.response;
+                      console.log(`Segment received: ${rangeStart}-${rangeEnd}`);
                       if (data && data.byteLength > 0) {
                         appendSegment(data, xhr);
                       } else {
-                        console.error(`Invalid data received for range: ${rangeStart}-${rangeEnd}`);
+                        console.error(`Invalid data for range: ${rangeStart}-${rangeEnd}`);
                         if (retryCount > 0) loadSegment(retryCount - 1);
                       }
                     } else {
@@ -8919,7 +8946,7 @@
           
                   xhr.onerror = function() {
                     isLoading = false;
-                    console.error('Error fetching segment:', xhr.statusText);
+                    console.error("Error fetching segment:", xhr.statusText);
                     if (retryCount > 0) {
                       setTimeout(() => loadSegment(retryCount - 1), 2000);
                     }
@@ -8929,84 +8956,79 @@
                 }
           
                 function appendSegment(data, xhr) {
+                  // Ensure MediaSource is still open.
+                  if (mediaSource.readyState !== "open") {
+                    console.warn("MediaSource closed; cannot append segment.");
+                    return;
+                  }
                   if (sourceBuffer.updating) {
                     pendingAppends.push(() => appendSegment(data, xhr));
                     return;
                   }
-          
                   try {
-                  
-                    if (sourceBuffer.buffered.length > 0) {
-                      const currentTime = videoElement.currentTime;
+                    // Optionally remove extra old data (secondary check).
+                    if (sourceBuffer.buffered.length > 0 && videoElement) {
                       const bufferedStart = sourceBuffer.buffered.start(0);
-                      const bufferedEnd = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1);
-
+                      const currentTime = videoElement.currentTime;
                       if (currentTime - bufferedStart > 60) {
                         const removeEnd = Math.max(currentTime - 30, bufferedStart);
-                        console.log(`Removing old buffer: ${bufferedStart} to ${removeEnd}`);
+                        console.log(`Removing extra old buffer from ${bufferedStart.toFixed(2)} to ${removeEnd.toFixed(2)}`);
                         sourceBuffer.remove(bufferedStart, removeEnd);
-                        return; 
+                        // Will resume appending when updateend fires.
+                        return;
                       }
                     }
-          
                     sourceBuffer.appendBuffer(data);
                     console.log(`Segment appended: ${rangeStart}-${rangeEnd}`);
-          
-        
                     rangeStart = rangeEnd + 1;
                     rangeEnd = rangeStart + chunkSize;
-          
-            
                     const contentRange = xhr.getResponseHeader('Content-Range');
                     if (contentRange) {
                       totalSize = parseInt(contentRange.split('/')[1], 10);
                     }
-        
-                    const bufferAhead = sourceBuffer.buffered.length > 0 ? 
-                      sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1) - videoElement.currentTime : 0;
-                    
-                    const nextSegmentDelay = bufferAhead > maxBufferAhead / 2 ? 1000 : 100;
-                    setTimeout(loadSegment, nextSegmentDelay);
-          
+                    let bufferedAhead = 0;
+                    if (sourceBuffer.buffered.length > 0) {
+                      bufferedAhead = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1) - videoElement.currentTime;
+                    }
+                    const delay = bufferedAhead > (maxBufferAhead / 2) ? 1000 : 100;
+                    setTimeout(loadSegment, delay);
                   } catch (e) {
                     console.error("Error appending segment:", e);
                     setTimeout(loadSegment, 1000);
                   }
                 }
-
+          
+                // Process pending appends when updateend fires.
                 sourceBuffer.addEventListener('updateend', () => {
-                  if (pendingAppends.length > 0) {
+                  if (pendingAppends.length > 0 && !sourceBuffer.updating) {
                     const nextAppend = pendingAppends.shift();
                     nextAppend();
                   }
                 });
           
+                // Video-specific event handling.
                 if (type === 'video' && videoElement) {
                   videoElement.addEventListener('seeking', () => {
-                    console.log("Seeking detected");
+                    console.log("User seeking detected");
                     isSeeking = true;
-                    pendingAppends = []; 
-                    
+                    pendingAppends = [];
                     const seekTime = videoElement.currentTime;
-            
                     const videoDuration = videoElement.duration || 0;
-                    if (videoDuration > 0) {
+                    if (videoDuration > 0 && totalSize !== Number.MAX_SAFE_INTEGER) {
                       rangeStart = Math.floor((seekTime / videoDuration) * totalSize);
-                      rangeStart = Math.floor(rangeStart / chunkSize) * chunkSize; // Align to chunk boundaries
+                      rangeStart = Math.floor(rangeStart / chunkSize) * chunkSize;
                       rangeEnd = rangeStart + chunkSize;
                     }
-          
-                  
                     if (sourceBuffer.buffered.length > 0) {
                       const clearStart = Math.max(0, seekTime - 10);
-                      const clearEnd = Math.min(seekTime + 30, videoElement.duration);
+                      const clearEnd = Math.min(seekTime + 30, videoDuration);
                       try {
+                        console.log(`Clearing buffer from ${clearStart} to ${clearEnd} due to seek.`);
                         sourceBuffer.remove(clearStart, clearEnd);
                       } catch (e) {
                         console.error("Error clearing buffer during seek:", e);
                       }
                     }
-          
                     setTimeout(() => {
                       isSeeking = false;
                       loadSegment();
@@ -9020,18 +9042,18 @@
           
                   videoElement.addEventListener('play', () => {
                     console.log("Playback resumed");
-                    isPaused = false;
-                    loadSegment();
+                    if (isPaused) {
+                      isPaused = false;
+                      loadSegment();
+                    }
                   });
-
-
+          
                   setInterval(() => {
                     if (sourceBuffer.buffered.length > 0) {
                       const currentTime = videoElement.currentTime;
                       const bufferedEnd = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1);
                       const bufferedAhead = bufferedEnd - currentTime;
-                      console.log(`Buffer status: ${bufferedAhead.toFixed(2)} seconds ahead`);
-                      
+                      console.log(`Buffer status: ${bufferedAhead.toFixed(2)} sec ahead`);
                       if (bufferedAhead < minBufferAhead && !isPaused && !isSeeking && !isLoading) {
                         console.log("Buffer running low, triggering load");
                         loadSegment();
@@ -9039,11 +9061,10 @@
                     }
                   }, 1000);
                 }
-          
                 loadSegment();
               }
+              // --- End fetchSegment function ---
           
-
               function getBestVideoUrl(mediaLinks) {
                 var validVideoLinks = mediaLinks.filter(function (link) {
                   return link.type && link.type === 'video/webm';
