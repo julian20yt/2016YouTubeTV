@@ -9008,33 +9008,50 @@
           
                 // Video-specific event handling.
                 if (type === 'video' && videoElement) {
-                  videoElement.addEventListener('seeking', () => {
+
+                videoElement.addEventListener('seeking', () => {
                     console.log("User seeking detected");
                     isSeeking = true;
                     pendingAppends = [];
+                
                     const seekTime = videoElement.currentTime;
                     const videoDuration = videoElement.duration || 0;
+                
                     if (videoDuration > 0 && totalSize !== Number.MAX_SAFE_INTEGER) {
-                      rangeStart = Math.floor((seekTime / videoDuration) * totalSize);
-                      rangeStart = Math.floor(rangeStart / chunkSize) * chunkSize;
-                      rangeEnd = rangeStart + chunkSize;
+                    // Calculate the new range based on seek position.
+                    rangeStart = Math.floor((seekTime / videoDuration) * totalSize);
+                    rangeStart = Math.floor(rangeStart / chunkSize) * chunkSize;
+                    rangeEnd = rangeStart + chunkSize;
+                    console.log(`Seeking to time ${seekTime}s, starting data fetch from byte ${rangeStart}`);
                     }
+                
+                    // Clear buffer around the seek time to avoid conflicts.
                     if (sourceBuffer.buffered.length > 0) {
-                      const clearStart = Math.max(0, seekTime - 10);
-                      const clearEnd = Math.min(seekTime + 30, videoDuration);
-                      try {
+                    try {
+                        const clearStart = Math.max(0, seekTime - 10);
+                        const clearEnd = Math.min(seekTime + 30, videoDuration);
                         console.log(`Clearing buffer from ${clearStart} to ${clearEnd} due to seek.`);
                         sourceBuffer.remove(clearStart, clearEnd);
-                      } catch (e) {
+                
+                        // Wait for removal to complete before loading new segment.
+                        sourceBuffer.addEventListener('updateend', function onSeekBufferClear() {
+                        console.log("Buffer cleared for seeking.");
+                        sourceBuffer.removeEventListener('updateend', onSeekBufferClear);
+                        isSeeking = false;
+                        loadSegment(); // Start loading from new position.
+                        }, { once: true });
+                
+                    } catch (e) {
                         console.error("Error clearing buffer during seek:", e);
-                      }
+                        isSeeking = false;
+                        loadSegment(); // Start loading despite error.
                     }
-                    setTimeout(() => {
-                      isSeeking = false;
-                      loadSegment();
-                    }, 100);
-                  });
-          
+                    } else {
+                    isSeeking = false;
+                    loadSegment(); // No buffer to clear, start loading immediately.
+                    }
+                });
+                      
                   videoElement.addEventListener('pause', () => {
                     console.log("Playback paused");
                     isPaused = true;
@@ -16512,19 +16529,57 @@
             }
             return Math.floor(Math.min(a.g.g.index.Ee(), a.o.g.index.Ee()))
         }
+
         g.seek = function (a) {
             if (!this.isDisposed() && !this.o.H && !this.g.H) {
                 yA(this);
                 this.ea = qi();
                 this.o.g = az(this.F);
-                var b = PA(this, this.o, a, this.b && this.b.g);
+        
+                // Ensure MediaSource is open before modifying buffers
+                if (this.mediaSource && this.mediaSource.readyState !== "open") {
+                    console.warn("MediaSource is not open. Aborting seek.");
+                    return;
+                }
+        
+                var b = PA(this, this.o, a, this.b ? this.b.g : null);
                 this.g.g = bz(this.F);
-                var c = PA(this, this.g, b, this.b && this.b.b);
+                var c = PA(this, this.g, b, this.b ? this.b.b : null);
+        
                 this.D = Math.max(a, b, c);
-                this.R = !0;
-                IA(this)
+                this.R = true;
+        
+                // Handle clearing buffered ranges safely
+                this.clearBufferedRanges(a);
+        
+                IA(this);
             }
         };
+        
+        // Function to clear buffered ranges safely
+        g.clearBufferedRanges = function (seekPosition) {
+            if (!this.buffered || !this.sourceBuffer) return;
+        
+            try {
+                if (this.mediaSource && this.mediaSource.readyState === "open") {
+                    for (var i = 0; i < this.buffered.length; i++) {
+                        var start = this.buffered.start(i);
+                        var end = this.buffered.end(i);
+        
+                        // Only remove fully outdated ranges
+                        if (end < seekPosition) {
+                            console.log(`Removing buffer range: ${start} - ${end}`);
+                            this.sourceBuffer.remove(start, end);
+                        }
+                    }
+                } else {
+                    console.warn("MediaSource is not open, skipping buffer removal.");
+                }
+            } catch (error) {
+                console.error("Error clearing buffered ranges:", error);
+            }
+        };
+        
 
         function PA(a, b, c, d) {
             if (b.g.Vb())
@@ -18025,14 +18080,31 @@
             }
         };
 
-        g.pauseVideo = function (a) {
-            T(this.A, 64) && !a && (T(this.A, 8) ? BB(this, Tt(this.A)) : BB(this, St(this.A, 8)));
-            this.g && (T(this.A, 128) || (a ? BB(this, Rt(this.A, 256)) : BB(this, Tt(this.A))), this.g.pause())
+        g.pauseVideo = function (forcePause) {
+            if (T(this.A, 64) && !forcePause) {
+                console.log("Pausing video with state check.");
+                
+                // Determine which buffer to use based on the current state
+                var buffer = T(this.A, 8) ? Tt(this.A) : St(this.A, 8);
+                BB(this, buffer);
+            }
+        
+            if (this.g) {
+                if (!T(this.A, 128)) {
+                    var buffer = forcePause ? Rt(this.A, 256) : Tt(this.A);
+                    BB(this, buffer);
+                }
+        
+                console.log("Pausing video element.");
+                this.g.pause();
+            }
         };
+        
 
         function MB(a) {
             a.g && (a.g.pause(), zB(a), xB(a), a.b && (a.b.startSeconds = a.getCurrentTime()), a.R = NaN, ay(a.g), T(a.A, 128) || BB(a, Pt(a.A)))
         }
+
         g.seekTo = function (a, b, c) {
             if (!this.g || !this.P.b || !this.g.b.src && this.M.experiments.b("new_ended_replay")) this.b.startSeconds = a || 0;
             else {
@@ -18047,14 +18119,31 @@
                 this.W("seekto", this, a)
             }
         };
-        g.zn = function () {
+
+        g.zn = function() {
+            // Only proceed if we have a valid seek time and player instance
             if (!isNaN(this.R) && this.g) {
-                var a = this.yf();
-                !this.b.ma && this.R >= Math.floor(a) ? (this.R = a, this.W("endseeking", this), this.pauseVideo(!0), uB(this)) : (this.B && this.B.seek(this.R), (!this.b.ma || 1 <= this.g.b.readyState) && this.g.seekTo(this.R))
+                var currentDuration = this.yf();
+                
+                // Handle end of video seek condition
+                if (!this.b.ma && this.R >= Math.floor(currentDuration)) {
+                    this.R = currentDuration;
+                    this.W("endseeking", this);
+                    this.pauseVideo(true);
+                    uB(this);
+                } else {
+                    this.g.seekTo(this.R);       
+                }
             }
-            this.ba && (this.ba.dispose(), this.ba = null);
-            T(this.A, 32) && (BB(this, Rt(St(this.A, 32), 16)), this.W("endseeking", this))
+        
+            // Handle additional seek completion tasks
+            if (T(this.A, 32)) {
+                BB(this, Rt(St(this.A, 32), 16));
+                this.W("endseeking", this);
+            }
+
         };
+        
         g.getCurrentTime = function () {
             if (!isNaN(this.R)) return this.R;
             var a = 0;
@@ -18715,10 +18804,12 @@
         g.getPlayerState = function () {
             return lC(this.app)
         };
+        
         g.seekTo = function (a, b) {
             mC(this.app, !0, this.playerType);
             nC(this.app, a, b, void 0, this.playerType)
         };
+
         g.getCurrentTime = function () {
             return this.app.getCurrentTime(this.playerType)
         };

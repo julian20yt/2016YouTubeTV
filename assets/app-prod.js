@@ -16237,6 +16237,7 @@ if (!self.__WB_pmw) {
             return Oa(this.l, function (a) {
                 return v(a[1])
             })
+            
         };
         d.Iu = function () {
             if (this.j && this.bi() && this.xw()) {
@@ -19921,19 +19922,47 @@ if (!self.__WB_pmw) {
         }
 
         function aq(a, b) {
-            v(a) && (a = bq(a));
-            return window.setTimeout(a, b)
+            // Log the input parameters
+            console.log("aq called with:", { a: a, b: b });
+        
+            // Check if 'a' is a valid function
+            if (v(a)) {
+                console.log("v(a) is true. Wrapping 'a' with bq.");
+                a = bq(a);
+            } else {
+                console.log("v(a) is false. 'a' remains unchanged.");
+            }
+        
+            // Log the call to window.setTimeout
+            console.log("Calling window.setTimeout with:", { callback: a, delay: b });
+            return window.setTimeout(a, b);
         }
-
+        
         function bq(a) {
-            return a && window.yterr ? function () {
-                try {
-                    return a.apply(this, arguments)
-                } catch (b) {
-                    throw cq(b), b;
-                }
-            } : a
-        }
+            // Log the input parameter 'a'
+            console.log("bq called with:", { a: a });
+
+            // Check if 'a' and 'window.yterr' exist
+            if (a && window.yterr) {
+                console.log("window.yterr exists. Wrapping 'a' in a try-catch function.");
+                
+                // Return a wrapped function with try-catch block
+                return function () {
+                    try {
+                        console.log("Calling 'a' with arguments:", arguments);
+                        return a.apply(this, arguments);
+                    } catch (b) {
+                        // Log the caught error
+                        console.log("Error caught:", b);
+                        throw cq(b), b;
+                    }
+                };
+            } else {
+                console.log("window.yterr does not exist. Returning 'a' unchanged.");
+        return a;
+    }
+}
+
 
         function cq(a, b) {
             var c = n("yt.logging.errors.log");
@@ -21031,6 +21060,7 @@ if (!self.__WB_pmw) {
         }
         C(Pq, D);
         d = Pq.prototype;
+
         d.init = function (a) {
             this.g = a;
             this.B[1] = cast.receiver.media.PlayerState.PLAYING;
@@ -21062,6 +21092,7 @@ if (!self.__WB_pmw) {
             a ? (a.volume && this.tw(a.volume), this.im() && this.rw(null), Ka(a.ytBuffer, x(this.vw, this)), Ka(a.mBuffer, this.nw, this), ba("cast.mdx_state", void 0, void 0)) : this.h.start();
             this.Iy()
         };
+
         d.im = function () {
             return this.h ? this.h.isSystemReady() : !1
         };
@@ -27098,6 +27129,7 @@ if (!self.__WB_pmw) {
             this.i = c;
             this.h = e
         }
+
         C(Bt, En);
 
         function Ct(a, b) {
@@ -27112,14 +27144,31 @@ if (!self.__WB_pmw) {
         d.Rca = function (a) {
             null != a && (this.f = a)
         };
+
         d.connect = function (a, b, c, e, f) {
             this.f.qa("connect()");
+            
+            // Log function parameters
+            console.log("acD:", a);
+            console.log("bcD:", b);
+            console.log("ccD:", c);
+            
+            console.log("ecD:", e);
+            console.log("fcD:", f);
+            
             Z(0);
             this.Ko = b;
             this.Kh = c || {};
-            e && m(f) && (this.Kh.OSID = e, this.Kh.OAID = f);
-            this.yH(a)
+            
+            if (e && m(f)) {
+                this.Kh.OSID = e;
+                this.Kh.OAID = f;
+            }
+            
+            this.yH(a);
         };
+
+
         d.$v = function () {
             this.f.qa("disconnect()");
             this.qt();
@@ -27137,10 +27186,29 @@ if (!self.__WB_pmw) {
         d.cw = function () {
             return this.l
         };
+
         d.yH = function (a) {
             this.f.qa("connectTest_()");
-            this.xp() && (this.$d = new vt(this, this.f), this.$d.UL(this.qg), this.$d.VL(this.j), this.$d.connect(a))
+            
+            // Log the parameter and conditions
+            console.log("a:", a);
+            console.log("xp() result:", this.xp());
+            
+            if (this.xp()) {
+                console.log("Creating new vt instance with 'this' and this.f");
+                
+                this.$d = new vt(this, this.f);
+                console.log("Calling UL with qg:", this.qg);
+                this.$d.UL(this.qg);
+                
+                console.log("Calling VL with j:", this.j);
+                this.$d.VL(this.j);
+                
+                console.log("Calling connect with parameter a:", a);
+                this.$d.connect(a);
+            }
         };
+
         d.xH = function () {
             this.f.qa("connectChannel_()");
             this.CI(1, 0);
@@ -27453,6 +27521,9 @@ if (!self.__WB_pmw) {
                         a = B() - a.so();
                         console.log('Dispatching Bt event with values:', b, a);
                         zt.dispatchEvent(new Bt(zt, b, a, this.fe));
+
+                        console.log("zt dispatchEvent" +      new Bt(zt, b, a, this.fe));
+
                         this.Ln();
                         this.RL();
                         this.i.length = 0;
@@ -27909,6 +27980,7 @@ if (!self.__WB_pmw) {
             b && Mb(c, b);
             this.Jk() || 2 == this.dv() ? this.o.push(c) : this.ZN() && this.f.zz(c)
         };
+
         d.At = function () {
             this.g.cz();
             this.j = null;
@@ -27920,6 +27992,7 @@ if (!self.__WB_pmw) {
             }
             this.Yg("handlerOpened")
         };
+
         d.xt = function (a, b) {
             var c = this.Tw(b);
             4 == b || c || (6 != b && 410 != this.f.aw() || this.g.dz(), this.g.je());
@@ -27992,6 +28065,9 @@ if (!self.__WB_pmw) {
         var Jt = "default monoSerif propSerif monoSans propSans casual cursive smallCaps".split(" ");
 
         function Kt(a) {
+
+            console.log("Kt A Data " + a)
+
             a = a || {};
             this.name = a.name || "";
             this.id = a.id || a.screenId || "";
@@ -28000,15 +28076,26 @@ if (!self.__WB_pmw) {
         }
 
         function Lt(a) {
-            return {
+            // Log the input object a
+            console.log("Input object a:", a);
+            
+            // Return the transformed object and log it
+            const result = {
                 name: a.name,
                 screenId: a.id,
                 loungeToken: a.token,
                 dialId: a.uuid
-            }
-        };
+            };
+            
+            console.log("Returned object:", result);
+            
+            return result;
+        }
 
         function Mt(a, b, c) {
+            // Log the input values
+            console.log("Input parameters:", { a: a, b: b, c: c });
+        
             this.o = a;
             this.l = b || new fs("yt.leanback");
             this.i = c || !1;
@@ -28016,10 +28103,40 @@ if (!self.__WB_pmw) {
             this.g = [];
             this.h = [];
             this.j = q;
+            
+            // Log the initialized values for this.o, this.l, this.i, etc.
+            console.log("Initialized values:", {
+                o: this.o,
+                l: this.l,
+                i: this.i,
+                f: this.f,
+                g: this.g,
+                h: this.h,
+                j: this.j
+            });
+        
+            // Get the value from this.l
             a = this.l.get("yt_mdx_screen", !0);
-            !this.i && a && (this.f = new Kt(a), this.f.id || this.PB());
-            this.oA()
+            console.log("Value from this.l.get('yt_mdx_screen'):", a);
+        
+            // Check conditions and log the flow
+            if (!this.i && a) {
+                console.log("Creating new Kt instance with:", a);
+                this.f = new Kt(a);
+                console.log("Created Kt instance:", this.f);
+                
+                if (!this.f.id) {
+                    console.log("No id found in Kt instance. Calling PB()");
+                    this.PB();
+                }
+            }
+        
+            // Call the oA method and log it
+            console.log("Calling oA method");
+            this.oA();
         }
+        
+
         d = Mt.prototype;
         d.vo = function () {
             return this.f
@@ -28075,10 +28192,24 @@ if (!self.__WB_pmw) {
         d.Uh = function (a, b) {
             return this.o.Tv(a, b)
         };
+
         d.oA = function () {
-            this.f && (this.f.token = "");
-            aq(x(this.oA, this), 864E5)
+            // Log when the function is called
+            console.log("Calling oA function");
+
+            // Check if this.f exists and log the condition
+            if (this.f) {
+                console.log("this.f exists. Clearing token.");
+                this.f.token = "";
+            } else {
+                console.log("this.f does not exist.");
+            }
+
+            // Log the call to aq
+            console.log("Calling aq with arguments:", { callback: x(this.oA, this), delay: 864E5 });
+            aq(x(this.oA, this), 864E5);
         };
+
         d.sJ = function (a) {
             lq(("http://localhost:8070/https://www.youtube.com/api/lounge/pairing/generate_screen_id"), {
                 method: "GET",
