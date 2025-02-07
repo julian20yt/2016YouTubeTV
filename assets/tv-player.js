@@ -1,4 +1,13 @@
 
+    var currentHost = window.location.hostname;
+    var currentPort = window.location.port;
+
+    var APP_URL = "http://" + currentHost + ":" + (currentPort || "8090");  
+    var PROXY_URL = "http://" + currentHost + ":8070"; 
+
+    console.log("APP_URL:", APP_URL);
+    console.log("PROXY_URL:", PROXY_URL);
+
     (function () {
         var g, aa = aa || {},
             n = this;
@@ -9051,6 +9060,8 @@
                     loadSegment(); // No buffer to clear, start loading immediately.
                     }
                 });
+
+                /*
                       
                   videoElement.addEventListener('pause', () => {
                     console.log("Playback paused");
@@ -9064,6 +9075,8 @@
                       loadSegment();
                     }
                   });
+                */
+
           
                   setInterval(() => {
                     if (sourceBuffer.buffered.length > 0) {
@@ -14303,7 +14316,7 @@
         }
 
         // Retry logic for handling failed play attempts (with exponential backoff)
-        var retryCount = 3;
+        var retryCount = 10;
         function retryPlay() {
             if (retryCount > 0) {
                 console.log(`Retrying play in 2 seconds... Attempts left: ${retryCount}`);
@@ -42371,6 +42384,7 @@
                 jb = ""
             }
             c = {
+                
                 video_id: I,
                 cpn: N,
                 cpn_style: xb,
@@ -42390,6 +42404,8 @@
                 drm_style: R ? "" : "display:none",
                 drm: R ? v.b + " / " + v.g : ""
             };
+            
+
             b.o && (d = Ym(b.o) ? "yes" : "no", d += " (" + Xm(b.o), b.D && Ym(b.o) && (d += "/" + Xm(b.D)), c.dash = d + ")", c.mime = b.o.mimeType, b = b.o.video.fps, 1 < b && (c.resolution += "@" + b));
             b = this.g;
             f = v4(b, f);

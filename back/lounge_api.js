@@ -1,15 +1,15 @@
 const axios = require('axios');
 
-// Function to get lounge token batch
+
 async function getLoungeTokenBatch(screenIds) {
     try {
-        // Construct the URL with the screen_ids query parameter
+
         const url = `https://www.youtube.com/api/lounge/pairing/get_lounge_token_batch?screen_ids=${screenIds}`;
 
-        // Perform the GET request
+
         const response = await axios.get(url);
 
-        // Process the response
+
         if (response.data && response.data.screens) {
             response.data.screens.forEach(screen => {
                 if (screen.screenId === screenIds) {
@@ -18,7 +18,7 @@ async function getLoungeTokenBatch(screenIds) {
             });
         }
 
-        return response.data; // Return the full response
+        return response.data; 
     } catch (error) {
         console.error('Error getting lounge token batch:', error.message);
         throw error;
@@ -26,7 +26,7 @@ async function getLoungeTokenBatch(screenIds) {
 }
 
 
-// Function to generate a screen ID by calling the register pairing code endpoint
+
 async function generateScreenId(pairingCode) {
     try {
         const response = await axios.post('https://www.youtube.com/api/lounge/pairing/register_pairing_code', {
@@ -39,7 +39,7 @@ async function generateScreenId(pairingCode) {
     }
 }
 
-// Function to get pairing code
+
 async function getPairingCode(screenId) {
     try {
         const response = await axios.get(`https://www.youtube.com/api/lounge/pairing/get_pairing_code`, {
@@ -52,7 +52,7 @@ async function getPairingCode(screenId) {
     }
 }
 
-// Function to register pairing code
+
 async function registerPairingCode(pairingCode) {
     try {
         const response = await axios.post('https://www.youtube.com/api/lounge/pairing/register_pairing_code', {

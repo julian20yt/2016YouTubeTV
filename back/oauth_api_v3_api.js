@@ -24,21 +24,6 @@ const logErrorToFile = (errorMessage) => {
 };
 
 
-async function getAccessToken() {
-    if (!fs.existsSync(TOKEN_FILE)) {
-        throw new Error('Token file not found. Please authenticate first.');
-    }
-
-    const tokenData = JSON.parse(fs.readFileSync(TOKEN_FILE, 'utf-8'));
-    const { access_token, expires_in } = tokenData;
-
-    if (expires_in <= 0) {
-        throw new Error('Access token has expired.');
-    }
-
-    return access_token;
-}
-
 async function requestDeviceCode(client_id, scope) {
     try {
         const response = await axios.post('https://oauth2.googleapis.com/device/code', null, {
@@ -243,20 +228,18 @@ const oauthRouter = (app) => {
 
     app.post('/o/oauth2/token', async (req, res) => {
         const { client_id, device_code, client_secret, grant_type, refresh_token } = req.body;
-
+    
         if (!client_id || !client_secret || (!device_code && grant_type !== 'refresh_token')) {
-            const errorMessage = 'Client ID, client secret, and device_code (for device flow) or refresh_token (for refresh flow) are required.';
+            const errorMessage = 'Client ID, client secret, device_code (for device flow), and refresh_token (for refresh flow) are required.';
             res.status(400).send(errorMessage);
             logErrorToFile(errorMessage);
             return;
         }
     
         try {
-
             const tokenData = await requestToken(client_id, device_code, client_secret, grant_type, refresh_token);
     
             if (tokenData.access_token) {
-
                 const savedData = {
                     access_token: tokenData.access_token,
                     expires_in: tokenData.expires_in,
@@ -268,9 +251,18 @@ const oauthRouter = (app) => {
                 } else if (grant_type === 'refresh_token') {
                     savedData.refresh_token = refresh_token;
                 }
+
+                if (!device_code || device_code === 'undefined') {
+                    console.warn('Invalid or undefined device code, this dont matter much, since it aint used! It saves because I am lazy to find another way lol.');
+                    res.json(tokenData);
+                    return;
+                }
     
-                fs.writeFileSync(TOKEN_FILE, JSON.stringify(savedData, null, 2), 'utf8');
+                const deviceTokenFile = path.join(TOKEN_FOLDER, `device_${device_code}_oauth_token.json`);
+                fs.writeFileSync(deviceTokenFile, JSON.stringify(savedData, null, 2), 'utf8');
+    
                 res.json(tokenData);
+                
             } else {
                 const errorMessage = 'Invalid token response: ' + JSON.stringify(tokenData);
                 res.status(400).send(errorMessage);
@@ -279,6 +271,7 @@ const oauthRouter = (app) => {
         } catch (error) {
             console.error('Error during token request:', error.message);
     
+            // Handle specific errors based on response status
             if (error.response) {
                 const errorDetails = error.response.data;
                 const errorType = errorDetails.error;
@@ -293,12 +286,12 @@ const oauthRouter = (app) => {
                     logErrorToFile(`Authorization pending. Waiting for user authorization.`);
                 } else if (errorType === 'slow_down') {
                     console.log('Received slow_down error, retrying...');
-                    const retryDelay = 2000; 
+                    const retryDelay = 2000; // Retry after 2 seconds
                     setTimeout(async () => {
                         try {
-                            const tokenData = await requestToken(client_id, device_code, client_secret, grant_type, refresh_token);
-                            res.json(tokenData);
-                            fs.writeFileSync(TOKEN_FILE, JSON.stringify(tokenData, null, 2), 'utf8');
+                            const retryTokenData = await requestToken(client_id, device_code, client_secret, grant_type, refresh_token);
+                            res.json(retryTokenData);
+                            fs.writeFileSync(deviceTokenFile, JSON.stringify(retryTokenData, null, 2), 'utf8');
                         } catch (retryError) {
                             const retryErrorMessage = `Retry failed: ${retryError.message}`;
                             res.status(418).send(retryErrorMessage);
@@ -325,6 +318,7 @@ const oauthRouter = (app) => {
             }
         }
     });
+    
     
     app.post('/o/oauth2/revoke', async (req, res) => {
         const { token } = req.body;

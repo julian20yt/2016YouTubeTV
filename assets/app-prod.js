@@ -1,20 +1,14 @@
-var _____WB$wombat$assign$function_____ = function (name) {
-    return (self._wb_wombat && self._wb_wombat.local_init && self._wb_wombat.local_init(name)) || self[name];
-};
-if (!self.__WB_pmw) {
-    self.__WB_pmw = function (obj) {
-        this.__WB_source = obj;
-        return this;
-    }
-} {
-    let window = _____WB$wombat$assign$function_____("window");
-    let self = _____WB$wombat$assign$function_____("self");
-    let document = _____WB$wombat$assign$function_____("document");
-    let location = _____WB$wombat$assign$function_____("location");
-    let top = _____WB$wombat$assign$function_____("top");
-    let parent = _____WB$wombat$assign$function_____("parent");
-    let frames = _____WB$wombat$assign$function_____("frames");
-    let opener = _____WB$wombat$assign$function_____("opener");
+
+
+    var currentHost = window.location.hostname;
+    var currentPort = window.location.port;
+
+    var APP_URL = "http://" + currentHost + ":" + (currentPort || "8090");  
+    var PROXY_URL = "http://" + currentHost + ":8070"; 
+
+    console.log("APP_URL:", APP_URL);
+    console.log("PROXY_URL:", PROXY_URL);
+
 
     (function () {
         var d, aa = aa || {},
@@ -9654,6 +9648,32 @@ if (!self.__WB_pmw) {
 
         function Ui(a, b, c, e, f, g, k, l, p, r, u, w, A, G, T, W, Y, ma, va, eb, fb, Lb, bd) {
             K.call(this);
+            
+            console.log("Logging data received in Ui constructor:");
+            console.log("a guide:", a);
+            console.log("b guide:", b);
+            console.log("c guide:", c);
+            console.log("e guide:", e);
+            console.log("f guide:", f);
+            console.log("g guide:", g);
+            console.log("k guide:", k);
+            console.log("l guide:", l);
+            console.log("p guide:", p);
+            console.log("r guide:", r);
+            console.log("u guide:", u);
+            console.log("w guide:", w);
+            console.log("A guide:", A);
+            console.log("G guide:", G);
+            console.log("T guide:", T);
+            console.log("W guide:", W);
+            console.log("Y guide:", Y);
+            console.log("ma guide:", ma);
+            console.log("va guide:", va);
+            console.log("eb guide:", eb);
+            console.log("fb guide:", fb);
+            console.log("Lb guide:", Lb);
+            console.log("bd guide:", bd);
+            
             this.w = a;
             this.aa = b;
             this.ka = c;
@@ -9692,6 +9712,7 @@ if (!self.__WB_pmw) {
             this.M = this.I = !1;
             this.f.isSupported() && (this.f.Va("[[Scroll down|Speech command to move selection down.]]", x(this.ry, this, 1), !1), this.f.Va("[[Scroll up|Speech command to move selection up.]]", x(this.ry, this, -1), !1), this.f.Va("[[Select|Voice command for selecting the currently highlighted item.]]", x(this.QW, this), !1))
         }
+        
         C(Ui, K);
         d = Ui.prototype;
         d.We = function () {
@@ -9840,17 +9861,47 @@ if (!self.__WB_pmw) {
             this.w.hb ? b.oB(a ? 8 : 10, a ? 0 : 1, a ? -1 : 0) : b.wq(a ? 7.75 : 9.5)
         };
         d.vY = function (a) {
+            // Log the input model
+            console.log("model guide:", a);
+        
+            // Assign model and reset the state
             this.model = a;
             this.A = !1;
+            console.log("this.A guide:", this.A);
+        
+            // Call lB and log
             this.lB();
+            console.log("lB function executed.");
+        
+            // Call h.xa and log
             this.h.xa(this.tT(a));
+            console.log("h.xa executed with:", this.tT(a));
+        
+            // Call gN and log
             this.gN(a);
+            console.log("gN executed with model:", a);
+        
+            // Call gB and log
             this.gB();
+            console.log("gB function executed.");
+        
+            // Call Bq and log
             this.Bq();
+            console.log("Bq function executed.");
+        
+            // Call Ha and log
             this.Ha("no-transition");
+            console.log("Ha function executed with argument 'no-transition'.");
+        
+            // Call render and log
             this.render();
-            this.W.g("guide")
+            console.log("render function executed.");
+        
+            // Call W.g and log
+            this.W.g("guide");
+            console.log("W.g executed with 'guide'.");
         };
+        
         d.tT = function (a) {
             for (var b = [], c = a.items || [], e = 0; e < c.length; ++e) {
                 var f = vb(c[e]);
@@ -9866,10 +9917,39 @@ if (!self.__WB_pmw) {
             a.footer && b.push(a.footer);
             return b
         };
+
         d.gN = function (a) {
-            a.accountListHeader && a.accountListHeader.activeAccountHeaderRenderer && (a = a.accountListHeader.activeAccountHeaderRenderer, this.userName = L(a.accountName), this.dr = this.$a.g(a.accountPhoto), a.unlimitedStatus && (this.unlimitedStatus = L(a.unlimitedStatus[0])));
-            this.S.J("unlimited-status-update", !!this.unlimitedStatus)
+
+            console.log("d.gN a guide:", a);
+
+            if (a.accountListHeader && a.accountListHeader.activeAccountHeaderRenderer) {
+
+                console.log("d.gN a guide:", a);
+
+                a = a.accountListHeader.activeAccountHeaderRenderer;
+
+                console.log("d.gN a guide:", a);
+
+                // Set userName and dr
+                this.userName = L(a.accountName);
+                this.dr = this.$a.g(a.accountPhoto);
+        
+                // Log values for better clarity
+                console.log("userName guide:", this.userName);
+                console.log("dr guide:", this.dr);
+        
+                // Set unlimitedStatus if available
+                if (a.unlimitedStatus) {
+                    this.unlimitedStatus = L(a.unlimitedStatus[0]);
+                    console.log("unlimitedStatus guide:", this.unlimitedStatus);
+                }
+            }
+        
+            // Log event update
+            this.S.J("unlimited-status-update", !!this.unlimitedStatus);
+            console.log("unlimited-status-update event triggered:", !!this.unlimitedStatus);
         };
+        
         d.tO = function (a) {
             return !!a.guideEntryRenderer
         };
@@ -18103,7 +18183,7 @@ if (!self.__WB_pmw) {
                 statsFactory: Tm
             });
             this.f.F((new S("videoInfoEnabledFlag", Sm)).Z().X({
-                initial: !1
+                initial: !0
             }))
         };
         ro.inject = ["injector", "window", "bootstrapper", "applicationPath"];
@@ -25439,12 +25519,21 @@ if (!self.__WB_pmw) {
             return Ab(a, "watchEndpointSupportedAuthorizationTokenConfig", "videoAuthorizationToken", "credentialTransferTokens") || []
         };
 
-        function Ns(a) {
+        function Ns() {
             return function (b) {
-                var c = a.translateDeepLink(b.toString());
-                return null !== c ? new Kh(c) : b
+                // Directly handle the deep link translation
+                var c = (function translateDeepLink(b) {
+                    // Implement the translation logic directly here
+                    if (b.startsWith("deepLink://")) {
+                        return "https://translated.url/" + b.substring(11); // Translate deep link
+                    }
+                    return null; // Return null if no translation is needed
+                })(b.toString());
+        
+                return null !== c ? new Kh(c) : b; // Return translated link or original input
             }
         }
+        
         Ns.inject = ["systemApi"];
 
         function Os(a, b, c, e) {
@@ -32761,7 +32850,7 @@ if (!self.__WB_pmw) {
 
         function Nv() { }
         Nv.prototype.f = function (a) {
-            return "https://chart.googleapis.com/chart?cht=qr&chs=350x350&chl=" + encodeURIComponent(a)
+            return "http://localhost:8090/api/chart?cht=qr&chs=350x350&chl=" + (a)
         };
 
         function Ov(a, b, c, e, f, g, k, l, p, r, u, w, A, G, T, W, Y, ma, va, eb, fb, Lb) {
@@ -35805,7 +35894,7 @@ if (!self.__WB_pmw) {
             a.register("fresh_transport_controls.html", '<div class="fresh-transport-controls">  <div id="storyboard" class="$storyboard" data-hidden-by-default="true"></div>  <div id="fresh-rows-container">    <div class="more-row">      <div id="transport-more-button" class="$button"          data-model="{{moreOptionsButtonModel}}"></div>      <div id="transport-more-options-list" class="$list"          data-hidden-by-default="true"          data-model="{{moreOptionsListModel}}"></div>    </div>    <div class="main-row">      <div id="play-pause-button" class="$toggleButton"          data-model="{{playPauseButtonModel}}"></div>      <div id="player-time-elapsed" class="$elapsed-time"></div>      <div id="progress-bar" class="$progress-bar"></div>      <div class="player-time-total">{{totalTime}}</div>      <div class="live-indicator">[[Live|Label indicating that this is a live video.]]</div>    </div>  </div>  <div class="seeking-icon icon-player-rew"></div></div>');
             a.register("fresh_transport_controls_no_storyboard.html", '<div class="fresh-transport-controls">  <div id="fresh-rows-container">    <div class="more-row">      <div id="transport-more-button" class="$button"          data-model="{{moreOptionsButtonModel}}"></div>      <div id="transport-more-options-list" class="$list"          data-hidden-by-default="true"          data-model="{{moreOptionsListModel}}"></div>    </div>    <div class="main-row">      <div id="play-pause-button" class="$toggleButton"          data-model="{{playPauseButtonModel}}"></div>      <div id="player-time-elapsed" class="$elapsed-time"></div>      <div id="progress-bar" class="$progress-bar"></div>      <div class="player-time-total">{{totalTime}}</div>      <div class="live-indicator">[[Live|Label indicating that this is a live video.]]</div>    </div>  </div>  <div class="seeking-icon icon-player-rew"></div></div>');
             a.register("grid.html", '<div>  <div class="$list" data-catch-mouse-move="{{catchRowMouseMove}}" data-item-factory="{{itemFactory}}" data-is-vertical="false" data-loop="{{loopRows}}" data-consume-events="{{consumeEvents}}" data-rate-limit="{{rateLimit}}"></div></div>');
-            a.register("guide.html", '<div>  <div id="user-info-background">    <div class="user-info-container">      <div id="guide-user-avatar" rebound-style="background-image: url({http://localhost:8090/user/user_pfp})" style="background-image: url(http://localhost:8090/user/user_pfp);"></div>      <div class="guide-user-text">        <div class="guide-user-name">{{userName}}</div>        <div class="guide-user-unlimited">{{unlimitedStatus}}</div>      </div>    </div>  </div>  <div class="collapsed-guide"></div>  <div class="guide-carousel-background"></div>  <div class="collapsed-guide-icons">    <div class="collapsed-guide-icon icon-guide-what-to-watch"></div>    <div class="collapsed-guide-icon icon-guide-my-subs"></div>    <div class="collapsed-guide-icon icon-popular"></div>    <div class="collapsed-guide-icon icon-music"></div>    <div class="collapsed-guide-icon icon-ellipsis"></div>  </div>  <div id="error-message">[[Sorry, the rest of this Guide isn\u2019t available right now.|An error message displayed when the guide cannot be fully displayed.]]</div></div>');
+            a.register("guide.html", '<div>  <div id="user-info-background">    <div class="user-info-container">      <div id="guide-user-avatar" rebound-style="background-image: url({{userAvatar}})"></div>      <div class="guide-user-text">        <div class="guide-user-name">{{userName}}</div>        <div class="guide-user-unlimited">{{unlimitedStatus}}</div>      </div>    </div>  </div>  <div class="collapsed-guide"></div>  <div class="guide-carousel-background"></div>  <div class="collapsed-guide-icons">    <div class="collapsed-guide-icon icon-guide-what-to-watch"></div>    <div class="collapsed-guide-icon icon-guide-my-subs"></div>    <div class="collapsed-guide-icon icon-popular"></div>    <div class="collapsed-guide-icon icon-music"></div>    <div class="collapsed-guide-icon icon-ellipsis"></div>  </div>  <div id="error-message">[[Sorry, the rest of this Guide isn\u2019t available right now.|An error message displayed when the guide cannot be fully displayed.]]</div></div>');a.register("guide_button.html", '<div>  <div class="guide-button-icon {{model.iconClass}}">    <div class="$image" data-image-url="{{model.iconUrl}}"></div>  </div>  <div class="guide-button-title">{{model.label}}</div></div>');
             a.register("guide_button.html", '<div>  <div class="guide-button-icon {{model.iconClass}}">    <div class="$image" data-image-url="{{model.iconUrl}}"></div>  </div>  <div class="guide-button-title">{{model.label}}</div></div>');
             a.register("horizontal_list.html", '<div>  <div class="no-content-message">    <div class="text">{{noContentMessage}}</div>  </div>  <div class="content"></div></div>');
             a.register("icon_button.html", '<div>  <span class="icon {{getIconClass()}}"></span>  <span class="label">{{model.label}}</span></div>');
@@ -35826,7 +35915,7 @@ if (!self.__WB_pmw) {
                 '<div>  <div class="watch-hd-badge $badge"></div></div>');
             a.register("search.html", '<div>  <div class="youtube-logo-top">    <div class="youtube-logo icon-youtube-logo"></div>    <div class="youtube-unlimited-logo icon-youtube-unlimited-logo"></div>  </div>  <div class="controls">    <div id="text-box-background">      <div id="search-input" class="$textInput" data-title="search" data-placeholder="[[Search...|Placeholder indicating that a user can start searching within a text box]]"></div>    </div>    <div id="search-text-entry">      <div class="suggestions-container">        <div id="keyboard-icon" class="icon-search-keyboard"></div>        <div id="search-suggestions" class="$suggestions"></div>      </div>      <div id="search-keyboard" class="$keyboard"></div>      <div class="search-hint">        [[Voice search is not supported.|Message that tells Xbox One users that voice doesn\'t work for search.|1391152342]]      </div>      <div id="search-action" class="$subtitled-button search-action-button"></div>    </div>  </div>  <div class="search-pairing">    <div class="search-img"></div>    <div class="search-message">      <div class="title">[[Search Faster|Search pairing hint title]]</div>      <div id="pairing" class="$pairingDialog" data-context="search"></div>    </div>  </div>  <div id="results-placeholder"></div></div>');
             a.register("search_suggestion.html", '<div data-can-be-focus-leaf="true">{{model.label}}</div>');
-            a.register("search_two_rows.html", '<div>\x3c!-- TODO(fespinoza): Remove after NimbleTwoRow ends (01/04/2016). --\x3e  <div class="youtube-logo-top">    <div class="youtube-logo icon-youtube-logo"></div>    <div class="youtube-unlimited-logo icon-youtube-unlimited-logo"></div>  </div>  <div class="controls">    <div id="text-box-background">      <div id="search-input" class="$textInput" data-title="search" data-placeholder="[[Search...|Placeholder indicating that a user can start searching within a text box]]"></div>    </div>    <div id="search-text-entry">      <div class="suggestions-container">        <div id="keyboard-icon" class="icon-search-keyboard"></div>        <div id="search-suggestions" class="$suggestions"></div>      </div>      <div id="search-keyboard" class="$keyboard"></div>      <div class="search-hint">        [[Voice search is not supported.|Message that tells Xbox One users that voice doesn\'t work for search.|1391152342]]      </div>      <div id="search-action" class="$subtitled-button search-action-button"></div>    </div>  </div>  <div class="search-pairing">    <div class="search-img"></div>    <div class="search-message">      <div class="title">[[Search Faster|Search pairing hint title]]</div>      <div id="pairing" class="$pairingDialog" data-context="search"></div>    </div>  </div>  <div id="search-shelves" class="$searchShelfList"></div></div>');
+            a.register("search_two_rows.html", '<div>  <div class="youtube-logo-top">    <div class="youtube-logo icon-youtube-logo"></div>    <div class="youtube-unlimited-logo icon-youtube-unlimited-logo"></div>  </div>  <div class="controls">    <div id="text-box-background">      <div id="search-input" class="$textInput" data-title="search" data-placeholder="[[Search...|Placeholder indicating that a user can start searching within a text box]]"></div>    </div>    <div id="search-text-entry">      <div class="suggestions-container">        <div id="keyboard-icon" class="icon-search-keyboard"></div>        <div id="search-suggestions" class="$suggestions"></div>      </div>      <div id="search-keyboard" class="$keyboard"></div>      <div class="search-hint">        [[Voice search is not supported.|Message that tells Xbox One users that voice doesn\'t work for search.|1391152342]]      </div>      <div id="search-action" class="$subtitled-button search-action-button"></div>    </div>  </div>  <div class="search-pairing">    <div class="search-img"></div>    <div class="search-message">      <div class="title">[[Search Faster|Search pairing hint title]]</div>      <div id="pairing" class="$pairingDialog" data-context="search"></div>    </div>  </div>  <div id="search-shelves" class="$searchShelfList"></div></div>');
             a.register("settings.html", '<div>  <div class="settings-shelf">    <div class="settings-title">{{title}}</div>    <div id="settings-items" class="$settingsHorizontalList"></div>  </div></div>');
             a.register("shelf.html", '<div>  <div class="icon {{iconClass}}"></div>  <div class="title">    <span class="main">{{title}}</span>    <span class="annotation">{{titleAnnotation}}</span>  </div>  <div class="content-container"></div></div>');
             a.register("shelf_list.html", '<div>  <div class="title">{{title}}</div>  <div class="no-content-message">    <div class="text">{{noContentMessage}}</div>  </div></div>');
@@ -36207,8 +36296,12 @@ if (!self.__WB_pmw) {
                     return a.model.oL()
                 },
                 userAvatar: function (a) {
-                    return a.dr
-                },
+
+                    const avatar = a.dr ? a.dr : APP_URL + "/assets/default_pfp.png"; 
+                
+                    console.log("moron", a); 
+                    return avatar;
+                },               
                 "model.durationMinutes": function (a) {
                     return a.model.Oj
                 },
@@ -36419,8 +36512,6 @@ if (!self.__WB_pmw) {
         };
     })();
 
-
-}
 /*
    FILE ARCHIVED ON 02:14:33 Feb 28, 2016 AND RETRIEVED FROM THE
    INTERNET ARCHIVE ON 17:05:18 Jan 22, 2025.

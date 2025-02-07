@@ -79,21 +79,27 @@ are all going to be filtered through port 8070!
 
 ## Info On Hosting
 
-Right now we use localhost, I think I will change this at some point when I am done 
-with finishing the app. Probbaly what YT2009 does, where you input your IP adress you
-wanna use. 
 
-I mean YOU can now but you'll have to modify each refrence of localhost to your IP adress,
-I just used localhsot as it was easy to setup.
+** [WARNING RIGHT NOW IT IS STILL A FIXED URL, I STARTED WORK CLIENT SIDE BUT IT ISN'T SERVER] **
 
-Disable Oauth for now, you won't need to in the future since i can just get your access 
-token from the headers (I didn't think about that).
+Soon :tm:
+
+B̶y̶ ̶d̶e̶f̶a̶u̶l̶t̶ ̶i̶t̶ ̶w̶i̶l̶l̶ ̶u̶s̶e̶ ̶l̶o̶c̶a̶l̶h̶o̶s̶t̶,̶ ̶b̶u̶t̶ ̶y̶o̶u̶ ̶c̶a̶n̶ ̶c̶h̶a̶n̶g̶e̶ ̶t̶h̶i̶s̶ ̶t̶o̶ ̶w̶h̶a̶t̶e̶v̶e̶r̶ ̶y̶o̶u̶'̶d̶ ̶l̶i̶k̶e̶ ̶b̶y̶ ̶r̶u̶n̶n̶i̶n̶g̶ ̶e̶i̶t̶h̶e̶r̶ ̶2̶0̶1̶6̶y̶o̶u̶t̶u̶b̶e̶t̶v̶_̶s̶e̶t̶u̶p̶.̶j̶s̶ ̶o̶r̶ ̶c̶r̶e̶a̶t̶i̶n̶g̶/̶m̶o̶d̶i̶f̶i̶n̶g̶ ̶.̶/̶b̶a̶c̶k̶/̶s̶e̶t̶t̶i̶n̶g̶s̶.̶j̶s̶o̶n̶.̶
+
+In the scripts APP_URL is what APIs and assets use, while PROXY_URL is only for 
+the CORS-ANYWHERE proxy. (not fully done not all urls are)
+
+
+OAuth saves your device and oauth token once, I can probbaly figure a way at some point
+to not.
+
+watch-page interactions just yet.
 
 We Use:
 
-- Port 8090
+- Port 8090, you can (probbaly) change this
 
-- Port 8070 
+- Port 8070 (this HAS to be a fixed port, you can change it but you'll need to alter scripts)
 
 ## Supported YouTube TV Clients
 
