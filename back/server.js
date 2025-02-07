@@ -7,17 +7,44 @@ const QRCode = require('qrcode');
 const corsAnywhere = require('cors-anywhere');
 
 const { fetchGuideData } = require('./guide_api');
-const { fetchBrowseData } = require('./browse_api');
+
 const { handleSearchRequest } = require('./search_api');
 const { fetchNextData } = require('./next_api');
 const { handleGetVideoInfo } = require('./get_video_info');
 
+// may or may not be used I am just keeping it
 const { fetchLoungeTokenBatch } = require('./lounge_api');
 
 const bodyParser = require('body-parser');
 const oauthRouter = require('./oauth_api_v3_api.js');
 
 const watchPageInteractions = require('./watch_page_interactions_apis');
+
+
+const settingsPath = path.join(__dirname, 'settings.json');
+
+let settings;
+
+if (!fs.existsSync(settingsPath)) {
+    const defaultSettings = { 
+        serverIp: 'localhost',  
+        expBrowse: false        
+    };
+    fs.writeFileSync(settingsPath, JSON.stringify(defaultSettings, null, 4));
+    console.log("Created settings.json with default serverIp = localhost and expBrowse = false.");
+    settings = defaultSettings;
+} else {
+    settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    console.log(`Current settings in settings.json: ${JSON.stringify(settings, null, 4)}`);
+}
+
+const { fetchBrowseData } = settings.expBrowse
+    ? require('./exp_browse_api')  
+    : require('./browse_api');    
+
+const serverIp = settings.serverIp || "localhost";
+
+console.log("Loaded Server IP:", serverIp);
 
 const app = express();
 const port = 8090;
@@ -35,12 +62,12 @@ app.use((req, res, next) => {
 });
 
 const server = corsAnywhere.createServer({
-    originWhitelist: ['http://localhost:8090', '*', '""', '', 'null', "null"],
+    originWhitelist: [`http://${serverIp}:8090`, '*', '""', '', 'null', "null"],
     removeHeaders: ['cookie', 'cookie2'],
     handleInitialRequest: (req, res) => {
         const origin = req.headers.origin;
 
-        if (origin === 'http://localhost:8090' || origin === '*') {
+        if (origin === `http://${serverIp}:8090` || origin === '*') {
             res.setHeader('Access-Control-Allow-Origin', origin);
         } else {
             res.setHeader('Access-Control-Allow-Origin', '*');
@@ -60,8 +87,8 @@ const server = corsAnywhere.createServer({
 });
 
 
-server.listen(8070, 'localhost', () => {
-    console.log('CORS Anywhere proxy running on http://localhost:8070');
+server.listen(8070, serverIp, () => {
+    console.log('CORS Anywhere proxy running on http://' + serverIp + ':8070');
 });
 
 
@@ -444,6 +471,10 @@ app.all('/api/lounge/bc/bind', async (req, res) => {
 app.post('/api/browse', async (req, res) => {
     const { browseId } = req.body;
 
+    const authHeader = req.headers.authorization ? req.headers.authorization.split(' ')[1] : null;
+
+    console.log('Authorization Header:', authHeader);
+
     if (!browseId) {
         return res.status(400).json({
             error: 'Missing browseId parameter in the request body.'
@@ -451,7 +482,8 @@ app.post('/api/browse', async (req, res) => {
     }
 
     try {
-        const browseData = await fetchBrowseData(browseId);
+        const browseData = await fetchBrowseData(browseId, authHeader);
+
         res.json(browseData);
     } catch (error) {
         console.error('Error:', error.message);
@@ -460,6 +492,7 @@ app.post('/api/browse', async (req, res) => {
         });
     }
 });
+
 
 
 async function handleGuideRequest(req, res) {
@@ -511,6 +544,6 @@ app.post('/api/next', async (req, res) => {
 app.post('/api/search', handleSearchRequest);
 
 
-app.listen(port, () => {
-    console.log(`Server running at http:/   /localhost:${port}`);
+app.listen(port, serverIp, () => {
+    console.log(`Server running at http://` + serverIp + `:` + port);
 });

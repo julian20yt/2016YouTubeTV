@@ -1,8 +1,28 @@
 const axios = require('axios'); 
+const fs = require('fs'); 
+const path = require('path'); 
+
+const settingsPath = path.join(__dirname, 'settings.json');
+
+let settings;
+
+if (!fs.existsSync(settingsPath)) {
+    const defaultSettings = { 
+        serverIp: 'localhost',  
+        expBrowse: false        
+    };
+    fs.writeFileSync(settingsPath, JSON.stringify(defaultSettings, null, 4));
+    console.log("Created settings.json with default serverIp = localhost and expBrowse = false.");
+    settings = defaultSettings;
+} else {
+    settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+}
+
+const serverIp = settings.serverIp || "localhost";
 
 async function fetchBrowseData() {
     try {
-        const fileUrl = 'http://localhost:8090/assets/browse_example_client6.json';
+        const fileUrl = `http://${serverIp}:8090/assets/browse_example_client6.json`;
         const fileResponse = await axios.get(fileUrl);
 
         return fileResponse.data;

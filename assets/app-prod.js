@@ -4,6 +4,7 @@
     var currentPort = window.location.port;
 
     var APP_URL = "http://" + currentHost + ":" + (currentPort || "8090");  
+    var APP_HOST =  currentHost;  
     var PROXY_URL = "http://" + currentHost + ":8070"; 
 
     console.log("APP_URL:", APP_URL);
@@ -4117,20 +4118,16 @@
             }
         };
 
-        // PN function adds play all item if appropriate
         d.PN = function (a) {
             if (a && a.shelfRenderer) {
                 console.log('Yap found:', a.shelfRenderer);
 
-                // Try to extract horizontal list items
                 var b = n("content.horizontalListRenderer.items", a);
                 console.log('Extracted horizontalListRenderer.items:', b);
 
-                // If there is a playEndpoint and items in the list
                 if (a.shelfRenderer.playEndpoint && b && b.length > 0) {
                     console.log('Play endpoint found:', a.shelfRenderer.playEndpoint);
 
-                    // Prepend play all item
                     b.unshift({
                         fakePlayAllTileRenderer: {
                             playEndpoint: a.shelfRenderer.playEndpoint,
@@ -6552,7 +6549,7 @@
             z(c, b.TK());
             a().f(eh.f, c)
         }
-        eh.f = "http://localhost:8090/device_204";
+        eh.f = APP_URL + "/device_204";
         eh.inject = ["reportFactory", "statsService"];
         var fh = {
             I1: "autoplay-enabled",
@@ -15694,7 +15691,7 @@
             return this.f.br ? "in_t" : this.f.Xi ? "in_g" : this.f.$q ? "in_vi" : this.f.Zi ? "in_r" : this.f.dm ? "" : "in_v1"
         };
         d.Un = function () {
-            return this.f.dm ? "https://" + this.f.dm : this.f.AB ? "/youtubei/v1" : this.f.br ? "http://www-googleapis-test.sandbox.google.com/youtubei/vi" : this.f.Xi ? "https://staging-youtubei.sandbox.googleapis.com/v1" : this.f.$q ? this.f.Yi ? "https://youtubei.googleapis.com/youtubei/vi" : "https://www.googleapis.com/youtubei/vi" : this.f.Zi ? "https://web.archive.org/web/20160228021433/https://www-googleapis-staging.sandbox.google.com/youtubei/v1release" : this.f.Yi ? "http://localhost:8090/api" : "http://localhost:8090/api"
+            return this.f.dm ? "https://" + this.f.dm : this.f.AB ? "/youtubei/v1" : this.f.br ? "http://www-googleapis-test.sandbox.google.com/youtubei/vi" : this.f.Xi ? "https://staging-youtubei.sandbox.googleapis.com/v1" : this.f.$q ? this.f.Yi ? "https://youtubei.googleapis.com/youtubei/vi" : "https://www.googleapis.com/youtubei/vi" : this.f.Zi ? "https://web.archive.org/web/20160228021433/https://www-googleapis-staging.sandbox.google.com/youtubei/v1release" : this.f.Yi ? APP_URL + "/api" : APP_URL + "/api"
         };
         d.fk = function (a) {
             a = a || {};
@@ -15787,7 +15784,7 @@
         };
         d.NP = function (a, b) {
             if (-1 == a.f.indexOf("//")) {
-                a.f = "http://localhost:8090" + a.f;
+                a.f = APP_URL + a.f;
                 var c = -1 == a.f.indexOf("?") ? "?" : "&";
                 a.f += c + "key=" + this.i
             }
@@ -18158,7 +18155,7 @@
             this.f.Nf({
                 appLabel: this.R.label || "unknown",
                 appLoader: this.R.loader || "unknown",
-                backgroundPath: "http://localhost:8090/assets/" + "default_bg.jpg",
+                backgroundPath: APP_URL + "/assets/" + "default_bg.jpg",
                 htmlPath: this.g + "/html",
                 imagePath: this.g + "/img",
                 userAgent: zc
@@ -23395,12 +23392,12 @@
         d.lW = function () {
             if (!this.i.ac && (this.l && this.l.Xl(), this.i.Eh)) {
                 var a = decodeURIComponent(this.i.Eh);
-                if (a.match(/^https?:\/\/localhost(:\d+)?(\?|\/).*$/)) {
+                if (a.match(/^http?:\/\/10.235.11.153(:\d+)?(\?|\/).*$/)) {
                     var b = this.hj();
                     b ? this.wz(a, b) : this.g.pr(x(function (b) {
                         this.wz(a, b ? b.id : "")
                     }, this))
-                } else this.Cc.warn("Given additionalDataUrl with non-localhost domain: " + a)
+                } else {this.Cc.warn("Given additionalDataUrl with non-localhost domain: " + a)}
             }
         };
         d.wz = function (a, b) {
@@ -26142,7 +26139,7 @@
             this.qN()
         };
         d.KN = function () {
-            this.D.hostname && "localhost" != this.D.hostname && this.ab.push("WARNING: USING NON-STANDARD DOMAIN [" + this.D.hostname + "]\n");
+            this.D.hostname && currentHost != this.D.hostname && this.ab.push("WARNING: USING NON-STANDARD DOMAIN [" + this.D.hostname + "]\n");
             if (this.D && (this.D.search || this.D.hash)) {
                 var a = this.D.search || "",
                     a = a + (this.D.hash || ""),
@@ -27692,7 +27689,7 @@
                 var b = null;
                 this.bb && (b = this.bb.xK(this));
                 var c = x(this.zV, this);
-                b || (b = new Kh("http://localhost:8090/assets/cleardot.gif"), b.zg());
+                b || (b = new Kh(APP_URL + "/assets/cleardot.gif"), b.zg());
                 tt(b.toString(), 1E4, c)
             } else Z(2);
             this.gw(a)
@@ -28005,8 +28002,8 @@
                 this.l = b || 0;
         
                 // Use the proxy URLs
-                a = "http://localhost:8070/http://youtube.com/api/lounge/bc/test";
-                b = "http://localhost:8090/api/lounge/bc/bind";
+                a = PROXY_URL + "/http://youtube.com/api/lounge/bc/test";
+                b = APP_URL + "/api/lounge/bc/bind";
         
                 console.log("Connection URLs:", { connectUrl: a, bindUrl: b });
         
@@ -28300,7 +28297,7 @@
         };
 
         d.sJ = function (a) {
-            lq(("http://localhost:8070/https://www.youtube.com/api/lounge/pairing/generate_screen_id"), {
+            lq((PROXY_URL + "/https://www.youtube.com/api/lounge/pairing/generate_screen_id"), {
                 method: "GET",
                 format: "RAW",
                 yd: function (b) {
@@ -28317,7 +28314,7 @@
                 screen_id: this.f.id || "",
                 screen_name: a
             };
-            this.j = (c = lq(("http://localhost:8070/https://www.youtube.com/api/lounge/pairing/get_pairing_code", {
+            this.j = (c = lq((PROXY_URL + "0/https://www.youtube.com/api/lounge/pairing/get_pairing_code", {
                 ctx: c
             }), {
                 wc: a,
@@ -28330,7 +28327,7 @@
             })) ? x(c.abort, c) : q
         };
         d.AS = function (a, b, c, e) {
-            this.f ? lq(("http://localhost:8070/https://www.youtube.com/api/lounge/pairing/register_pairing_code"), {
+            this.f ? lq((PROXY_URL + "/https://www.youtube.com/api/lounge/pairing/register_pairing_code"), {
                 wc: {
                     access_type: "permanent",
                     app: c,
@@ -28345,7 +28342,7 @@
             }) : e(!1)
         };
         d.iW = function (a, b) {
-            this.f && lq(("http://localhost:8070/https://www.youtube.com/api/lounge/pairing/unregister_pairing_code", {
+            this.f && lq((PROXY_URL + "/https://www.youtube.com/api/lounge/pairing/unregister_pairing_code", {
                 s: b
             }), {
                 wc: {
@@ -28365,7 +28362,7 @@
                 }, this);
                 b(f)
             }, this);
-            lq(("http://localhost:8070/https://www.youtube.com/api/lounge/pairing/get_lounge_token_batch"), {
+            lq((PROXY_URL + "/https://www.youtube.com/api/lounge/pairing/get_lounge_token_batch"), {
                 wc: {
                     screen_ids: a
                 },
@@ -29020,33 +29017,31 @@
         };
 
         d.vL = function (userData, sourceData) {
-            // Extract the user ID from the `shortBylineText` navigation endpoint.
+      
             userData.userId = extractValue("browseId.browseId", sourceData);
             if (!userData.userId) {
                 console.error("Missing required field: userId. Skipping user data:", sourceData);
-                return null; // Skip this user data
+                return null; 
             }
 
             userData.displayName = this.f(extractValue("shortBylineText.name", sourceData));
             if (!userData.displayName) {
                 console.error("Missing required field: displayName. Skipping user data:", sourceData);
-                return null; // Skip this user data
+                return null; 
             }
 
             userData.videoId = this.f(extractValue("videoId", sourceData));
             if (!userData.videoId) {
                 console.error("Missing required field: videoId. Skipping user data:", sourceData);
-                return null; // Skip this user data
+                return null; 
             }
 
-            // Assign defaults for optional fields
             userData.username = sourceData.displayName || "Unknown User";
             userData.title = userData.displayName;
 
-            // Default image URL if not provided
-            userData.imageUrl = "http://localhost:8090/assets/default_pfp.png";
+            userData.imageUrl = APP_URL + "/assets/default_pfp.png";
 
-            return userData; // Return only if all required fields are present
+            return userData;
         };
 
 
@@ -32850,7 +32845,7 @@
 
         function Nv() { }
         Nv.prototype.f = function (a) {
-            return "http://localhost:8090/api/chart?cht=qr&chs=350x350&chl=" + (a)
+            return APP_URL + "/api/chart?cht=qr&chs=350x350&chl=" + (a)
         };
 
         function Ov(a, b, c, e, f, g, k, l, p, r, u, w, A, G, T, W, Y, ma, va, eb, fb, Lb) {

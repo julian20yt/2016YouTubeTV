@@ -79,32 +79,27 @@ are all going to be filtered through port 8070!
 
 ## Info On Hosting
 
+In the YouTube TV client scripts (tv-player and app-prod), APP_URL is where it's hosted on assets, apis, and more are
+all there, PROXY_URL is where the CORS-ANYWHERE proxy is hosted on, and APP_HOST is just the hostname.
 
-** [WARNING RIGHT NOW IT IS STILL A FIXED URL, I STARTED WORK CLIENT SIDE BUT IT ISN'T SERVER] **
+Settings are in ./back/settings.json!
 
-Soon :tm:
+- serverIp: the sever IP adress you set with the 2016youtubetvsetup.js script! [default: localhost]
 
-B̶y̶ ̶d̶e̶f̶a̶u̶l̶t̶ ̶i̶t̶ ̶w̶i̶l̶l̶ ̶u̶s̶e̶ ̶l̶o̶c̶a̶l̶h̶o̶s̶t̶,̶ ̶b̶u̶t̶ ̶y̶o̶u̶ ̶c̶a̶n̶ ̶c̶h̶a̶n̶g̶e̶ ̶t̶h̶i̶s̶ ̶t̶o̶ ̶w̶h̶a̶t̶e̶v̶e̶r̶ ̶y̶o̶u̶'̶d̶ ̶l̶i̶k̶e̶ ̶b̶y̶ ̶r̶u̶n̶n̶i̶n̶g̶ ̶e̶i̶t̶h̶e̶r̶ ̶2̶0̶1̶6̶y̶o̶u̶t̶u̶b̶e̶t̶v̶_̶s̶e̶t̶u̶p̶.̶j̶s̶ ̶o̶r̶ ̶c̶r̶e̶a̶t̶i̶n̶g̶/̶m̶o̶d̶i̶f̶i̶n̶g̶ ̶.̶/̶b̶a̶c̶k̶/̶s̶e̶t̶t̶i̶n̶g̶s̶.̶j̶s̶o̶n̶.̶
+- expBrowse: make the server use the wip browse api that fetches from the YouTube server, it is mostly complete! [default: true]
 
-In the scripts APP_URL is what APIs and assets use, while PROXY_URL is only for 
-the CORS-ANYWHERE proxy. (not fully done not all urls are)
-
-
-OAuth saves your device and oauth token once, I can probbaly figure a way at some point
-to not.
-
-watch-page interactions just yet.
+Be careful with your token folder, this has device ids and also has oauth tokens, I had issues when I didn't save it to a json file, luckly had no issues with refreshing so it doesn't save when you refresh. Just don't leak it or anything,
+it should expire anyways.
 
 We Use:
 
-- Port 8090, you can (probbaly) change this
+- Port 8090, you maybe to change this without modifications, 
 
-- Port 8070 (this HAS to be a fixed port, you can change it but you'll need to alter scripts)
+- Port 8070 (this HAS to be a fixed port since it cannot be hosted on the same 8090 port easily, you can change it but you'll need to alter scripts)
 
 ## Supported YouTube TV Clients
 
-We only offically supprort 5.20150715 as of right now, however it seems like early 2018
-and 2017 ones will work. Someone sort of got a 2018 version running!
+We only offically supprort clients which use InnerTube version 5.20150715 as of right now, however it seems like early 2018 and 2017 ones may work. Someone sort of got a 2018 version running apparently!
 
 ## Clients I May Choose To Support In The Future ##
 
@@ -126,31 +121,35 @@ innertube for search and stuff, but not fully GDATA ones. Just use YT2009 at tha
 
 [Make sure you have nodejs, npm, and python3 (version 3.7.something or above!)]
 
-- Step 1: run git clone https://github.com/erievs/2016YouTubeTV.git
+- Step 1: run "git clone https://github.com/erievs/2016YouTubeTV.git"
 
-- Step 2: run npm install
+- Step 2: run "npm install"
 
 - Step 3: if you run into issues with youtube-exec, try running "npm install youtube-dl-exec --save"
 
-- Step 4: run npm start, and you're done!
+- Step 4: if you want to set a custom server adress, such as your local ip adress, run 2016youtubesetup.js (it is in the root of the project), it'll display it for you.
+
+- Step 5: run npm start, and you're done!
+
+[To update just run "git fetch origin master"]
 
 [When I say V, I mean the version of the YouTube App]
 
 Progress Report
-1. Search - 95% Done
+1. Search - 100% Done
 
-    Status: Amost done just need to fix one thing.
-    Next Steps: Instead of not dispalying info fully remove a crap video entry with no data.
+    Status: Done.
+    Next Steps: None.
 
 2. Guide - 100% Done
 
     Status: Done
     Next None;
 
-3. Browse/Channels - 70% Done
+3. Browse/Channels - 85% Done
 
-    Status: The Browse API (which is what channels use and the homepage and such), loads off a static json file but loads fine!
-    Next Steps: Work on getting the data from the youtubei browse api and converting it into that format.
+    Status: Working on finishing up the browse API, the homepage is close to being done but other parts may need work.
+    Next Steps: Fully finish the implemtion.
 
 4a. Watch - 90% Done
 
@@ -164,17 +163,17 @@ Progress Report
     Status: You can sub, unsub, like, and they'll all load.
     Next Steps: Nothing.
 
-5. Pairing - 20% Done
+5. Pairing - 30% Done
 
     Status: Got some end points implemented, but they don't create the code.
     Next Steps: Get it to create the pairing code.
 
-6. Sign In - 65% Done
+6. Sign In - 75% Done
 
     Status: Implemented /o/oauth2/code and it properly grabs the oauth code or whatever it is calle, and Implemented /o/oauth2/token!!
-    Next Steps: Make it so the token can request the token more than 5 times (rn you have to be fast), do all the V3 urls.
+    Next Steps: Make it so the token can request the token more than 5 times (rn you have to be fast).
 
-7. Assets - 90% Done
+7. Assets - 95% Done
 
     Status: Most of the assets are there, with a few missing sound files and 404 errors that need to be addressed.
     Next Steps: Find the missing assets and add em.
@@ -187,7 +186,7 @@ Progress Report
 
 -̶ ̶F̶i̶x̶ ̶o̶l̶d̶e̶r̶ ̶b̶r̶o̶w̶s̶e̶r̶ ̶s̶u̶p̶p̶o̶r̶t̶,̶ ̶r̶i̶g̶h̶t̶ ̶n̶o̶w̶ ̶w̶e̶ ̶u̶s̶e̶ ̶s̶o̶m̶e̶ ̶t̶h̶i̶n̶g̶ ̶f̶r̶o̶m̶ ̶E̶C̶M̶A̶S̶c̶r̶i̶p̶t̶ ̶6̶ ̶a̶n̶d̶ ̶7̶,̶ ̶l̶i̶k̶e̶ ̶l̶e̶t̶ ̶a̶n̶d̶ ̶f̶e̶t̶c̶h̶ ̶I̶ ̶a̶m̶ ̶w̶o̶r̶k̶i̶n̶g̶ ̶o̶n̶ ̶s̶u̶p̶p̶o̶r̶t̶i̶n̶g̶ ̶b̶r̶o̶w̶s̶e̶r̶ ̶t̶h̶e̶ ̶o̶f̶f̶i̶c̶a̶l̶ ̶c̶l̶i̶e̶n̶t̶ ̶w̶o̶u̶l̶d̶.̶
 
-- Make it so you can use an IP adress rather than localhost:8090 so you can use it on a real TV or something.
+̶-̶ ̶M̶a̶k̶e̶ ̶i̶t̶ ̶s̶o̶ ̶y̶o̶u̶ ̶c̶a̶n̶ ̶u̶s̶e̶ ̶a̶n̶ ̶I̶P̶ ̶a̶d̶r̶e̶s̶s̶ ̶r̶a̶t̶h̶e̶r̶ ̶t̶h̶a̶n̶ ̶l̶o̶c̶a̶l̶h̶o̶s̶t̶:̶8̶0̶9̶0̶ ̶s̶o̶ ̶y̶o̶u̶ ̶c̶a̶n̶ ̶u̶s̶e̶ ̶i̶t̶ ̶o̶n̶ ̶a̶ ̶r̶e̶a̶l̶ ̶T̶V̶ ̶o̶r̶ ̶s̶o̶m̶e̶t̶h̶i̶n̶g̶.̶
 
 - Support other versions of YouTube TV
 

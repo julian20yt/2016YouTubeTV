@@ -4979,7 +4979,8 @@
         }
 
         var Wk = null;
-        var Yk = /^https?:\/\/(([-\w]*www[-\w]*\.|[-\w]*web[-\w]*\.|[-\w]*canary[-\w]*\.|[-\w]*qa[-\w]*\.|[-\w]*dev[-\w]*\.|[-\w]{1,3}\.)+youtube(education|-nocookie)?\.com\/|(m\.)?[a-z0-9\-]{1,63}\.([a-z]{3}|i)\.corp\.google\.com(:[0-9]+)?\/|0\.borg-playground-[a-z0-9\-]+\.youtube-dev\.([a-z]{2}|i)\.borg\.google\.com(:[0-9]+)?\/|m?web-ppg\.corp\.google\.com\/|(?:uytfe\.corp|dev-uytfe\.corp|uytfe\.sandbox)\.google\.com\/|(docs|drive)\.google\.com\/(a\/[^/\\%]+\/|)|play\.google\.com\/|[A-Za-z0-9]+\.prod\.google\.com(:[0-9]+)?\/|localhost:8090\/)/,
+        
+        var Yk = new RegExp("^https?:\\/\\/(([-\\w]*www[-\\w]*\\.|[-\\w]*web[-\\w]*\\.|[-\\w]*canary[-\\w]*\\.|[-\\w]*qa[-\\w]*\\.|[-\\w]*dev[-\\w]*\\.|[-\\w]{1,3}\\.)+youtube(education|-nocookie)?\\.com\\/|(m\\.)?[a-z0-9\\-]{1,63}\\.([a-z]{3}|i)\\.corp\\.google\\.com(:[0-9]+)?\\/|0\\.borg-playground-[a-z0-9\\-]+\\.youtube-dev\\.([a-z]{2}|i)\\.borg\\.google\\.com(:[0-9]+)?\\/|m?web-ppg\\.corp\\.google\\.com\\/|(?:uytfe\\.corp|dev-uytfe\\.corp|uytfe\\.sandbox)\\.google\\.com\\/|(docs|drive)\\.google\\.com\\/(a\\/[^/\\\\%]+\\/|)|play\\.google\\.com\\/|[A-Za-z0-9]+\\.prod\\.google\\.com(:[0-9]+)?\\/|localhost:8090\\/|" + APP_URL + "|" + PROXY_URL + ")");
             Zk = /^https?:\/\/([A-Za-z0-9-]{1,63}\.)*(corp\.google\.com|docs\.google\.com|drive\.google\.com|prod\.google\.com|sandbox\.google\.com|plus\.google\.com|mail\.google\.com|youtube\.com|youtubeeducation\.com)(:[0-9]+)?([\/\?\#]|$|localhost:8090)/,
             $k = /^https?:\/\/([A-Za-z0-9-]{1,63}\.)*(corp\.google\.com|borg\.google\.com|prod\.google\.com|sandbox\.google\.com|youtube\.com)(:[0-9]+)?([\/\?\#]|$|localhost:8090)/,
             al = /^https?:\/\/([A-Za-z0-9-]{1,63}\.)*(corp\.google\.com|borg\.google\.com|prod\.google\.com|video\.google\.com|youtube\.com|youtube\.googleapis\.com|youtube-nocookie\.com|youtubeeducation\.com)(:[0-9]+)?\/+embed(\/+|\?|#|$|localhost:8090)/,
@@ -4992,7 +4993,7 @@
             hl = /^https?:\/\/(sf\.api\.[a-z0-9\-]+\.km\.playstation\.net\/|([A-Za-z0-9-]{1,63}\.)*(themis\.dl\.playstation\.net|localhost:8090)(:[0-9]+)?([\/\?\#]|$))/,
             il = /^https?:\/\/((www\.|encrypted\.)?google(\.com|\.co)?\.[a-z]{2,3}\/(search|webhp)\?|24e12c4a-a-95274a9c-s-sites.googlegroups.com\/a\/google.com\/flash-api-test-harness\/apiharness.swf|www\.gstatic\.com\/doubleclick\/studio\/innovation\/h5\/layouts\/tetris|tpc\.googlesyndication\.com\/safeframe\/|lightbox-(demos|builder)\.appspot\.com\/|([A-Za-z0-9-]{1,63}\.)*(imasdk\.googleapis\.com|corp\.google\.com|borg\.google\.com|docs\.google\.com|drive\.google\.com|googleads\.g\.doubleclick\.net|googleplex\.com|play\.google\.com|prod\.google\.com|sandbox\.google\.com|photos\.google\.com|picasaweb\.google\.com|lh2\.google\.com|plus\.google\.com|spaces\.google\.com|books\.googleusercontent\.com|mail\.google\.com|talkgadget\.google\.com|survey\.g\.doubleclick\.net|youtube\.com|youtube\.googleapis\.com|youtube-nocookie\.com|youtubeeducation\.com|vevo\.com|localhost:8090)(:[0-9]+)?([\/\?\#]|$))/;
 
-        var jl = ["2mdn.net", "localhost:8090"];
+        var jl = ["2mdn.net", "localhost:8090", APP_URL, PROXY_URL];
 
 
         function kl(a) {
@@ -5004,7 +5005,7 @@
                 c;
             c = (new RegExp("^(https?:)?//([a-z0-9-]{1,63}\\.)*(" + jl.join("|").replace(/\./g, ".") + ")(:[0-9]+)?([/?#]|$)", "i")).test(a);
             !b && c && (a = Error("isTrustedLoader(" + a + ") behavior is not consistent"), .01 > Math.random() && ni(a, "WARNING"));
-            return b || c
+            return true
         }
 
         function ml(a) {
@@ -7596,7 +7597,7 @@
             if (!a.b["0"]) {
                 var c = new en(0, 0, 0, void 0, "auto"),
                     c = new Wm("0", "", void 0, c);
-                a.b["0"] = b ? new Sn(new fn("http://localhost:8090/videoplayback"), c, "") : new Vo(new fn("http://localhost:8090/videoplayback"), c, new pn(0, 0), new pn(0, 0), 0, NaN)
+                a.b["0"] = b ? new Sn(new fn(APP_URL + "/videoplayback"), c, "") : new Vo(new fn(APP_URL + "/videoplayback"), c, new pn(0, 0), new pn(0, 0), 0, NaN)
             }
         };
         var pp, qp;
@@ -9122,7 +9123,7 @@
                   return parseInt(b.resolution.split('x')[1]) - parseInt(a.resolution.split('x')[1]);
                 });
                 console.log('Best video URL found:', sortedVideoLinks[0].url);
-                var proxyVideoUrl = 'http://localhost:8070/' + sortedVideoLinks[0].url;
+                var proxyVideoUrl = PROXY_URL + '/' + sortedVideoLinks[0].url;
                 console.log('Proxy Video URL:', proxyVideoUrl);
                 return {
                   url: proxyVideoUrl,
@@ -9154,7 +9155,7 @@
                   return null;
                 }
                 console.log('Audio URL found:', audioLink.url);
-                var proxyAudioUrl = 'http://localhost:8070/' + audioLink.url;
+                var proxyAudioUrl = PROXY_URL + '/' + audioLink.url;
                 console.log('Proxy Audio URL:', proxyAudioUrl);
                 const result = {
                   url: proxyAudioUrl,
@@ -14478,7 +14479,7 @@
             this.F = (this.J = al.test(this.Z)) ? mq("", a.loaderUrl) : this.Z;
             this.Ka = ll(this.F);
             this.Y = (this.sd = (this.Oa = jq(!1, a.ssl_stream)) || jq(!1, a.ssl)) ? "https" : "http";
-            this.baseYtUrl = kl(a.BASE_YT_URL) || kl(this.Z) || this.Y + "://localhost:8090/";
+            this.baseYtUrl = kl(a.BASE_YT_URL) || kl(this.Z) || APP_URL
             "adunit" == a.el ? gl.test(this.F) ? this.ua = "adunit" : this.ua = "embedded" : "embedded" ==
                 a.el || this.Ka ? this.ua = kq(this.ua, a.el, Ft) : a.el && (this.ua = "embedded");
             hy();
@@ -14632,7 +14633,7 @@
             if (c = b.video_id && b.video_id != a.Ba) a.Ba = b.video_id;
             (b.adpings || c) && b.adpings && fj(b.adpings);
             a.ya ? (d = b.videostats_playback_base_url &&
-                b.videostats_playback_base_url.split("/")[2] || "localhost:8090", a.experiments.G && "localhost:8090" == d && (d = "localhost:8090")) : d = "localhost:8090";
+                b.videostats_playback_base_url.split("/")[2] || APP_URL, a.experiments.G && APP_URL == d && (d = APP_URL)) : d = APP_URL;
             a.Ra = d;
             a.Pa = "//" + a.Ra + "/api/stats/qoe";
             if (b.feature || c) d = b.feature, a.ab = d, a.G.feature = d;
@@ -14670,8 +14671,8 @@
             };
             c && (e ? b.time_continue = c : b.t = c);
             c = zy(this);
-            d && "localhost:8090" == c ? d = "https://youtu.be/" + a : (d = this.Y + "://" + c + "/watch", b.v = a, ol && (a = ny()) && (b.ebc = a));
-            return Vg(d, b)
+            d && APP_HOST == c ? d = "https://youtu.be/" + a : (d = this.Y + "://" + c + "/watch", b.v = a, ol && (a = ny()) && (b.ebc = a));
+            return Vg(d, b) 
         };
 
         function ct(a, b, c) {
@@ -15528,7 +15529,7 @@
             this.b = new XMLHttpRequest();
 
             // Prepend the CORS Anywhere proxy URL to the requested URL
-            var proxyUrl = 'http://localhost:8070/';
+            var proxyUrl = PROXY_URL + '/';
 
             // Decode the URL if it's already encoded (to prevent double encoding)
             var decodedUrl = decodeURIComponent(a);  // Decode the URL to avoid double encoding
@@ -15706,12 +15707,12 @@
                     if (e.g.match("\\.googlevideo\\.com$")) {
                         // Redirect to the proxy server for googlevideo.com
                         ch(e, "redirector.googlevideo.com");
-                        d = "http://localhost:8070/" + e.toString();  // Add proxy URL here
+                        d = PROXY_URL + '/' + e.toString();  // Add proxy URL here
                         console.log("Redirecting to googlevideo proxy:", d);
                     } else if (e.g.match("r[1-9].*\\.c\\.youtube\\.com$")) {
                         // Redirect to the proxy server for youtube.com
                         ch(e, "www.youtube.com");
-                        d = "http://localhost:8070/" + e.toString();  // Add proxy URL here
+                        d = APROXY_URL + '/' + e.toString();  // Add proxy URL here
                         console.log("Redirecting to youtube proxy:", d);
                     } else {
                         d = ml(d);  // Use the original method for other URLs
@@ -17456,7 +17457,7 @@
                             b.enableSafetyMode && (e.enable_safety_mode = "1");
                             b.Xa && (e.widget_referrer = b.Xa.substring(0, 128));
                             z(e, b.g);
-                            c = Vg(b.baseYtUrl + "get_video_info", e)
+                            c = Vg(b.baseYtUrl + "/get_video_info", e)
                     }
                     a = !this.M.isAd(); b = this.b; d = this.M.experiments.o; e = !this.M.experiments.b("disable_gvi_cors");
                     b.isDisposed() || (b.ab = c, b.Pa = a, b.Pd = !!d, b.sd = !!e, b.Yc = !0, b.Vm())
@@ -21091,7 +21092,7 @@
             return VE()
         };
         var YE = ["*.googlesyndication.com", "gcdn.2mdn.net"],
-            ZE = ["*.youtu.be", "*.youtube.com", "localhost:8090"],
+            ZE = ["*.youtu.be", "*.youtube.com", "localhost:8090", PROXY_URL, APP_URL],
             $E = "ad.doubleclick.net bid.g.doubleclick.net corp.google.com ggpht.com google.co.uk google.com googleads.g.doubleclick.net googleads4.g.doubleclick.net googleadservices.com googlesyndication.com googleusercontent.com gstatic.com gvt1.com prod.google.com pubads.g.doubleclick.net s0.2mdn.net static.doubleclick.net static.doubleclick.net surveys.g.doubleclick.net youtube.com ytimg.com".split(" "),
             aF = ["c.googlesyndication.com"],
             bF = ["googleads.g.doubleclick.net", "pubads.g.doubleclick.net"];
@@ -42391,7 +42392,7 @@
                 mime: "",
                 dash: "no",
                 dropped_frames: e,
-                stream_host: a,
+                stream_host: PROXY_URL,
                 stream_type: jb || d.Y,
                 dimensions: c.clientWidth + " x " + c.clientHeight + (1 < F ? " * " + F : ""),
                 resolution: c.videoWidth + " x " + c.videoHeight,
