@@ -3875,35 +3875,32 @@
         };
         Ue.inject = ["baseCollection", "opt_selectedIndex", "opt_length", "opt_outOfRangeItemFactory"];
 
+
         function Ve(title, items, continuation) {
-
             console.log("yap");
-            // Step 1: Wrap the 'items' into an object with the key 'items'
-            const itemList = {
-                items: items // 'items' is wrapped inside 'itemList' for clarity
+        
+            var itemList = {
+                items: items 
             };
-
-            // Step 2: Build the 'shelfRenderer' object with the provided title and items
-            const shelfRendererStructure = {
+        
+            var shelfRendererStructure = {
                 shelfRenderer: {
                     title: {
-                        runs: [{ text: title }] // 'title' becomes the text inside the 'runs' array
+                        runs: [{ text: title }] 
                     },
                     content: {
-                        horizontalListRenderer: itemList // 'itemList' holds the actual list of items
+                        horizontalListRenderer: itemList 
                     }
                 }
             };
 
-            // Step 3: If a continuation token exists, add it to the 'horizontalListRenderer' content
             if (continuation) {
-                itemList.continuations = continuation; // 'continuation' is added as 'continuations' inside 'itemList'
+                itemList.continuations = continuation; 
             }
 
-            // Return the final structured object
             return shelfRendererStructure;
         }
-
+        
 
         function We(a, b, c, e, f, g, k, l, p, r, u, w) {
 
@@ -6000,7 +5997,7 @@
                     src: `url('/assets/${font.file}') format('${font.format}')`
                 });
 
-                const styles = {
+                var styles = {
                     "font-family": font.name
                 };
 
@@ -8009,56 +8006,61 @@
             if (obj && obj.sectionListRenderer) {
                 return obj.sectionListRenderer;
             }
-
+        
             // If the current object is an array, recursively search each item
-            if (Array.isArray(obj)) {
-                for (let i = 0; i < obj.length; i++) {
-                    const result = findSectionListRenderer(obj[i]);
-                    if (result) return result;
-                }
-            }
-
-            // If the current object is an object, recursively search its keys
-            if (typeof obj === 'object') {
-                for (const key in obj) {
-                    if (obj.hasOwnProperty(key)) {
-                        const result = findSectionListRenderer(obj[key]);
-                        if (result) return result;
+            if (Object.prototype.toString.call(obj) === "[object Array]") {
+                for (var i = 0; i < obj.length; i++) {
+                    var result = findSectionListRenderer(obj[i]);
+                    if (result) {
+                        return result;
                     }
                 }
             }
-
+        
+            // If the current object is an object, recursively search its keys
+            if (obj !== null && typeof obj === "object") {
+                for (var key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        var result = findSectionListRenderer(obj[key]);
+                        if (result) {
+                            return result;
+                        }
+                    }
+                }
+            }
+        
             // Return null if "sectionListRenderer" is not found
             return null;
         }
+        
 
         d.YX = function (a, b) {
             // Log initial state
-            console.log("d.YX() called with:", { a, b });
-
-            this.M = !1;
+            console.log("d.YX() called with:", { a: a, b: b });
+        
+            this.M = false;
             this.o = a;
             console.log("Setting this.o to:", a);
-
+        
             this.D.attachChild(this.o.trackingParams);
             console.log("Attached trackingParams:", this.o.trackingParams);
-
+        
             this.za("no-background");
-
+        
             // Get the result of hN and log it
             var c = this.hN(a, b);
             console.log("hN() result:", c);
-
+        
             this.I = c !== this.j;
             console.log("this.I set to:", this.I);
-
+        
             // Check if `this.g` is different from `c`
             if (this.g !== c) {
                 var e = this.g;
-                e.model = null;  // Reset the old model
-                this.g = c;      // Update this.g
-                this.g.model = this.model;  // Assign the current model to the new `this.g`
-
+                e.model = null; // Reset the old model
+                this.g = c; // Update this.g
+                this.g.model = this.model; // Assign the current model to the new `this.g`
+        
                 // Update the DOM if necessary
                 if (e.H !== this.g.H) {
                     console.log("Replacing child:", e.H, "with", this.g.H);
@@ -8073,7 +8075,7 @@
                     }
                 }
             }
-
+        
             // Handle visibility and background logic
             if (this.I) {
                 console.log("Showing this.g and adding header content");
@@ -8085,56 +8087,52 @@
                 }
             } else {
                 console.log("Hiding this.g header content");
-                this.g.qq(!1);
+                this.g.qq(false);
                 this.Ha("has-header-content");
             }
-
+        
             // Process the section list renderer
-            const sectionData = findSectionListRenderer(a) || {};
+            var sectionData = findSectionListRenderer(a) || {};
             console.log("sectionListRenderer data:", sectionData);
-
-
+        
             this.h.Ia(sectionData, b, this.model ? this.model.Lc() : "");
-
+        
             // Handle playlist header renderer
-            const playlistHeader = n("header.playlistHeaderRenderer", a);
+            var playlistHeader = n("header.playlistHeaderRenderer", a);
             console.log("playlistHeaderRenderer data:", playlistHeader);
             this.h.kN(playlistHeader);
-
+        
             // Handle overlay if it exists
-            const overlay = a.overlay;
+            var overlay = a.overlay;
             if (overlay) {
                 console.log("Handling overlay:", overlay);
                 this.jN(overlay);
             }
         };
+        
 
         d.hN = function (a, b) {
-            console.log("d.hN() called with:", { a, b });
-
+            console.log("d.hN() called with:", { a: a, b: b });
+        
             try {
-                // Log the function call and parameters before calling this.rb.f
                 console.log("Calling this.rb.f() with parameters:", { b: b, header: a.header, g: this.g });
+        
+                var result = this.rb.f(b, a.header, this.g);
 
-                // Execute the original logic
-                const result = this.rb.f(b, a.header, this.g);
-
-                // Log the result of this.rb.f
                 console.log("this.rb.f() result:", result);
                 return result;
             } catch (c) {
-                // Log the caught error
                 console.error("Error caught in d.hN:", c);
-
+        
                 if (c instanceof ki) {
                     console.log("Caught ki error, returning this.j");
                     return this.j;
                 }
-
-                // Re-throw the error if it's not an instance of `ki`
+        
                 throw c;
             }
         };
+        
 
         d.Ty = function () {
             this.A.gU(!this.g.Ge());
@@ -22205,19 +22203,15 @@
         };
 
         d.Vx = function () {
-            // Sets this.g to false
             console.log('Network error occurred. Setting this.g to false.');
 
-            // Log the message being sent to this.J
-            const errorMessage = "[[A network error has occurred. Please check your network connection.|Dialog subtitle telling user that a network error has occurred, and asking the user to check their network connection]]";
+            var errorMessage = "[[A network error has occurred. Please check your network connection.|Dialog subtitle telling user that a network error has occurred, and asking the user to check their network connection]]";
             console.log('Calling this.J with error message:', errorMessage);
 
-            // Trigger the J method with the error message
             this.J("error", {
                 message: errorMessage
             });
         };
-
 
         er.inject = "window csiService environment jsloader playerFactoryService timeService".split(" ");
 
@@ -28195,7 +28189,7 @@
             console.log("Input object a:", a);
             
             // Return the transformed object and log it
-            const result = {
+            var result = {
                 name: a.name,
                 screenId: a.id,
                 loungeToken: a.token,
@@ -29080,19 +29074,23 @@
 
 
         function extractValue(path, obj) {
-            const value = path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : null), obj);
-            console.log(`Path: ${path}, Extracted Value:`, value);
+            var keys = path.split('.'); 
+            var value = keys.reduce(function(acc, key) {
+                return (acc && acc[key] !== undefined ? acc[key] : null);
+            }, obj);
+        
+            console.log("Path: " + path + ", Extracted Value:", value);
             return value;
         }
-
+        
         d.zL = function (a) {
             console.log("Received object a:", a);
 
-            const lengthText = a.lengthText;
+            var lengthText = a.lengthText;
 
             console.log("Extracted lengthText:", lengthText);
 
-            const result = lengthText;
+            var result = lengthText;
 
             console.log("Result after passing through this.f:", result);
 
@@ -29102,7 +29100,7 @@
 
 
         d.x_ = function (a) {
-            const videoId = n("videoId", a);
+            var videoId = n("videoId", a);
             console.log("Extracted Video ID:", videoId);
             return videoId;
         };
@@ -29116,14 +29114,14 @@
             console.log("Received object a:", a);
 
             // Extract the viewCountText if it exists
-            const viewCountText = a.views;
+            var viewCountText = a.views;
 
             // Log the extracted viewCountText
             
             console.log("Extracted viewCountText:", viewCountText);
 
             // Process the extracted viewCountText with 'this.f'
-            const result = this.f(viewCountText);
+            var result = this.f(viewCountText);
 
             // Log the final result after passing through 'this.f'
             console.log("Result after passing through this.f:", result);
@@ -29137,13 +29135,13 @@
             console.log("Received object a:", a);
 
             // Extract the 'publishedTimeText' from 'a' if it exists
-            const publishedTimeText = a.publishedTime;
+            var publishedTimeText = a.publishedTime;
 
             // Log the extracted 'publishedTimeText'
             console.log("Extracted publishedTimeText:", publishedTimeText);
 
             // Process the extracted 'publishedTimeText' with 'this.f'
-            const result = this.f(publishedTimeText);
+            var result = this.f(publishedTimeText);
 
             // Log the final result after passing through 'this.f'
             console.log("Result after passing through this.f:", result);
@@ -30387,32 +30385,31 @@
             this.g = a
         }
 
-        const convertViewCount = (viewCount) => {
-
-            const strippedViewCount = viewCount.replace(" views", "").trim();
+        var convertViewCount = function (viewCount) {
+            var strippedViewCount = viewCount.replace(" views", "").trim();
         
-            const regex = /(\d+)([KMB])/i;
-            const match = strippedViewCount.match(regex);
+            var regex = /(\d+)([KMB])/i;
+            var match = strippedViewCount.match(regex);
         
             if (match) {
-                let number = parseInt(match[1], 10);
-                const suffix = match[2].toUpperCase();
- 
+                var number = parseInt(match[1], 10);
+                var suffix = match[2].toUpperCase();
+        
                 switch (suffix) {
-                    case 'K': 
+                    case 'K':
                         number *= 1000;
                         break;
-                    case 'M': 
+                    case 'M':
                         number *= 1000000;
                         break;
-                    case 'B': 
+                    case 'B':
                         number *= 1000000000;
                         break;
                 }
         
                 return number.toLocaleString() + " views";
             }
-
+        
             return viewCount;
         };
         
@@ -36023,7 +36020,43 @@
             a.register("fresh_transport_controls.html", '<div class="fresh-transport-controls">  <div id="storyboard" class="$storyboard" data-hidden-by-default="true"></div>  <div id="fresh-rows-container">    <div class="more-row">      <div id="transport-more-button" class="$button"          data-model="{{moreOptionsButtonModel}}"></div>      <div id="transport-more-options-list" class="$list"          data-hidden-by-default="true"          data-model="{{moreOptionsListModel}}"></div>    </div>    <div class="main-row">      <div id="play-pause-button" class="$toggleButton"          data-model="{{playPauseButtonModel}}"></div>      <div id="player-time-elapsed" class="$elapsed-time"></div>      <div id="progress-bar" class="$progress-bar"></div>      <div class="player-time-total">{{totalTime}}</div>      <div class="live-indicator">[[Live|Label indicating that this is a live video.]]</div>    </div>  </div>  <div class="seeking-icon icon-player-rew"></div></div>');
             a.register("fresh_transport_controls_no_storyboard.html", '<div class="fresh-transport-controls">  <div id="fresh-rows-container">    <div class="more-row">      <div id="transport-more-button" class="$button"          data-model="{{moreOptionsButtonModel}}"></div>      <div id="transport-more-options-list" class="$list"          data-hidden-by-default="true"          data-model="{{moreOptionsListModel}}"></div>    </div>    <div class="main-row">      <div id="play-pause-button" class="$toggleButton"          data-model="{{playPauseButtonModel}}"></div>      <div id="player-time-elapsed" class="$elapsed-time"></div>      <div id="progress-bar" class="$progress-bar"></div>      <div class="player-time-total">{{totalTime}}</div>      <div class="live-indicator">[[Live|Label indicating that this is a live video.]]</div>    </div>  </div>  <div class="seeking-icon icon-player-rew"></div></div>');
             a.register("grid.html", '<div>  <div class="$list" data-catch-mouse-move="{{catchRowMouseMove}}" data-item-factory="{{itemFactory}}" data-is-vertical="false" data-loop="{{loopRows}}" data-consume-events="{{consumeEvents}}" data-rate-limit="{{rateLimit}}"></div></div>');
-            a.register("guide.html", '<div>  <div id="user-info-background">    <div class="user-info-container">      <div id="guide-user-avatar" rebound-style="background-image: url({{userAvatar}})"></div>      <div class="guide-user-text">        <div class="guide-user-name">{{userName}}</div>        <div class="guide-user-unlimited">{{unlimitedStatus}}</div>      </div>    </div>  </div>  <div class="collapsed-guide"></div>  <div class="guide-carousel-background"></div>  <div class="collapsed-guide-icons">    <div class="collapsed-guide-icon icon-guide-what-to-watch"></div>    <div class="collapsed-guide-icon icon-guide-my-subs"></div>    <div class="collapsed-guide-icon icon-popular"></div>    <div class="collapsed-guide-icon icon-music"></div>    <div class="collapsed-guide-icon icon-ellipsis"></div>  </div>  <div id="error-message">[[Sorry, the rest of this Guide isn\u2019t available right now.|An error message displayed when the guide cannot be fully displayed.]]</div></div>');a.register("guide_button.html", '<div>  <div class="guide-button-icon {{model.iconClass}}">    <div class="$image" data-image-url="{{model.iconUrl}}"></div>  </div>  <div class="guide-button-title">{{model.label}}</div></div>');
+            a.register("guide.html", `
+            <div>
+                <div id="user-info-background">
+                <div class="user-info-container">
+                    <div id="guide-user-avatar" rebound-style="background-image: url({{userAvatar}})"></div>
+                    <div class="guide-user-text">
+                    <div class="guide-user-name">{{userName}}</div>
+                    <div class="guide-user-unlimited">{{unlimitedStatus}}</div>
+                    </div>
+                </div>
+                </div>
+                
+                <div class="collapsed-guide"></div>
+                <div class="guide-carousel-background"></div>
+                
+                <div class="collapsed-guide-icons">
+                <div class="collapsed-guide-icon icon-guide-what-to-watch"></div>
+                <div class="collapsed-guide-icon icon-guide-my-subs"></div>
+                <div class="collapsed-guide-icon icon-popular"></div>
+                <div class="collapsed-guide-icon icon-music"></div>
+                <div class="collapsed-guide-icon icon-ellipsis"></div>
+                </div>
+                
+                <div id="error-message">
+                [[Sorry, the rest of this Guide isn’t available right now. | An error message displayed when the guide cannot be fully displayed.]]
+                </div>
+            </div>
+            `);
+            
+            a.register("guide_button.html", `
+            <div>
+                <div class="guide-button-icon {{model.iconClass}}">
+                <div class="$image" data-image-url="{{model.iconUrl}}"></div>
+                </div>
+                <div class="guide-button-title">{{model.label}}</div>
+            </div>
+            `);              
             a.register("guide_button.html", '<div>  <div class="guide-button-icon {{model.iconClass}}">    <div class="$image" data-image-url="{{model.iconUrl}}"></div>  </div>  <div class="guide-button-title">{{model.label}}</div></div>');
             a.register("horizontal_list.html", '<div>  <div class="no-content-message">    <div class="text">{{noContentMessage}}</div>  </div>  <div class="content"></div></div>');
             a.register("icon_button.html", '<div>  <span class="icon {{getIconClass()}}"></span>  <span class="label">{{model.label}}</span></div>');
@@ -36479,7 +36512,7 @@
                 },
                 userAvatar: function (a) {
 
-                    const avatar = a.dr ? a.dr : APP_URL + "/assets/default_pfp.png"; 
+                    var avatar = a.dr ? a.dr : APP_URL + "/assets/default_pfp.png"; 
                 
                     console.log("moron", a); 
                     return avatar;

@@ -191,11 +191,9 @@ app.get('/gen_204', async (req, res) => {
     }
 });
 
-
-app.get('/get_video_info', (req, res) => {
+app.get(/^\/{0,2}get_video_info$/, (req, res) => {
     handleGetVideoInfo(req, res);
 });
-
 
 app.get('/device_204', async (req, res) => {
     try {

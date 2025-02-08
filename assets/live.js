@@ -1,29 +1,11 @@
-var _____WB$wombat$assign$function_____ = function (name) {
-    return (self._wb_wombat && self._wb_wombat.local_init && self._wb_wombat.local_init(name)) || self[name];
-};
-
-if (!self.__WB_pmw) {
-    self.__WB_pmw = function (obj) {
-        this.__WB_source = obj;
-        return this;
-    };
-}
-
-{
-    let window = _____WB$wombat$assign$function_____("window");
-    let self = _____WB$wombat$assign$function_____("self");
-    let document = _____WB$wombat$assign$function_____("document");
-    let location = _____WB$wombat$assign$function_____("location");
-    let top = _____WB$wombat$assign$function_____("top");
-    let parent = _____WB$wombat$assign$function_____("parent");
-    let frames = _____WB$wombat$assign$function_____("frames");
-    let opener = _____WB$wombat$assign$function_____("opener");
-
-    window.labels = { 'default': '8adac3f2' };
 
     (function () {
+
         var b = window.labels;
-        window.jstiming?.load?.tick("ld_s");
+
+        if (window.jstiming && window.jstiming.load) {
+            window.jstiming.load.tick("ld_s");
+        }
 
         var c = window.devjs,
             e = /[?&]debugjs=1/.exec(window.location.href),
@@ -37,7 +19,9 @@ if (!self.__WB_pmw) {
             p = ("Steel" === window.environment.browser || n) && !e && !c,
             q = window.csp_nonce;
 
-        window.label = h || b?.["default"] || "unknown";
+        window.label = h || (b && b["default"]) || "assets";
+
+
         var r = window.appRoot + window.label,
             t,
             u = false,
@@ -97,12 +81,13 @@ if (!self.__WB_pmw) {
 
         window.initializeOrRedirect = function (url) {
             window.jstiming.load.tick("js_r");
-            if (yt?.tv?.initializer) {
+            if (yt && yt.tv && yt.tv.initializer) {
                 yt.tv.initializer(url);
             } else {
                 window.location = "https://web.archive.org/web/20160303220919/http://www.youtube.com/error?src=404";
             }
         };
+        
 
         if (f) {
             window.environment.player_url = e || c
@@ -159,4 +144,3 @@ if (!self.__WB_pmw) {
             };
         }
     })();
-}

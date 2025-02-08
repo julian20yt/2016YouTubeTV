@@ -8877,17 +8877,17 @@
           
                   // Check buffer status (only for video).
                   if (sourceBuffer.buffered.length > 0) {
-                    const currentTime = videoElement.currentTime;
-                    const bufferedEnd = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1);
-                    const bufferedAhead = bufferedEnd - currentTime;
+                    var currentTime = videoElement.currentTime;
+                    var bufferedEnd = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1);
+                    var bufferedAhead = bufferedEnd - currentTime;
                     console.log(`Current buffer: ${bufferedAhead.toFixed(2)} sec ahead`);
           
                     // If buffer is too full, clear old data.
                     if (bufferedAhead >= maxBufferAhead) {
                       if (!sourceBuffer.updating) {
-                        const bufferedStart = sourceBuffer.buffered.start(0);
+                        var bufferedStart = sourceBuffer.buffered.start(0);
                         // Remove data older than (currentTime - removalMargin).
-                        const removalEnd = currentTime - removalMargin;
+                        var removalEnd = currentTime - removalMargin;
                         if (removalEnd > bufferedStart) {
                           console.log(
                             `Buffer is full (${bufferedAhead.toFixed(2)} sec). Removing old data from ${bufferedStart.toFixed(2)} to ${removalEnd.toFixed(2)}.`
@@ -8932,7 +8932,7 @@
                   }
           
                   isLoading = true;
-                  const xhr = new XMLHttpRequest();
+                  var xhr = new XMLHttpRequest();
                   xhr.open('GET', url, true);
                   xhr.setRequestHeader('Range', `bytes=${rangeStart}-${rangeEnd}`);
                   xhr.responseType = 'arraybuffer';
@@ -8940,7 +8940,7 @@
                   xhr.onload = function() {
                     isLoading = false;
                     if (xhr.status >= 200 && xhr.status < 300) {
-                      const data = xhr.response;
+                      var data = xhr.response;
                       console.log(`Segment received: ${rangeStart}-${rangeEnd}`);
                       if (data && data.byteLength > 0) {
                         appendSegment(data, xhr);
@@ -8978,10 +8978,10 @@
                   try {
                     // Optionally remove extra old data (secondary check).
                     if (sourceBuffer.buffered.length > 0 && videoElement) {
-                      const bufferedStart = sourceBuffer.buffered.start(0);
-                      const currentTime = videoElement.currentTime;
+                      var bufferedStart = sourceBuffer.buffered.start(0);
+                      var currentTime = videoElement.currentTime;
                       if (currentTime - bufferedStart > 60) {
-                        const removeEnd = Math.max(currentTime - 30, bufferedStart);
+                        var removeEnd = Math.max(currentTime - 30, bufferedStart);
                         console.log(`Removing extra old buffer from ${bufferedStart.toFixed(2)} to ${removeEnd.toFixed(2)}`);
                         sourceBuffer.remove(bufferedStart, removeEnd);
                         // Will resume appending when updateend fires.
@@ -8992,15 +8992,15 @@
                     console.log(`Segment appended: ${rangeStart}-${rangeEnd}`);
                     rangeStart = rangeEnd + 1;
                     rangeEnd = rangeStart + chunkSize;
-                    const contentRange = xhr.getResponseHeader('Content-Range');
+                    var contentRange = xhr.getResponseHeader('Content-Range');
                     if (contentRange) {
                       totalSize = parseInt(contentRange.split('/')[1], 10);
                     }
-                    let bufferedAhead = 0;
+                    var bufferedAhead = 0;
                     if (sourceBuffer.buffered.length > 0) {
                       bufferedAhead = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1) - videoElement.currentTime;
                     }
-                    const delay = bufferedAhead > (maxBufferAhead / 2) ? 1000 : 100;
+                    var delay = bufferedAhead > (maxBufferAhead / 2) ? 1000 : 100;
                     setTimeout(loadSegment, delay);
                   } catch (e) {
                     console.error("Error appending segment:", e);
@@ -9011,7 +9011,7 @@
                 // Process pending appends when updateend fires.
                 sourceBuffer.addEventListener('updateend', () => {
                   if (pendingAppends.length > 0 && !sourceBuffer.updating) {
-                    const nextAppend = pendingAppends.shift();
+                    var nextAppend = pendingAppends.shift();
                     nextAppend();
                   }
                 });
@@ -9024,8 +9024,8 @@
                     isSeeking = true;
                     pendingAppends = [];
                 
-                    const seekTime = videoElement.currentTime;
-                    const videoDuration = videoElement.duration || 0;
+                    var seekTime = videoElement.currentTime;
+                    var videoDuration = videoElement.duration || 0;
                 
                     if (videoDuration > 0 && totalSize !== Number.MAX_SAFE_INTEGER) {
                     // Calculate the new range based on seek position.
@@ -9038,8 +9038,8 @@
                     // Clear buffer around the seek time to avoid conflicts.
                     if (sourceBuffer.buffered.length > 0) {
                     try {
-                        const clearStart = Math.max(0, seekTime - 10);
-                        const clearEnd = Math.min(seekTime + 30, videoDuration);
+                        var clearStart = Math.max(0, seekTime - 10);
+                        var clearEnd = Math.min(seekTime + 30, videoDuration);
                         console.log(`Clearing buffer from ${clearStart} to ${clearEnd} due to seek.`);
                         sourceBuffer.remove(clearStart, clearEnd);
                 
@@ -9081,9 +9081,9 @@
           
                   setInterval(() => {
                     if (sourceBuffer.buffered.length > 0) {
-                      const currentTime = videoElement.currentTime;
-                      const bufferedEnd = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1);
-                      const bufferedAhead = bufferedEnd - currentTime;
+                      var currentTime = videoElement.currentTime;
+                      var bufferedEnd = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1);
+                      var bufferedAhead = bufferedEnd - currentTime;
                       console.log(`Buffer status: ${bufferedAhead.toFixed(2)} sec ahead`);
                       if (bufferedAhead < minBufferAhead && !isPaused && !isSeeking && !isLoading) {
                         console.log("Buffer running low, triggering load");
@@ -9157,7 +9157,7 @@
                 console.log('Audio URL found:', audioLink.url);
                 var proxyAudioUrl = PROXY_URL + '/' + audioLink.url;
                 console.log('Proxy Audio URL:', proxyAudioUrl);
-                const result = {
+                var result = {
                   url: proxyAudioUrl,
                   mimeType: audioLink.type === 'audio/webm'
                     ? 'audio/webm; codecs="opus"'
@@ -17457,7 +17457,7 @@
                             b.enableSafetyMode && (e.enable_safety_mode = "1");
                             b.Xa && (e.widget_referrer = b.Xa.substring(0, 128));
                             z(e, b.g);
-                            c = Vg(b.baseYtUrl + "get_video_info", e)
+                            c = Vg(b.baseYtUrl + "/get_video_info", e)
                     }
                     a = !this.M.isAd(); b = this.b; d = this.M.experiments.o; e = !this.M.experiments.b("disable_gvi_cors");
                     b.isDisposed() || (b.ab = c, b.Pa = a, b.Pd = !!d, b.sd = !!e, b.Yc = !0, b.Vm())
