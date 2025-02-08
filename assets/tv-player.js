@@ -17457,7 +17457,7 @@
                             b.enableSafetyMode && (e.enable_safety_mode = "1");
                             b.Xa && (e.widget_referrer = b.Xa.substring(0, 128));
                             z(e, b.g);
-                            c = Vg(b.baseYtUrl + "/get_video_info", e)
+                            c = Vg(b.baseYtUrl + "get_video_info", e)
                     }
                     a = !this.M.isAd(); b = this.b; d = this.M.experiments.o; e = !this.M.experiments.b("disable_gvi_cors");
                     b.isDisposed() || (b.ab = c, b.Pa = a, b.Pd = !!d, b.sd = !!e, b.Yc = !0, b.Vm())
