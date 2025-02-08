@@ -135,7 +135,7 @@ async function getYouTubeChannelData(accessToken) {
             context: {
                 client: {
                     clientName: 'TVHTML5',
-                    clientVersion: '7.20240701.16.00',
+                    clientVersion: '7.20250205.16.00',
                     hl: 'en',
                     gl: 'US',
                 }

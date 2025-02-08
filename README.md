@@ -6,7 +6,7 @@ A project to revive the old 2015-2016 YouTubeTV HTML5 Web App.
 
 ## Screenshots
 
-**[Note These Are As Of The 3rd Of February At 2:00 EST, Things Will Have Changed]**
+**[Note These Are As Of The 8th Of February At 1:32 EST, Things Will Have Changed]**
 
 ![Screenshot 1](screenshots/s1.png)
 ![Screenshot 2](screenshots/s2.png)
@@ -40,11 +40,56 @@ cannot help you if you're hiding part of your screen.
 - Do not report an issue if you modified the port or adress you're hosting this on
 , you're on your own if you wanna host it on a different port.
 
-## If You're Going To Host This
+- Be damn well sure you read through this ENTIRE readme, I'll close your issue if you're
+asking for help and I know for a fact you missed something here!
 
-PLEASE disable Oauth, so just delete refrences to it in server.js, why 
-because this is designed for someone to host themeselves and only themeselves
-so I save your token/refresh token in a .json file.
+## Setup
+
+**[Note This Project Isn't Done, So Guide Won't Be Super Great]**
+
+[Make sure you have nodejs, npm, and python3 (version 3.7.something or above!)]
+
+- Step 1: run "git clone https://github.com/erievs/2016YouTubeTV.git"
+
+- Step 2: run "npm install"
+
+- Step 3: if you run into issues with youtube-exec, try running "npm install youtube-dl-exec --save"
+
+- Step 4: if you want to set a custom server adress, such as your local ip adress, run 2016youtubesetup.js (it is in the root of the project), it'll display it for you.
+
+- Step 5: run npm start, and you're done!
+
+[To update just run "git fetch origin master"]
+
+[When I say V, I mean the version of the YouTube App]
+
+## Info On Hosting
+
+In the YouTube TV client scripts (tv-player and app-prod), APP_URL is where it's hosted on assets, apis, and more are
+all there, PROXY_URL is where the CORS-ANYWHERE proxy is hosted on, and APP_HOST is just the hostname.
+
+Settings are in ./back/settings.json!
+
+- serverIp: the sever IP adress you set with the 2016youtubetvsetup.js script! [default: localhost]
+
+- expBrowse: make the server use the wip browse api that fetches from the YouTube server, it is mostly complete! [default: true]
+
+Be careful with your token folder, this has device ids and also has oauth tokens, I had issues when I didn't save it to a json file, luckly had no issues with refreshing so it doesn't save when you refresh. Just don't leak it or anything,
+it should expire anyways.
+
+We Use:
+
+- Port 8090, you maybe to change this without modifications, 
+
+- Port 8070 (this HAS to be a fixed port since it cannot be hosted on the same 8090 port easily, you can change it but you'll need to alter scripts)
+
+## How This Works
+
+- The server is a middleman in bewteen the YouTube TV client and InnerTube, and hosts the TV
+webapp itself. 
+
+- The server translate the new YouTube Data from InnerTube into a format this understands,
+since YouTube stopped giving us V5 data. 
 
 ## Cool Things To Know
 
@@ -77,29 +122,17 @@ YouTube has CORS on their googlevideo links (I forgot which settings) and it wil
 give a CORS error if you try to get it, luckly this exsits so googlevideo links
 are all going to be filtered through port 8070!
 
-## Info On Hosting
-
-In the YouTube TV client scripts (tv-player and app-prod), APP_URL is where it's hosted on assets, apis, and more are
-all there, PROXY_URL is where the CORS-ANYWHERE proxy is hosted on, and APP_HOST is just the hostname.
-
-Settings are in ./back/settings.json!
-
-- serverIp: the sever IP adress you set with the 2016youtubetvsetup.js script! [default: localhost]
-
-- expBrowse: make the server use the wip browse api that fetches from the YouTube server, it is mostly complete! [default: true]
-
-Be careful with your token folder, this has device ids and also has oauth tokens, I had issues when I didn't save it to a json file, luckly had no issues with refreshing so it doesn't save when you refresh. Just don't leak it or anything,
-it should expire anyways.
-
-We Use:
-
-- Port 8090, you maybe to change this without modifications, 
-
-- Port 8070 (this HAS to be a fixed port since it cannot be hosted on the same 8090 port easily, you can change it but you'll need to alter scripts)
-
 ## Supported YouTube TV Clients
 
-We only offically supprort clients which use InnerTube version 5.20150715 as of right now, however it seems like early 2018 and 2017 ones may work. Someone sort of got a 2018 version running apparently!
+We only offically supprort clients which use InnerTube version 5.20150715 as of right now.
+
+Be aware though it does require some patching of the app-prod.js to get it working properly,
+this is due to me having to base off of a InnerTube v6 response as no V5 exsit. 
+
+This **MAY** (and I emphasise MAY) work on "6.20180807" clients without modifying models and some other parts of the app-prod.js.
+
+[Look at and search from a.register("tiles/video_tile.html"), model.durationLabelCustom, and
+customVideoTileKg if you want an understanding of what I had to do to get it to work."]
 
 ## Clients I May Choose To Support In The Future ##
 
@@ -115,27 +148,8 @@ Client V4 (https://web.archive.org/web/20140517113435/https://www.youtube.com/tv
 What Will Never Happen are clients that fully use GDATA, now there's a chance I may support client V4 as that uses 
 innertube for search and stuff, but not fully GDATA ones. Just use YT2009 at that point!
 
-## Setup
+## Progress Report
 
-**[Note This Project Isn't Done, So Guide Won't Be Super Great]**
-
-[Make sure you have nodejs, npm, and python3 (version 3.7.something or above!)]
-
-- Step 1: run "git clone https://github.com/erievs/2016YouTubeTV.git"
-
-- Step 2: run "npm install"
-
-- Step 3: if you run into issues with youtube-exec, try running "npm install youtube-dl-exec --save"
-
-- Step 4: if you want to set a custom server adress, such as your local ip adress, run 2016youtubesetup.js (it is in the root of the project), it'll display it for you.
-
-- Step 5: run npm start, and you're done!
-
-[To update just run "git fetch origin master"]
-
-[When I say V, I mean the version of the YouTube App]
-
-Progress Report
 1. Search - 100% Done
 
     Status: Done.
@@ -178,7 +192,12 @@ Progress Report
     Status: Most of the assets are there, with a few missing sound files and 404 errors that need to be addressed.
     Next Steps: Find the missing assets and add em.
 
-8. Other
+8. Playlists - 20% Done
+
+Status: The api seems to be there but just gotta figure how to format the browse api properly for the client to use em.
+Next Steps: Figure how to format the browse api properly for the client to use em.
+
+9. Other
 
 -̶ ̶G̶e̶t̶ ̶i̶t̶ ̶t̶o̶ ̶l̶o̶a̶d̶ ̶t̶h̶e̶ ̶b̶a̶c̶k̶g̶r̶o̶u̶n̶d̶ ̶o̶n̶ ̶h̶o̶m̶e̶s̶c̶r̶e̶e̶n̶.̶
 

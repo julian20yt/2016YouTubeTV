@@ -32,7 +32,7 @@ async function fetchBrowseData(browseId, authHeader = null) {
         context: {
             client: {
                 clientName: 'TVHTML5',
-                clientVersion: '7.20240701.16.00',
+                clientVersion: '7.20250205.16.00',
                 hl: 'en',
                 gl: 'US',
             }
@@ -60,7 +60,7 @@ async function fetchBrowseData(browseId, authHeader = null) {
             return { error: `YouTube API returned status code ${response.status}` };
         }
 
-        const updatedData = convertToV5(response.data);
+        const updatedData = convertToV5(response.data, browseId);
 
         const logsDir = path.join(__dirname, 'logs');
         if (!fs.existsSync(logsDir)) {
@@ -90,12 +90,24 @@ async function fetchBrowseData(browseId, authHeader = null) {
     }
 }
 
-function convertToV5(data) {
+
+
+function convertToV5(data, browseId) {
     console.log('Received Data:', data);
 
     const sectionListRendererContents = data?.contents?.tvBrowseRenderer?.content?.tvSurfaceContentRenderer?.content?.sectionListRenderer?.contents;
 
     console.log('sectionListRenderer.contents:', sectionListRendererContents);
+
+    
+    // the first result on this causes issues
+
+    if (browseId === "home" || browseId === "FEtopics") {
+        if (Array.isArray(sectionListRendererContents) && sectionListRendererContents.length > 0) {
+            console.log('Removing the first shelfRenderer due to issues...');
+            sectionListRendererContents.shift(); 
+        }
+    }
 
     if (Array.isArray(sectionListRendererContents)) {
         sectionListRendererContents.forEach((item, index) => {
@@ -103,13 +115,13 @@ function convertToV5(data) {
 
             try {
                 if (item && item.shelfRenderer) {
-                    // Extract text from the shelfHeaderRenderer to use as the title text
+
                     const headerText = item.shelfRenderer.headerRenderer?.shelfHeaderRenderer?.avatarLockup?.avatarLockupRenderer?.title?.runs?.[0]?.text || "Trending";
 
                     item.shelfRenderer.title = item.shelfRenderer.title || {
                         runs: [
                             {
-                                text: headerText // Use the extracted text from headerRenderer
+                                text: headerText 
                             }
                         ]
                     };
@@ -136,10 +148,35 @@ function convertToV5(data) {
                                 const metadata = videoItem.tileRenderer.metadata?.tileMetadataRenderer || {};
 
                                 const titleText = metadata.title?.simpleText || "Untitled Video";
-                                const viewCountText = metadata.lines?.[1]?.lineRenderer?.items?.[0]?.lineItemRenderer?.text?.simpleText || "0 views";
-                                const publishedTimeText = metadata.lines?.[1]?.lineRenderer?.items?.[2]?.lineItemRenderer?.text?.simpleText || "Unknown";
-                                const lengthText = videoItem.tileRenderer.metadataBadge?.metadataBadgeRenderer?.label || "0:00";
+                              
+                                const viewCountText = (
+                                    metadata.lines?.[1]?.lineRenderer?.items?.find(item => item.lineItemRenderer?.text?.simpleText?.includes('views'))?.lineItemRenderer?.text?.simpleText ||
+                                    metadata.lines?.[1]?.lineRenderer?.items?.find(item => item.lineItemRenderer?.text?.accessibility?.accessibilityData?.label?.includes('views'))?.lineItemRenderer?.text?.accessibility?.accessibilityData?.label ||
+                                    "0 views"
+                                );
                                 
+                               
+                                const publishedTimeText = (
+                                    metadata.lines?.[1]?.lineRenderer?.items?.find(item => item.lineItemRenderer?.text?.simpleText?.includes('ago'))?.lineItemRenderer?.text?.simpleText ||
+                                    metadata.lines?.[1]?.lineRenderer?.items?.find(item => item.lineItemRenderer?.text?.accessibility?.accessibilityData?.label?.includes('ago'))?.lineItemRenderer?.text?.accessibility?.accessibilityData?.label ||
+                                    "Unknown"
+                                );
+                                
+                                const lengthText = (
+                                    videoItem.tileRenderer.header?.tileHeaderRenderer?.thumbnailOverlays?.[0]?.thumbnailOverlayTimeStatusRenderer?.text?.simpleText ||
+                                    metadata.lines?.[1]?.lineRenderer?.items?.find(item => item.lineItemRenderer?.text?.simpleText?.includes('min'))?.lineItemRenderer?.text?.simpleText ||
+                                    "0:00"
+                                );
+                                
+                                let channelName = "Unknown Channel";
+                                if (metadata.lines && metadata.lines[0] && metadata.lines[0].lineRenderer && metadata.lines[0].lineRenderer.items) {
+                                    const channelInfo = metadata.lines[0].lineRenderer.items.find(item => item.lineItemRenderer?.text?.runs);
+                                    
+                                    if (channelInfo && channelInfo.lineItemRenderer.text.runs[0]?.text) {
+                                        channelName = channelInfo.lineItemRenderer.text.runs[0].text; // Extracting the channel name
+                                    }
+                                }
+
                                 const navigationEndpoint = {
                                     clickTrackingParams: "CCsQlDUYACITCMGSzriaguECFddATAgdB1AO4jILZy10b3BpYy10cnZaD0ZFd2hhdF90b193YXRjaA==",
                                     watchEndpoint: {
@@ -151,18 +188,18 @@ function convertToV5(data) {
                                 const shortBylineText = {
                                     runs: [
                                         {
-                                            text: "The Slow Mo Guys",
+                                            text: channelName, 
                                             navigationEndpoint: {
                                                 clickTrackingParams: "CCsQlDUYACITCMGSzriaguECFddATAgdB1AO4g==",
                                                 browseEndpoint: {
-                                                    browseId: "UCUK0HBIBWgM2c4vsPhkYY4w",
+                                                    browseId: "UCUK0HBIBWgM2c4vsPhkYY4w", 
                                                     canonicalBaseUrl: "/user/theslowmoguys"
                                                 }
                                             }
                                         }
                                     ]
                                 };
-                                
+
                                 videoItem.gridVideoRenderer = {
                                     videoId: videoId,
                                     thumbnail: thumbnail,
@@ -176,6 +213,8 @@ function convertToV5(data) {
                                     navigationEndpoint: navigationEndpoint,
                                     shortBylineText: shortBylineText
                                 };
+
+                                delete videoItem.gridVideoRenderer.tvhtml5Style;
 
                                 delete videoItem.tileRenderer; 
 

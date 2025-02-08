@@ -2569,8 +2569,39 @@
             for (var b = 0, c = this.l.length; b < c; ++b) this.l[b].render(a)
         };
         d.Ta = function (a, b) {
-            if (a.Xb) throw Error("showElementIf changes will be erased by the next component render execution");
-            b ? he(a, "hidden") : fe(a, "hidden")
+            if (a.Xb) {
+                console.log("Error: showElementIf changes will be erased by the next component render execution");
+                throw Error("showElementIf changes will be erased by the next component render execution");
+            }
+            
+            console.log("Condition b:", b);
+            
+            if (b) {
+                console.log("Hiding element:", a);  
+                console.log("Adding 'hidden' class to the element");
+                he(a, "hidden");
+            } else {
+
+                // Some elements have issues hiding with fe! I have no idea why, so we just do it ourselves!
+
+                console.log("Removing 'hidden' class from element:", a);  
+                
+                console.log("Checking element:", a);
+
+                if (a && a.classList) {
+                    if (a.classList.contains('views') || a.classList.contains('age') ||  a.classList.contains('duration')) {
+                        console.log("Removing 'hidden' class from element:", a);
+                        if (a.className.indexOf('hidden') !== -1) {
+                            a.className = a.className.replace('hidden', '').trim(); 
+                        }
+                    } else {
+                        console.log("Hiding element:", a);
+                        fe(a, "hidden");
+                    }
+                }
+                
+            }
+            
         };
         d.rP = function (a, b) {
             if (a.Xb) throw Error("makeElementInvisibleIf changes will be erased by the next component render execution");
@@ -4054,12 +4085,10 @@
                 }
             }
 
-            console.log('Filtered items from IS:', b); // Log the result of IS
+            console.log('Filtered items from IS:', b); 
             return b;
         };
 
-
-        // Function to process the entire dataset
         d.Kv = function (a, b) {
 
             console.log("d.Kv() called with:", { a, b });
@@ -4070,19 +4099,17 @@
             var c = [], e = a.contents, f = [], g, k;
             for (k = 0; k < e.length; ++k) {
                 var p = e[k];
-                // Process subscriptions if applicable
+
                 if (this.W.atomSubscriptions) this.VI(p, b);
 
-                g = ub(p);  // Custom function (undefined here) to classify renderer type
-                console.log('Renderer type:', g); // Log the renderer type
+                g = ub(p);
+                console.log('Renderer type:', g); 
 
-                // Apply certain actions for specific renderer types
                 this.W.bentoRetentionPlayAll && "shelfRenderer" == g && this.PN(p);
 
                 if (["shelfRenderer", "playlistVideoListRenderer", "pivotShelfRenderer", "pivotFooterRenderer", "surveyShelfRenderer"].includes(g)) {
                     c.push(p);
                 } else if ("itemSectionRenderer" == g) {
-                    // Handle item section renderer and its contents
                     g = n("itemSectionRenderer.contents", p);
                     if (g && g.length > 0) {
                         if ("shelfRenderer" == ub(g[0])) {
@@ -4094,27 +4121,23 @@
                 }
             }
 
-            // Apply IS filtering after collecting the contents
             c = this.IS(c);
 
-            // Add continuations if necessary
             if (c.length === 0 && f.length > 0) {
-                c.push(Ve("", f, a.continuations));  // Ve function is undefined here, assuming it handles continuation logic
+                c.push(Ve("", f, a.continuations));  
                 delete a.continuations;
             }
 
-            console.log('Final processed items:', c); // Log the final processed items
+            console.log('Final processed items:', c); 
             return c;
         };
 
-        // VI function modifies data for subscriptions
         d.VI = function (a, b) {
             if ("shelfRenderer" == ub(a) && "FEsubscriptions" == b) {
-                // Move fakeSubsListRenderer to correct location
                 n("shelfRenderer.content.horizontalListRenderer.items.0.gridChannelRenderer", a);
                 a.shelfRenderer.content.fakeSubsListRenderer = a.shelfRenderer.content.horizontalListRenderer;
                 delete a.shelfRenderer.content.horizontalListRenderer;
-                console.log('Updated shelfRenderer with fakeSubsListRenderer:', a); // Log the modified shelfRenderer
+                console.log('Updated shelfRenderer with fakeSubsListRenderer:', a); 
             }
         };
 
@@ -6129,6 +6152,12 @@
             this.f = !1;
             this.wi = this.g = "";
             this.action = q
+        };
+
+
+        function customVideoTileKg() {
+            this.pa = "videoTile";
+            this.channel = {};
         };
 
         function Lg(a) {
@@ -12109,7 +12138,7 @@
                     // If 'this.g.Ea' is falsy, assign 'a' based on conditions
                     console.log('this.g.Ea is falsy. Assigning a based on autoplayVideoRenderer or pivotVideoRenderer.');
                     this.j.Ia(this.h);
-                    a = this.h.zb && n("autoplayVideoRenderer.gridVideoRenderer", this.h.zb) || n("autoplayVideoRenderer.pivotVideoRenderer", this.h.zb);
+                    a = this.h.zb && n("gridVideoRenderer", this.h.zb) || n("autoplayVideoRenderer.pivotVideoRenderer", this.h.zb);
                 }
             }
 
@@ -28931,6 +28960,9 @@
                 c = new Kg(),
                 e = this.x_(a);
 
+            console.log("d.hy a's " + JSON.stringify(a));
+
+
             // Early check: Is the video renderer present?
             if (!e) {
                 b.title = "Not a video renderer.";
@@ -28974,11 +29006,13 @@
             b.videoId = e;
             console.log("Video ID assigned:", b.videoId);
 
-            b.De = this.BL(a);
-            console.log("Metadata (De) set:", b.De);
+            b.viewCountLabel = this.BL(a);
+            console.log("Metadata search (viewCountLabel) set:", b.De);
 
-            b.bm = this.w_(a);
-            console.log("Metadata (bm) set:", b.bm);
+            b.uploadedDateLabel = this.w_(a);
+            console.log("Metadata search (uploadedDateLabel) set:", b.bm);
+
+            b.durationLabel = this.zL(a);     
 
             b.isWatched = !!a.isWatched;
 
@@ -29052,22 +29086,16 @@
         }
 
         d.zL = function (a) {
-            // Log the entire object 'a' to inspect its structure
             console.log("Received object a:", a);
 
-            // Extract the lengthText if it exists
             const lengthText = a.lengthText;
 
-            // Log the extracted lengthText
             console.log("Extracted lengthText:", lengthText);
 
-            // Process the extracted lengthText with 'this.f'
             const result = lengthText;
 
-            // Log the final result after passing through 'this.f'
             console.log("Result after passing through this.f:", result);
 
-            // Return the processed result
             return result;
         };
 
@@ -29091,6 +29119,7 @@
             const viewCountText = a.views;
 
             // Log the extracted viewCountText
+            
             console.log("Extracted viewCountText:", viewCountText);
 
             // Process the extracted viewCountText with 'this.f'
@@ -30161,17 +30190,50 @@
             return a
         }
         pu.inject = ["component", "source", "thumbnailParser", "makeEndpointNavigator"];
-
+      
         function qu(a, b, c) {
+            console.log("Initial parameters:", { a, b, c });
+        
             var e = b["@channelModel"];
-            e || (e = c.f(b), b["@channelModel"] = e);
+            console.log("Existing @channelModel in b:", e);
+        
+            if (!e) {
+                e = c.f(b);
+                console.log("Computed @channelModel:", e);
+                b["@channelModel"] = e;
+            }
+        
             a.model = e;
-            return a
+            
+            console.log("Final a:", a);
+        
+            return a;
         }
-
+        
+        function customBrowseThingy(a, b, c) {
+            console.log("Initial parameters:", { a, b, c });
+        
+            var e = b["@channelModel"];
+            console.log("Existing @channelModel in b:", e);
+        
+            if (!e) {
+                e = c.f(b);
+                console.log("Computed @channelModel:", e);
+                b["@channelModel"] = e;
+            }
+        
+            a.model = e;
+            
+            console.log("Final a:", a);
+        
+            return a;
+        }
+        
 
 
         qu.inject = ["component", "source", "innerTubeChannelParser"];
+
+        customBrowseThingy.inject = ["component", "source", "customInnerTubeVideoParser"];
 
         function ru(a, b, c) {
             var e = b["@playlistModel"];
@@ -30304,6 +30366,7 @@
         function Bu(a) {
             this.g = a
         }
+
         Bu.prototype.f = function (a) {
             var b = new Kg;
             b.id = a.channelId;
@@ -30316,7 +30379,75 @@
             }));
             return b
         };
-        Bu.inject = ["makeEndpointNavigator"];
+
+        Bu.inject = ["makeEndpointNavigator"];Bu
+
+
+        function customBu(a) {
+            this.g = a
+        }
+
+        const convertViewCount = (viewCount) => {
+
+            const strippedViewCount = viewCount.replace(" views", "").trim();
+        
+            const regex = /(\d+)([KMB])/i;
+            const match = strippedViewCount.match(regex);
+        
+            if (match) {
+                let number = parseInt(match[1], 10);
+                const suffix = match[2].toUpperCase();
+ 
+                switch (suffix) {
+                    case 'K': 
+                        number *= 1000;
+                        break;
+                    case 'M': 
+                        number *= 1000000;
+                        break;
+                    case 'B': 
+                        number *= 1000000000;
+                        break;
+                }
+        
+                return number.toLocaleString() + " views";
+            }
+
+            return viewCount;
+        };
+        
+
+        customBu.prototype.f = function (a) {
+
+            var b = new customVideoTileKg;
+
+            b.id = a.channelId;
+
+            b.title = L(a.title);
+
+            b.viewCountLabel = convertViewCount(a.viewCountText.runs[0].text); 
+
+            b.uploadedDateLabel = a.publishedTimeText.runs[0].text; 
+            
+            b.durationLabel = a.lengthText.runs[0].text;          
+
+            b.channel.displayName = a.shortBylineText.runs[0].text;
+
+            var c = n("thumbnail.thumbnails", a);
+
+            c && 0 < c.length && (b.imageUrl = c[c.length - 1].url);
+
+            a.navigationEndpoint && (b.action = this.g({
+                endpoint: a.navigationEndpoint
+            }));
+
+            console.log("customVideoTileKg's b " + JSON.stringify(b))
+
+            
+            return b
+        };
+
+        customBu.inject = ["makeEndpointNavigator"];customBu
 
         function Cu() {
             this.title = this.imageUrl = "";
@@ -30427,7 +30558,7 @@
             c && (c.watchEndpoint || c.watchPlaylistEndpoint) || (c = this.g({
                 playlistId: a.playlistId,
                 opt_clickTrackingParams: a.trackingParams
-            }));
+            }));Kg
             b.action = this.h({
                 endpoint: c
             })
@@ -30440,6 +30571,7 @@
             b.userId && (b.imageUrl = this.l.rJ(b.userId));
             return b
         };
+
         d.u_ = function (a) {
             return n("playlistId", a)
         };
@@ -34861,6 +34993,7 @@
                 history: Ru,
                 inflater: wu,
                 innerTubeChannelParser: Bu,
+                customInnerTubeVideoParser: customBu,
                 fakePlayAllParser: Du,
                 innerTubePlaylistParser: Eu,
                 innerTubeVideoParser: Qt,
@@ -35373,7 +35506,7 @@
                 },
                 compactVideoRenderer: {
                     oa: "videoTile",
-                    Ya: su
+                    Ya: "su"
                 },
                 gridButtonRenderer: {
                     oa: "actionTile",
@@ -35393,7 +35526,8 @@
                 },
                 gridVideoRenderer: {
                     oa: "videoTile",
-                    Ya: qu
+                    Ya: customBrowseThingy
+                    // for homepage
                 },
                 replayVideoRenderer: {
                     oa: "pivot-video-tile",
@@ -35942,7 +36076,39 @@
             a.register("tiles/togglable.html", '<div class="item action-tile">  <div class="content {{model.tileClass}}">    <div class="title">{{model.title}}</div>    <div class="label">{{model.getToggleStatus()}}</div>    <div class="icon large-action-icon {{model.getToggleClass()}}"></div>  </div>  <div class="description">{{model.description}}</div></div>');
             a.register("tiles/topic_tile.html", '<div>  <div class="title">{{title}}</div>  <div class="pointer"></div></div>');
             a.register("tiles/video_tile.html",
-                '<div class="item">  <div class="tile-top">    <div class="video-thumb $image" data-image-url="{{model.imageUrl}}"></div>    <div class="voice-command">{{getSpeechPhrase()}}</div>    <div class="decoration">      <div class="live-badge hidden"></div>      <div class="upcoming-badge hidden"></div>      <div class="is-watched hidden">[[watched|Label applied to video tile to indicate that it has been watched]]</div>      <div class="duration">{{model.durationLabel}}</div>    </div>  </div>  <div class="overlay">    <div class="count">[[<div class="strong">{{model.videoCount}}</div>videos|A label on two lines, for how many videos are in a playlist.|164439332]]</div>    <div class="icon"></div>  </div>  <div class="show-overlay hidden">    <div class="show-text">{{model.showText}}</div>  </div>  <div class="tile-bottom">    <div class="yto-top-badge hidden"></div>    <div class="title">{{model.title}}</div>    <div class="details">      <div class="by">[[by {{model.channel.displayName}}|Label identifying who uploaded the video]]</div>      <div class="views">{{model.viewCountLabel}}</div>      <div class="age">{{model.uploadedDateLabel}}</div>    </div>    <div class="yto-bottom-badge hidden"></div>    <div class="video-metadata-badge-list">      <div class="video-metadata-badge"></div>    </div>  </div></div>');
+                `<div class="item">
+                  <div class="tile-top">
+                    <div class="video-thumb $image" data-image-url="{{model.imageUrl}}"></div>
+                    <div class="voice-command">{{getSpeechPhrase()}}</div>
+                    <div class="decoration">
+                      <div class="live-badge hidden"></div>
+                      <div class="upcoming-badge hidden"></div>
+                      <div class="is-watched hidden">[[watched|Label applied to video tile to indicate that it has been watched]]</div>
+                      <div class="duration">{{model.durationLabelCustom}}</div>
+                    </div>
+                  </div>
+                  <div class="overlay">
+                    <div class="count">[[<div class="strong">{{model.videoCount}}</div>videos|A label on two lines, for how many videos are in a playlist.|164439332]]</div>
+                    <div class="icon"></div>
+                  </div>
+                  <div class="show-overlay hidden">
+                    <div class="show-text">{{model.showText}}</div>
+                  </div>
+                  <div class="tile-bottom">
+                    <div class="yto-top-badge hidden"></div>
+                    <div class="title">{{model.title}}</div>
+                    <div class="details">
+                        <div class="by">[[by {{model.channel.displayName}}|Label identifying who uploaded the video]]</div>
+                        <div class="views">{{model.viewCountLabelCustom}}</div>
+                        <div class="age">{{model.uploadedDateLabelCustom}}</div>
+                    </div>
+                    <div class="yto-bottom-badge hidden"></div>
+                    <div class="video-metadata-badge-list">
+                      <div class="video-metadata-badge"></div>
+                    </div>
+                  </div>
+                </div>`
+              );
             a.register("toasts/device_toast.html", '<div class="toast">  <div class="toast-container">    <div class="toast-icon {{iconClass}}">      <div class="$image" data-image-url="{{model.userAvatarUri}}"></div>    </div>    <div class="toast-msg">{{message}}</div>  </div></div>');
             a.register("toasts/error_toast.html", '<div class="toast error-toast">  <div class="toast-container">    <div class="toast-large-icon icon-settings-term"></div>    <div class="toast-content">      <div class="help-message">{{model.message}}</div>      <div class="help-url">{{model.helpUrl}}</div>    </div>  </div></div>');
             a.register("toasts/survey_thanks_toast.html", '<div class="toast survey-thanks-toast">  <div class="toast-container">[[Thank you|A thank you message to the user for submitting an answer to a survey.]]</div></div>');
@@ -36020,7 +36186,25 @@
                     return a.Pf
                 },
                 "model.viewCountLabel": function (a) {
-                    return a.model.De
+                    return a.model.De 
+                },
+                "model.viewCountLabelCustom": function (a) {
+                    console.log("Inside model.viewCountLabelCustom function, a:", a.model);
+                    return a.model.viewCountLabel 
+                },
+                "model.uploadedDateLabelCustom": function (a) {
+                    console.log("Inside model.uploadedDateLabelCustom function, a:", a.model);
+                    return a.model.uploadedDateLabel 
+                },
+                "model.durationLabelCustom": function (a) {
+                    console.log("Inside model.durationLabelCustom function, a:", a.model);
+                    return a.model.durationLabel
+                },
+                "model.durationLabel": function (a) {
+                    return a.model.ag
+                },
+                "model.uploadedDateLabel": function (a) {
+                    return a.model.bm
                 },
                 "model.overlayText": function (a) {
                     return a.model.Cp
@@ -36112,6 +36296,9 @@
                 },
                 viewCountLabel: function (a) {
                     return a.De
+                },
+                viewCountLabelCustom: function (a) {
+                    return a.viewCountLabel
                 },
                 "model.deviceCount": function (a) {
                     return a.model.Kd

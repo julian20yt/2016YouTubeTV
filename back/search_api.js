@@ -241,16 +241,26 @@ async function handleSearchRequest(req, res) {
         context: {
             client: {
                 clientName: 'TVHTML5',
-                clientVersion: '7.20240701.16.00',
+                clientVersion: '7.20250205.16.00',
                 hl: 'en',
                 gl: 'US',
             }
         }
     };
 
+    const authToken = req.headers['authorization']?.split(' ')[1]; 
+
+    const headers = {
+        'Content-Type': 'application/json',
+    };
+
+    if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+    }
+
     try {
         const response = await axios.post(apiUrl, postData, {
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             params: { key: apiKey }
         });
 
