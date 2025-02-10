@@ -81,7 +81,7 @@
 
         window.initializeOrRedirect = function (url) {
             window.jstiming.load.tick("js_r");
-            if (yt && yt.tv && yt.tv.initializer) {
+            if (yt.tv && yt.tv.initializer) {
                 yt.tv.initializer(url);
             } else {
                 window.location = "https://web.archive.org/web/20160303220919/http://www.youtube.com/error?src=404";
